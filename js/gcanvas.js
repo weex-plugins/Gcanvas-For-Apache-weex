@@ -107,9 +107,9 @@ var GCanvas = {
         config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
         config.push(GSupport.clearColor);
         config.push(GSupport.sameLevel);
-        GBridge.callEnable(ref,config,function(e){
+        GBridge.callEnable(ref,config,function(e){});
 
-        });
+        
 
         //get device
         GBridge.getDeviceInfo(function(e){//这里是异步操作
@@ -176,6 +176,17 @@ var GCanvas = {
     disable: function(){
         GLog.d('gcanvas#disable=====>>>');
         GBridge.callDisable();
+    },
+
+    setHiQuality: function(quality){
+        GLog.d('gcanvas#setHiQuality=====>>>' + quality);
+        GBridge.setHiQuality(quality);
+
+    },
+
+    setLogLevel:function(level){
+        GLog.d('gcanvas#setLogLevel=====>>> ' + level);
+        GBridge.setLogLevel(level);
     }
 };
 

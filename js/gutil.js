@@ -17,16 +17,17 @@ var GBridge = {
             return;
         }
         GLog.d('bridge#callRender() commands is ' + commands);
-        canvasModule.render({commands: [commands]});
+        canvasModule.render([commands]);
     },
 
     /**预加载图片*/
-    preLoadImage: function (commands) {
+    preLoadImage: function (src, cb) {
         if (!inWeex) {
             return;
         }
-        GLog.d('bridge#preLoadImage() commands is ' + commands);
-        canvasModule.preLoadImage({commands: commands}, function (e) {
+        GLog.d('bridge#preLoadImage() image url is ' + src);
+        canvasModule.preLoadImage(src, function (e) {
+            cb && cb(e);
         });
     },
 
@@ -51,7 +52,7 @@ var GBridge = {
 
 
     /**
-     * 获取canvas引用
+     * 释放gcanvas引擎
      * @param ref wx-canvas 引用
      * @param configArray 配置参数
      **/
@@ -93,7 +94,7 @@ var GBridge = {
             return;
         }
         GLog.d('bridge#setContextType(): context type is ' + context_type);
-        canvasModule.setContextType({type:context_type});
+        canvasModule.setContextType(context_type);
     },
 
     /**
@@ -104,7 +105,18 @@ var GBridge = {
      * */
     setLogLevel: function (level){
         GLog.d('bridge#setLogLevel(): native logLevel ' + level);
-        canvasModule.setLogLevel({level:level});
+        canvasModule.setLogLevel(level);
+    },
+
+    /**
+     *
+     * 设置opengl渲染质量
+     *
+     * @param context_type 0代表2d,1代表3d
+     * */
+    setHiQuality: function (quality){
+        GLog.d('bridge#setHiQuality(): quality: ' + quality);
+        canvasModule.setHiQuality(quality);
     }
 };
 

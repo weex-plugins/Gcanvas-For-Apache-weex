@@ -2,7 +2,7 @@
 //  WXGCanvasModule.h
 //  Pods
 //
-//  Created by 兵长 on 16/8/16.
+//  Created by Alibaba on 16/8/16.
 //
 //
 
