@@ -37,6 +37,8 @@ WX_EXPORT_METHOD(@selector(disable:callback:));
 WX_EXPORT_METHOD(@selector(render:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:));
+WX_EXPORT_METHOD(@selector(setLogLevel:));
+
 
 - (void)dealloc
 {
@@ -61,7 +63,7 @@ WX_EXPORT_METHOD(@selector(setContextType:));
     
     self.componentRel = args[@"componentId"];//由于component的初始化可能比module慢，所以只在第一次使用时在对component进行初始化处理
     self.gcanvasPlugin = [[GCanvasPlugin alloc] init];
-  
+    
     self.execCommandRetryCount = 0;
     
     callback(@{@"result":@"success"});
@@ -73,7 +75,7 @@ WX_EXPORT_METHOD(@selector(setContextType:));
     callback(@{@"result":@"success"});
 }
 
-- (void)render:(NSDictionary *)commands
+- (void)render:(NSArray *)commands
 {
     GCVLOG_METHOD(@"commands=%@, gcanvasComponent=%@", commands, self.gcanvasComponent);
     [self.gcanvasPlugin addCommands:commands];
@@ -81,31 +83,54 @@ WX_EXPORT_METHOD(@selector(setContextType:));
 }
 
 //预加载image，便于后续渲染时可以同步执行
-- (void)preLoadImage:(NSDictionary *)args callback:(WXModuleCallback)callback
+- (void)preLoadImage:(NSString *)src callback:(WXModuleCallback)callback
 {
     GCVLOG_METHOD(@" PreLoadImage start...");
     
     [GCVCommon sharedInstance].imageLoader = self;
-    [[GCVCommon sharedInstance] addPreLoadImage:args[@"commands"] completion:^(GCVImageCache *imageCache) {
+    [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
         if (!imageCache)
         {
             callback(@{});
             return;
         }
-        CGSize size = imageCache.image.size;
-        callback(@{@"width":@(size.width), @"height":@(size.height)});
+        CGImageRef cgimageRef = imageCache.image.CGImage;
+        CGFloat width = CGImageGetWidth(cgimageRef);
+        CGFloat height = CGImageGetHeight(cgimageRef);
+        callback(@{@"width":@(width), @"height":@(height)});
+        
+//        GLuint tid = imageCache.textureId;
+//        if (tid == 0) {
+//            tid = [GCVCommon bindTexture:imageCache.image];
+//            imageCache.textureId = tid;
+//            [self.gcanvasPlugin addTextureId:tid withAppId:tid width:width height:height];
+//        }
+//        
+//        callback(@{@"width":@(width), @"height":@(height), @"textureId":@(tid)});
+        
+//        CGSize size = imageCache.image.size;
+//        CGFloat scale = [UIScreen mainScreen].nativeScale;
+//        callback(@{@"width":@(size.width*scale), @"height":@(size.height*scale), @"textureId":@(imageCache.textureId)});
+        
+        
+//        [self.gcanvasPlugin execCommands];
     }];
 }
 
 //设置Context类型
-- (void)setContextType:(NSDictionary *)args
+- (void)setContextType:(NSUInteger)type
 {
-    NSUInteger type = [args[@"type"] integerValue];
     if (type == 0) {
         NSLog(@"GCanvas 2D");
     }else{
         NSLog(@"WebGL 3D");
     }
+}
+
+//设置Context类型
+- (void)setLogLevel:(NSUInteger)level
+{
+    
 }
 
 #pragma mark - Private
