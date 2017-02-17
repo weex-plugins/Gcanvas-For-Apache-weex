@@ -13,14 +13,11 @@
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 
-#define MAX_EXEC_COMMAND_RETRY_COUNT    10
-
 @interface WXGCanvasModule()<GLKViewDelegate>
     
 @property (nonatomic, weak) WXGCanvasComponent *gcanvasComponent;
 @property (nonatomic, strong) NSString* componentRel;
 @property (nonatomic, strong) GCanvasPlugin* gcanvasPlugin;
-@property (nonatomic, assign) NSUInteger execCommandRetryCount;
 @property (nonatomic, assign) CGFloat devicePixelRatio;
 @property (nonatomic, assign) BOOL gcanvasInitalized;
 
@@ -42,6 +39,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 
 - (void)dealloc
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[GCVCommon sharedInstance] clearLoadImageDict];
 }
 
@@ -63,8 +61,6 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     
     self.componentRel = args[@"componentId"];//由于component的初始化可能比module慢，所以只在第一次使用时在对component进行初始化处理
     self.gcanvasPlugin = [[GCanvasPlugin alloc] init];
-    
-    self.execCommandRetryCount = 0;
     
     callback(@{@"result":@"success"});
 }
@@ -156,10 +152,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 - (void)execCommand
 {
     GCVLOG_METHOD(@" start... self.gcanvasComponent=%@", self.gcanvasComponent);
-    if (self.gcanvasComponent)
+    if (self.gcanvasComponent.isViewLoaded)
     {
-        self.execCommandRetryCount = 0;
-        
         if ([self.gcanvasComponent isKindOfClass:[WXGCanvasComponent class]])
         {
             GCVLOG_METHOD(@" call glkView display");
@@ -172,11 +166,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     }
     else
     {
-        //启动速度差异，gcanvasComponent可能为空，尝试重试
-        if (self.execCommandRetryCount++ < MAX_EXEC_COMMAND_RETRY_COUNT)
-        {
-            [self performSelector:@selector(execCommand) withObject:nil afterDelay:0.05f];
-        }
+        //gcanvasComponent组件未加载则延迟执行命令
+        [self performSelector:@selector(execCommand) withObject:nil afterDelay:0.05f];
     }
 }
 

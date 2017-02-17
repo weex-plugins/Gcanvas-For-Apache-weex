@@ -29,6 +29,8 @@ var GContext2D = require('./gcontext2d');
 
 ///////////////////////////////
 var GSupport = {};
+var model_check;
+var version_check;
 GSupport.renderMode = 0;// 0--RENDERMODE_WHEN_DIRTY, 1--RENDERMODE_CONTINUOUSLY
 GSupport.hybridLayerType = -1;// 0--LAYER_TYPE_NONE 1--LAYER_TYPE_SOFTWARE 2--LAYER_TYPE_HARDWARE. change hybrid layer type from LAYER_TYPE_SOFTWARE to unset, avoid block when use html5 audio.
 GSupport.checkType = 0;// 0--all support, 1--white list check
@@ -39,6 +41,7 @@ GSupport.newCanvasMode = false;             //true: GCanvasView in Webview
 GSupport.sameLevel = false; //newCanvasMode = true && true: GCanvasView and Webview is same level;
 GSupport.clearColor = "white";
 GSupport.WHITE_LIST = [
+
     model_check = [
         function(info) {return info.MODEL == 'GT-I9300';},
         function(info) {return info.MODEL == 'GT-I9500';},
