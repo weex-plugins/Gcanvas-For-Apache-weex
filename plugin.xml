@@ -20,7 +20,7 @@
 
 <plugin xmlns="http://www.w3.org/ns/widgets"
     id="weex-gcanvas"
-    version="0.2.2">
+    version="0.2.6">
     <name>weex-gcanvas</name>
     <description></description>
     <license>Apache 2.0</license>
@@ -31,7 +31,7 @@
 
      <!-- ios -->
      <platform name="ios">
-         
+
          <config-file target="config.xml" parent="/*">
              <feature name="WXGCanvasModule">
                  <param name="category" value="module" />
@@ -39,7 +39,7 @@
                  <param name="api" value="gcanvas" />
              </feature>
          </config-file>
-         
+
          <config-file target="config.xml" parent="/*">
              <feature name="WXGCanvasComponent">
                  <param name="category" value="component" />
@@ -47,25 +47,25 @@
                  <param name="api" value="gcanvas" />
              </feature>
          </config-file>
-         
-         
+
+
          <header-file src="native/ios/WXGCanvasComponent.h" />
          <source-file src="native/ios/WXGCanvasComponent.mm" />
          <header-file src="native/ios/WXGCanvasModule.h" />
          <source-file src="native/ios/WXGCanvasModule.m" />
-         
+
          <framework src="ImageIO.framework" />
          <framework src="CoreGraphics.framework" />
          <framework src="CFNetwork.framework" />
          <framework src="Foundation.framework" />
          <framework src="Security.framework" />
          <framework src="GCanvas" type="podspec" spec="" />
-         
+
 
      </platform>
           <!-- android -->
      <platform name="android">
-         
+
          <config-file target="config.xml" parent="/*">
              <feature name="WXGCanvasModule">
                  <param name="category" value="module" />
@@ -73,7 +73,7 @@
                  <param name="api" value="gcanvas" />
              </feature>
          </config-file>
-         
+
          <config-file target="config.xml" parent="/*">
              <feature name="WXGcanvasComponent">
                  <param name="category" value="component" />
@@ -87,11 +87,10 @@
          <source-file src="native/android/GcanvasModule.java" target-dir="src/com/taobao/weex/ui/module" />
 
          <!--<framework src="com.taobao.android:gcanvas_weex_plugin:1.0.0-SNAPSHOT" />-->
-         <framework src="com.taobao.android:gcanvas_library_weex:1.2.3" />
+         <framework src="com.taobao.android:gcanvas_library_weex:1.2.5" />
          <!-- <framework src="GCanvas" type="podspec" spec="" /> -->
 
      </platform>
 
 
 </plugin>
-
