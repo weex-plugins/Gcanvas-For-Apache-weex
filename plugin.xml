@@ -20,7 +20,7 @@
 
 <plugin xmlns="http://www.w3.org/ns/widgets"
     id="weex-gcanvas"
-    version="0.2.7">
+    version="0.2.8">
     <name>weex-gcanvas</name>
     <description></description>
     <license>Apache 2.0</license>
