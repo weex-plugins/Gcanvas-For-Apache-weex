@@ -60,7 +60,7 @@
          <framework src="Foundation.framework" />
          <framework src="Security.framework" />
          <framework src="GCanvas" type="podspec" spec="" />
-
+         <framework src="SDWebImage" type="podspec" spec="" />
 
      </platform>
           <!-- android -->
