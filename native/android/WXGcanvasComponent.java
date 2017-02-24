@@ -4,9 +4,8 @@ package com.alibaba.weex.extend.component;
 import android.content.Context;
 
 import com.taobao.gcanvas.GCanvas;
-import com.taobao.gcanvas.GLog;
 import com.taobao.weex.WXSDKInstance;
-import com.taobao.weex.common.Component;
+import com.taobao.weex.annotation.Component;
 import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.ComponentCreator;
 import com.taobao.weex.ui.component.WXComponent;
@@ -21,10 +20,14 @@ import java.lang.reflect.InvocationTargetException;
 public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
     public static class Creator implements ComponentCreator {
-        @Override
-        public WXComponent createInstance(WXSDKInstance wxsdkInstance, WXDomObject wxDomObject, WXVContainer wxvContainer) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new com.alibaba.weex.extend.component.WXGcanvasComponent(wxsdkInstance, wxDomObject, wxvContainer, false);
+        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            return new WXGcanvasComponent(instance, node, parent, lazy);
         }
+
+        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            return new WXGcanvasComponent(instance, node, parent);
+        }
+
     }
 
 
@@ -36,6 +39,12 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
     public WXGcanvasComponent(WXSDKInstance instance, WXDomObject node,
                               WXVContainer parent, boolean lazy) {
         super(instance, node, parent, lazy);
+    }
+
+
+    public WXGcanvasComponent(WXSDKInstance instance, WXDomObject node,
+                              WXVContainer parent) {
+        super(instance, node, parent);
     }
 
     @Override

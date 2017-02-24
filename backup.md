@@ -6,27 +6,16 @@
 
 ### 快速开始
 
-使用weexpack构建得到你的weex工程
-
-```bash
-weexpack create canvas_demo
-cd canvas_demo
-weexpack platform add android
-```
-
-然后将weex-gcanvas插件添加到你的工程
-
 ``` bash
 weexpack plugin add weex-gcanvas
 ```
-
-另一种添加插件的方式是将本项目clone到本地然后添加到你的工程
-
+你也可以使用本地插件添加，你可以clone 这个项目，然后存放到你本地目录添加
 ``` bash
-weexpack plugin add $LOCAL_PATH/weex-gcanvas
+weexpack plugin add ./weex-plugins/weex-plugin-gcanvas
 ```
+编译得到你的ios或android playground app
 
-编辑你的weex源代码index.we. 保存到工程的src子目录
+编辑你的weex源代码demo.we
 
 ``` we
 
@@ -66,18 +55,13 @@ weexpack plugin add $LOCAL_PATH/weex-gcanvas
     }
   }
 </script>
+
+
 ```
 
-然后使用下列命令运行demo
+使用weex debug demo.we命令打开调试页面，扫码打开demo.we页面
 
-```bash
-weexpack run android
-```
-
-weexpack会自动编译src子目录下的index.we，然后打包到Weex App中，并在App启动时加载它。
-
-
-# 当前支持的canvas API和属性
+# 支持的canvas API和属性
 
 | 用途          | 用法         |   名称  | 支持情况  |
 | ------------ | :-------------:| :-------:|:----------:|
