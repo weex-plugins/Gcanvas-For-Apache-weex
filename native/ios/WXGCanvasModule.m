@@ -13,7 +13,7 @@
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 
-@interface WXGCanvasModule()<GLKViewDelegate>
+@interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
     
 @property (nonatomic, weak) WXGCanvasComponent *gcanvasComponent;
 @property (nonatomic, strong) NSString* componentRel;
