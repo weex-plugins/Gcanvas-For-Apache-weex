@@ -106,7 +106,7 @@ Object.defineProperty(GContext2D.prototype, "fillStyle", {
         else if (value instanceof FillStylePattern) {
             if (value._img instanceof Image) {
                 if (!(value._img.src in this._images)) {
-                    new_image = GCanvas.createImage();
+                    var new_image = GCanvas.createImage();
                     new_image.width = value._img.width;
                     new_image.height = value._img.height;
                     new_image.src = value._img.src;
@@ -124,7 +124,7 @@ Object.defineProperty(GContext2D.prototype, "fillStyle", {
             var command = "D" + value._start_pos._x + "," + value._start_pos._y + ","
                 + value._end_pos._x + "," + value._end_pos._y + "," + value._stop_count;
 
-            for (i = 0; i < value._stop_count; ++i) {
+            for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
@@ -134,7 +134,7 @@ Object.defineProperty(GContext2D.prototype, "fillStyle", {
             var command = "H" + value._start_pos._x + "," + value._start_pos._y + "," + value._start_pos._r + ","
                 + value._end_pos._x + "," + value._end_pos._y + "," + value._end_pos._r + "," + value._stop_count;
 
-            for (i = 0; i < value._stop_count; ++i) {
+            for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
@@ -164,7 +164,7 @@ Object.defineProperty(GContext2D.prototype, "strokeStyle", {
         else if (value instanceof FillStylePattern) {
             if (value._img instanceof Image) {
                 if (!(value._img.src in this._images)) {
-                    new_image = GCanvas.createImage();
+                    var new_image = GCanvas.createImage();
                     new_image.width = value._img.width;
                     new_image.height = value._img.height;
                     new_image.src = value._img.src;
@@ -182,7 +182,7 @@ Object.defineProperty(GContext2D.prototype, "strokeStyle", {
             var command = "D" + value._start_pos._x + "," + value._start_pos._y + ","
                 + value._end_pos._x + "," + value._end_pos._y + "," + value._stop_count;
 
-            for (i = 0; i < value._stop_count; ++i) {
+            for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
@@ -192,7 +192,7 @@ Object.defineProperty(GContext2D.prototype, "strokeStyle", {
             var command = "H" + value._start_pos._x + "," + value._start_pos._y + "," + value._start_pos._r + ","
                 + value._end_pos._x + "," + value._end_pos._y + "," + value._end_pos._r + "," + value._stop_count;
 
-            for (i = 0; i < value._stop_count; ++i) {
+            for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
@@ -287,7 +287,7 @@ Object.defineProperty(GContext2D.prototype, "globalCompositeOperation", {
         // if (this._globalCompositeOperation != value) {
 
         this._globalCompositeOperation = value;
-        mode = 0;
+        var mode = 0;
         switch (value) {
         case "source-over":
             mode = 0;
@@ -345,7 +345,7 @@ Object.defineProperty(GContext2D.prototype, "textAlign", {
     set : function(value) {
         // if (this._textAlign != value) {
         this._textAlign = value;
-        Align = 0;
+        var Align = 0;
         switch (value) {
         case "start":
             Align = 0;

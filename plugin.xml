@@ -20,9 +20,9 @@
 
 <plugin xmlns="http://www.w3.org/ns/widgets"
     id="weex-gcanvas"
-    version="0.2.8">
+    version="0.2.9">
     <name>weex-gcanvas</name>
-    <description></description>
+    <description>一款支持.we页面中canvas标签的weex插件，支持文字渲染，图片加载，图形绘制等canvas常用操作</description>
     <license>Apache 2.0</license>
     <keywords>weex,canvas</keywords>
     <repo>https://*.git</repo>
@@ -60,7 +60,7 @@
          <framework src="Foundation.framework" />
          <framework src="Security.framework" />
          <framework src="GCanvas" type="podspec" spec="" />
-
+         <framework src="SDWebImage" type="podspec" spec="" />
 
      </platform>
           <!-- android -->

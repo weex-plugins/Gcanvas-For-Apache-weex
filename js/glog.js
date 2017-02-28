@@ -1,11 +1,12 @@
 /////////////////////////////////////////////////////////////////
 //GLog
 /////////////////////////////////////////////////////////////////
-GLOG_DEBUG	= 0;
-GLOG_INFO   = 1;
-GLOG_WARN   = 2;
-GLOG_ERROR	= 3;
-GLOG_NULL   = -1;
+var GLOG_DEBUG	= 0;
+var GLOG_INFO   = 1;
+var GLOG_WARN   = 2;
+var GLOG_ERROR	= 3;
+var GLOG_NULL   = -1;
+
 var GLog = {};
 GLog._nullFunc = function(){};
 GLog.d = GLog._nullFunc;
