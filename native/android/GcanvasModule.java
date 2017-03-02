@@ -205,8 +205,6 @@ package com.taobao.weex.ui.module;
 
 import android.app.Activity;
 import android.content.Context;
-//import android.support.annotation.NonNull;
-//import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Display;
 
@@ -220,7 +218,6 @@ import com.taobao.weex.WXSDKManager;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
-import com.taobao.weex.common.WXModuleAnno;
 import com.taobao.weex.ui.component.WXComponent;
 
 import org.json.JSONArray;
@@ -231,6 +228,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import static com.taobao.gcanvas.GCanvas.fastCanvas;
+
+//import android.support.annotation.NonNull;
+//import android.support.annotation.Nullable;
 
 public class GcanvasModule extends WXModule {
 
@@ -251,7 +251,7 @@ public class GcanvasModule extends WXModule {
     public static final String CMD_SET_CONTEXT_TYPE = "setContextType";
     public static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
 
-    //@WXModuleAnno
+
     @JSMethod
     public void disable(String args, JSCallback callBack) {
 
@@ -282,7 +282,6 @@ public class GcanvasModule extends WXModule {
     }
 
 
-    //@WXModuleAnno
     //@JSMethod(uiThread = false)
     @JSMethod
     public void preLoadImage(String args, JSCallback callBack) {
@@ -297,7 +296,6 @@ public class GcanvasModule extends WXModule {
     }
 
 
-    //@WXModuleAnno
     //@JSMethod(uiThread = false)
     @JSMethod
     public void setHiQuality(String args) {
@@ -321,7 +319,7 @@ public class GcanvasModule extends WXModule {
 
     }
 
-    //@WXModuleAnno
+
     @JSMethod
     public void enable(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
@@ -380,7 +378,6 @@ public class GcanvasModule extends WXModule {
     }
 
 
-    //@WXModuleAnno
     @JSMethod
     public void render(String cmd, JSCallback callBack) {
         if (!TextUtils.isEmpty(cmd)) {
@@ -514,7 +511,6 @@ public class GcanvasModule extends WXModule {
     }
 
 
-    //@WXModuleAnno
     @JSMethod
     public void getDeviceInfo(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
@@ -544,7 +540,6 @@ public class GcanvasModule extends WXModule {
     }
 
 
-    //@WXModuleAnno
     @JSMethod
     public void setContextType(String args, JSCallback callBack) {
 
@@ -621,7 +616,7 @@ public class GcanvasModule extends WXModule {
         JSONArray args = GCanvasHelper.argsToJsonArrary("setDevicePixelRatio", "[" + devicePixelRatio + "]");
 
         try {
-            fastCanvas.execute("setDevicePixelRatio", args, null);
+            fastCanvas.executeForWeex("setDevicePixelRatio", args, null);
         } catch (Exception e) {
             GLog.d(TAG, "setDevicePixelRatio Exception: " + e);
         }
@@ -657,12 +652,14 @@ public class GcanvasModule extends WXModule {
 
         WXGCanvasGLSurfaceView view = null;
         if (myComponent == null) {
-            GLog.d(TAG, "myComponent == null sRef: " + (String) sRef);
+            GLog.d(TAG, "checkGCanvasView myComponent == null sRef: " + (String) sRef);
         } else {
-            GLog.d(TAG, "myComponent != null sRef: " + (String) sRef);
+            GLog.d(TAG, "checkGCanvasView myComponent != null sRef: " + (String) sRef);
 
             view = (WXGCanvasGLSurfaceView) myComponent.getHostView();
         }
+
+
 
 
 
@@ -675,9 +672,9 @@ public class GcanvasModule extends WXModule {
         }
 
         if (view == null) {
-            GLog.i(TAG, "view == null sRef: " + view);
+            GLog.i(TAG, "checkGCanvasView view == null sRef: " + view);
         } else {
-            GLog.i(TAG, "view != null sRef: " + view);
+            GLog.i(TAG, "checkGCanvasView view != null sRef: " + view);
         }
 
         if (view2 == null) {
@@ -689,6 +686,7 @@ public class GcanvasModule extends WXModule {
 
 
         if (view != null && fastCanvas.getCanvasView() == null) {
+        //if (view != null) {
             GLog.d(TAG, "fastCanvas.setCanvasView() " + view);
             fastCanvas.setCanvasView(view);
         } else {
@@ -759,7 +757,7 @@ public class GcanvasModule extends WXModule {
 
                     sIdCounter++;
 
-                    fastCanvas.execute("loadTexture", ja, null);
+                    fastCanvas.executeForWeex("loadTexture", ja, null);
                 } catch (Exception e) {
                     GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
                 }
@@ -805,7 +803,7 @@ public class GcanvasModule extends WXModule {
                 //JSONArray args = GCanvasHelper.argsToJsonArrary("setContextType", "[0]");
 
                 JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_CONTEXT_TYPE, "[" + args + "]");
-                fastCanvas.execute(CMD_SET_CONTEXT_TYPE, ja, null);
+                fastCanvas.executeForWeex(CMD_SET_CONTEXT_TYPE, ja, null);
             } catch (Exception e) {
                 GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
             }
@@ -820,7 +818,7 @@ public class GcanvasModule extends WXModule {
             try {
 
                 JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_HIGH_QUALITY, "[" + args + "]");
-                fastCanvas.execute(CMD_SET_HIGH_QUALITY, ja, null);
+                fastCanvas.executeForWeex(CMD_SET_HIGH_QUALITY, ja, null);
             } catch (Exception e) {
                 GLog.e(TAG, "cmd match setHighQuality Exception: " + e);
             }
@@ -834,6 +832,22 @@ public class GcanvasModule extends WXModule {
 
             setDevicePixelRatio();
 
+//
+//            try {
+//
+//
+//                JSONArray ja = GCanvasHelper.argsToJsonArrary("setViewMode", "[weex]");
+//
+//                fastCanvas.executeForWeex("setViewMode", ja, null);
+//
+//            } catch (Exception e) {
+//                GLog.e(TAG, "match setViewMode Exception: " + e);
+//                return;
+//            }
+
+
+            fastCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
+
             try {
 
 
@@ -841,12 +855,12 @@ public class GcanvasModule extends WXModule {
 
                 JSONArray ja = GCanvasHelper.argsToJsonArrary("enable", jo.get("config").toString());
 
-                fastCanvas.execute(CMD_ENABLE, ja, null);
+                fastCanvas.executeForWeex(CMD_ENABLE, ja, null);
 
                 //JSONArray args12 = GCanvasHelper.argsToJsonArrary("setPosition", "[0,0,906,1080]");
 
                 //JSONArray args15 = GCanvasHelper.argsToJsonArrary("setOrtho", "[1280,1920]");
-                //fastCanvas.execute("setOrtho", args15, null);
+                //fastCanvas.executeForWeex("setOrtho", args15, null);
 
             } catch (Exception e) {
                 GLog.e(TAG, "match enable Exception: " + e);
@@ -885,7 +899,7 @@ public class GcanvasModule extends WXModule {
 
             try {
 
-                fastCanvas.execute(CMD_RENDER, ja, null);
+                fastCanvas.executeForWeex(CMD_RENDER, ja, null);
             } catch (Exception e) {
                 GLog.d(TAG, "match render exp: " + e);
                 return;
