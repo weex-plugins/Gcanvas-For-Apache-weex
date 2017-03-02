@@ -87,7 +87,7 @@
          <source-file src="native/android/GcanvasModule.java" target-dir="src/com/taobao/weex/ui/module" />
 
          <!--<framework src="com.taobao.android:gcanvas_weex_plugin:1.0.0-SNAPSHOT" />-->
-         <framework src="com.taobao.android.gcanvas:gcanvas_library:1.4.2.25" />
+         <framework src="com.taobao.android.gcanvas:gcanvas_library:1.4.2.25@aar“ />
          <!-- <framework src="GCanvas" type="podspec" spec="" /> -->
 
      </platform>
