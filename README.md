@@ -131,3 +131,17 @@ weexpack会自动编译src子目录下的index.we，然后打包到Weex App中�
 | 其他 | 方法   | loadTexture() | 新增 |
 | 其他 | 方法   | putImageData() | 覆盖 |
 
+### Changelog
+
+0.3.2
+修订JS代码中的一个小错误
+com.taobao.android:weex_sdk:0.10.1.6 测试通过
+
+0.3.1
+fix typo, com.taobao.android:weex_sdk:0.10.0 测试通过
+
+0.3.0
+适配com.taobao.android:weex_sdk:0.10.0 测试通过
+
+0.2.9
+适配 weex sdk 0.10
