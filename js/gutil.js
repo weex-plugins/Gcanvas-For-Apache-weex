@@ -13,7 +13,7 @@ __weex_define__('@weex-temp/x', function (__weex_require__) {
 });
 */
 
-canvasModule=typeof weex!=='undefined'?weex.requireModule('gcanvas'):__weex_require__('@weex-module/gcanvas');
+canvasModule=typeof weex!=='undefined'&&weex.requireModule?weex.requireModule('gcanvas'):__weex_require__('@weex-module/gcanvas'); 
 
 var GBridge = {
     /**执行render指令*/
