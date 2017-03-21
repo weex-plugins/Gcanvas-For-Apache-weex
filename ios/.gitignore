@@ -1,0 +1,4 @@
+ios/Pods/*
+ios/Pods/
+WeexActionSheet.xcodeproj/xcuserdata/
+WeexActionSheet.xcodeproj/project.xcworkspace/xcuserdata/
