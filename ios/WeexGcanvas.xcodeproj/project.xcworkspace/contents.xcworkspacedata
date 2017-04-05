@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Users/jerry/workspace/pm/github/plugins/weex-plugin-gcanvas/ios/WeexGcanvas.xcodeproj">
+      location = "self:WeexGcanvas.xcodeproj">
    </FileRef>
 </Workspace>

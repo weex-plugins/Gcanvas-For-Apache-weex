@@ -7,186 +7,165 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C431393D1E9506D2008B80D0 /* WXGCanvasComponent.mm in Sources */ = {isa = PBXBuildFile; fileRef = C43139391E9506D2008B80D0 /* WXGCanvasComponent.mm */; };
-		C431393E1E9506D2008B80D0 /* WXGCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C431393A1E9506D2008B80D0 /* WXGCanvasModule.m */; };
-		C431393F1E9506D2008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C431393B1E9506D2008B80D0 /* WXGCanvasComponent.h */; };
-		C43139401E9506D2008B80D0 /* WXGCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */; };
-		C45843F01E84EF7B00D88C0B /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C45843EF1E84EF7B00D88C0B /* Info.plist */; };
-		FA1B6A81BEEB227E6A82958F /* libPods-WeexGcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 29447B52241382AF0EE6164E /* libPods-WeexGcanvas.a */; };
+		655B4A770EBD94AB5DEC3273 /* libPods-WeexGcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1145B86728E853A9E8A0ED /* libPods-WeexGcanvas.a */; };
+		C431395C1E954ACB008B80D0 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C43139561E954ACB008B80D0 /* Info.plist */; };
+		C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */; };
+		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.mm in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */; };
+		C431395F1E954ACB008B80D0 /* WXGCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */; };
+		C43139601E954ACB008B80D0 /* WXGCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0F1C92092FF9562A4B475501 /* Pods-WeexPluginGcanvas.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexPluginGcanvas.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeexPluginGcanvas/Pods-WeexPluginGcanvas.debug.xcconfig"; sourceTree = "<group>"; };
-		29447B52241382AF0EE6164E /* libPods-WeexGcanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeexGcanvas.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		45CF2742D634C07B9FCFB284 /* libPods-WeexPluginGcanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeexPluginGcanvas.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		87F9AEB97654FF7EEA032F16 /* Pods-WeexPluginGcanvas.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexPluginGcanvas.release.xcconfig"; path = "Pods/Target Support Files/Pods-WeexPluginGcanvas/Pods-WeexPluginGcanvas.release.xcconfig"; sourceTree = "<group>"; };
-		97AEE356AC7A6493A8BE3720 /* Pods-WeexGcanvas.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.debug.xcconfig"; sourceTree = "<group>"; };
-		A51083D0FC7AD7C21BC9C799 /* Pods-WeexGcanvas.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.release.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.release.xcconfig"; sourceTree = "<group>"; };
-		C43139391E9506D2008B80D0 /* WXGCanvasComponent.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WXGCanvasComponent.mm; sourceTree = "<group>"; };
-		C431393A1E9506D2008B80D0 /* WXGCanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXGCanvasModule.m; sourceTree = "<group>"; };
-		C431393B1E9506D2008B80D0 /* WXGCanvasComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasComponent.h; sourceTree = "<group>"; };
-		C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasModule.h; sourceTree = "<group>"; };
-		C45843E41E84EF5B00D88C0B /* WeexGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		C45843EF1E84EF7B00D88C0B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		4F1145B86728E853A9E8A0ED /* libPods-WeexGcanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeexGcanvas.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		7222E97A9E0BDD5D4BA6A21E /* Pods-WeexGcanvas.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.debug.xcconfig"; sourceTree = "<group>"; };
+		912A6A653FE8C3267A392A2F /* Pods-WeexGcanvas.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.release.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.release.xcconfig"; sourceTree = "<group>"; };
+		C431394B1E954AA8008B80D0 /* WeexGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C43139561E954ACB008B80D0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasComponent.h; sourceTree = "<group>"; };
+		C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WXGCanvasComponent.mm; sourceTree = "<group>"; };
+		C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasModule.h; sourceTree = "<group>"; };
+		C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXGCanvasModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C45843E01E84EF5B00D88C0B /* Frameworks */ = {
+		C43139471E954AA8008B80D0 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA1B6A81BEEB227E6A82958F /* libPods-WeexGcanvas.a in Frameworks */,
+				655B4A770EBD94AB5DEC3273 /* libPods-WeexGcanvas.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		248CB2E7B700A3049EE0727E /* Frameworks */ = {
+		9CCEC35719F2C76245E693D5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				45CF2742D634C07B9FCFB284 /* libPods-WeexPluginGcanvas.a */,
-				29447B52241382AF0EE6164E /* libPods-WeexGcanvas.a */,
+				7222E97A9E0BDD5D4BA6A21E /* Pods-WeexGcanvas.debug.xcconfig */,
+				912A6A653FE8C3267A392A2F /* Pods-WeexGcanvas.release.xcconfig */,
 			);
-			name = Frameworks;
+			name = Pods;
 			sourceTree = "<group>";
 		};
-		C45843DA1E84EF5B00D88C0B = {
+		C43139411E954AA8008B80D0 = {
 			isa = PBXGroup;
 			children = (
-				C45843F11E84F39000D88C0B /* Sources */,
-				C45843EF1E84EF7B00D88C0B /* Info.plist */,
-				C45843E51E84EF5B00D88C0B /* Products */,
-				DCA0321F3AC057FF2A8C84CB /* Pods */,
-				248CB2E7B700A3049EE0727E /* Frameworks */,
+				C43139561E954ACB008B80D0 /* Info.plist */,
+				C43139571E954ACB008B80D0 /* Sources */,
+				C431394C1E954AA8008B80D0 /* Products */,
+				9CCEC35719F2C76245E693D5 /* Pods */,
+				EC99DF3D825954C35FF1B28F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
-		C45843E51E84EF5B00D88C0B /* Products */ = {
+		C431394C1E954AA8008B80D0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C45843E41E84EF5B00D88C0B /* WeexGcanvas.framework */,
+				C431394B1E954AA8008B80D0 /* WeexGcanvas.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		C45843F11E84F39000D88C0B /* Sources */ = {
+		C43139571E954ACB008B80D0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				C43139391E9506D2008B80D0 /* WXGCanvasComponent.mm */,
-				C431393A1E9506D2008B80D0 /* WXGCanvasModule.m */,
-				C431393B1E9506D2008B80D0 /* WXGCanvasComponent.h */,
-				C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */,
+				C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */,
+				C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */,
+				C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */,
+				C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		DCA0321F3AC057FF2A8C84CB /* Pods */ = {
+		EC99DF3D825954C35FF1B28F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				0F1C92092FF9562A4B475501 /* Pods-WeexPluginGcanvas.debug.xcconfig */,
-				87F9AEB97654FF7EEA032F16 /* Pods-WeexPluginGcanvas.release.xcconfig */,
-				97AEE356AC7A6493A8BE3720 /* Pods-WeexGcanvas.debug.xcconfig */,
-				A51083D0FC7AD7C21BC9C799 /* Pods-WeexGcanvas.release.xcconfig */,
+				4F1145B86728E853A9E8A0ED /* libPods-WeexGcanvas.a */,
 			);
-			name = Pods;
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		C45843E11E84EF5B00D88C0B /* Headers */ = {
+		C43139481E954AA8008B80D0 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C43139401E9506D2008B80D0 /* WXGCanvasModule.h in Headers */,
-				C431393F1E9506D2008B80D0 /* WXGCanvasComponent.h in Headers */,
+				C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */,
+				C431395F1E954ACB008B80D0 /* WXGCanvasModule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		C45843E31E84EF5B00D88C0B /* WeexGcanvas */ = {
+		C431394A1E954AA8008B80D0 /* WeexGcanvas */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C45843EC1E84EF5C00D88C0B /* Build configuration list for PBXNativeTarget "WeexGcanvas" */;
+			buildConfigurationList = C43139531E954AA8008B80D0 /* Build configuration list for PBXNativeTarget "WeexGcanvas" */;
 			buildPhases = (
-				632ACA55BC2204B1168D1E27 /* [CP] Check Pods Manifest.lock */,
-				C45843DF1E84EF5B00D88C0B /* Sources */,
-				C45843E01E84EF5B00D88C0B /* Frameworks */,
-				C45843E11E84EF5B00D88C0B /* Headers */,
-				C45843E21E84EF5B00D88C0B /* Resources */,
-				8B6B89C622DB376DDACE93D8 /* [CP] Copy Pods Resources */,
+				FC9116878B00DA9884F74AC5 /* [CP] Check Pods Manifest.lock */,
+				C43139461E954AA8008B80D0 /* Sources */,
+				C43139471E954AA8008B80D0 /* Frameworks */,
+				C43139481E954AA8008B80D0 /* Headers */,
+				C43139491E954AA8008B80D0 /* Resources */,
+				77ADC76829851BA0A298A2EF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = WeexGcanvas;
-			productName = WeexPluginGcanvas;
-			productReference = C45843E41E84EF5B00D88C0B /* WeexGcanvas.framework */;
+			productName = WeexGcanvas;
+			productReference = C431394B1E954AA8008B80D0 /* WeexGcanvas.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		C45843DB1E84EF5B00D88C0B /* Project object */ = {
+		C43139421E954AA8008B80D0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0820;
 				ORGANIZATIONNAME = weexplugin;
 				TargetAttributes = {
-					C45843E31E84EF5B00D88C0B = {
+					C431394A1E954AA8008B80D0 = {
 						CreatedOnToolsVersion = 8.2;
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = C45843DE1E84EF5B00D88C0B /* Build configuration list for PBXProject "WeexGcanvas" */;
+			buildConfigurationList = C43139451E954AA8008B80D0 /* Build configuration list for PBXProject "WeexGcanvas" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 			);
-			mainGroup = C45843DA1E84EF5B00D88C0B;
-			productRefGroup = C45843E51E84EF5B00D88C0B /* Products */;
+			mainGroup = C43139411E954AA8008B80D0;
+			productRefGroup = C431394C1E954AA8008B80D0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C45843E31E84EF5B00D88C0B /* WeexGcanvas */,
+				C431394A1E954AA8008B80D0 /* WeexGcanvas */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		C45843E21E84EF5B00D88C0B /* Resources */ = {
+		C43139491E954AA8008B80D0 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C45843F01E84EF7B00D88C0B /* Info.plist in Resources */,
+				C431395C1E954ACB008B80D0 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		632ACA55BC2204B1168D1E27 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
-			showEnvVarsInLog = 0;
-		};
-		8B6B89C622DB376DDACE93D8 /* [CP] Copy Pods Resources */ = {
+		77ADC76829851BA0A298A2EF /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -201,22 +180,37 @@
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		FC9116878B00DA9884F74AC5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		C45843DF1E84EF5B00D88C0B /* Sources */ = {
+		C43139461E954AA8008B80D0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C431393D1E9506D2008B80D0 /* WXGCanvasComponent.mm in Sources */,
-				C431393E1E9506D2008B80D0 /* WXGCanvasModule.m in Sources */,
+				C43139601E954ACB008B80D0 /* WXGCanvasModule.m in Sources */,
+				C431395E1E954ACB008B80D0 /* WXGCanvasComponent.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		C45843EA1E84EF5C00D88C0B /* Debug */ = {
+		C43139511E954AA8008B80D0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -257,7 +251,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -267,7 +261,7 @@
 			};
 			name = Debug;
 		};
-		C45843EB1E84EF5C00D88C0B /* Release */ = {
+		C43139521E954AA8008B80D0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -302,7 +296,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -312,9 +306,9 @@
 			};
 			name = Release;
 		};
-		C45843ED1E84EF5C00D88C0B /* Debug */ = {
+		C43139541E954AA8008B80D0 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 97AEE356AC7A6493A8BE3720 /* Pods-WeexGcanvas.debug.xcconfig */;
+			baseConfigurationReference = 7222E97A9E0BDD5D4BA6A21E /* Pods-WeexGcanvas.debug.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "";
@@ -324,22 +318,17 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MACH_O_TYPE = staticlib;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weexplugin.WeexPluginGcanvas;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weexplugin.WeexGcanvas;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				WARNING_CFLAGS = (
-					"-Wno-documentation",
-					"-Wwritable-strings",
-				);
+				WARNING_CFLAGS = "-Wno-documentation";
 			};
 			name = Debug;
 		};
-		C45843EE1E84EF5C00D88C0B /* Release */ = {
+		C43139551E954AA8008B80D0 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A51083D0FC7AD7C21BC9C799 /* Pods-WeexGcanvas.release.xcconfig */;
+			baseConfigurationReference = 912A6A653FE8C3267A392A2F /* Pods-WeexGcanvas.release.xcconfig */;
 			buildSettings = {
 				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "";
@@ -349,41 +338,36 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				MACH_O_TYPE = staticlib;
-				PRODUCT_BUNDLE_IDENTIFIER = com.weexplugin.WeexPluginGcanvas;
+				PRODUCT_BUNDLE_IDENTIFIER = com.weexplugin.WeexGcanvas;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				WARNING_CFLAGS = (
-					"-Wno-documentation",
-					"-Wwritable-strings",
-				);
+				WARNING_CFLAGS = "-Wno-documentation";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C45843DE1E84EF5B00D88C0B /* Build configuration list for PBXProject "WeexGcanvas" */ = {
+		C43139451E954AA8008B80D0 /* Build configuration list for PBXProject "WeexGcanvas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C45843EA1E84EF5C00D88C0B /* Debug */,
-				C45843EB1E84EF5C00D88C0B /* Release */,
+				C43139511E954AA8008B80D0 /* Debug */,
+				C43139521E954AA8008B80D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C45843EC1E84EF5C00D88C0B /* Build configuration list for PBXNativeTarget "WeexGcanvas" */ = {
+		C43139531E954AA8008B80D0 /* Build configuration list for PBXNativeTarget "WeexGcanvas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C45843ED1E84EF5C00D88C0B /* Debug */,
-				C45843EE1E84EF5C00D88C0B /* Release */,
+				C43139541E954AA8008B80D0 /* Debug */,
+				C43139551E954AA8008B80D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = C45843DB1E84EF5B00D88C0B /* Project object */;
+	rootObject = C43139421E954AA8008B80D0 /* Project object */;
 }

@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "C45843E31E84EF5B00D88C0B"
+               BlueprintIdentifier = "C431394A1E954AA8008B80D0"
                BuildableName = "WeexGcanvas.framework"
                BlueprintName = "WeexGcanvas"
                ReferencedContainer = "container:WeexGcanvas.xcodeproj">
@@ -45,7 +45,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C45843E31E84EF5B00D88C0B"
+            BlueprintIdentifier = "C431394A1E954AA8008B80D0"
             BuildableName = "WeexGcanvas.framework"
             BlueprintName = "WeexGcanvas"
             ReferencedContainer = "container:WeexGcanvas.xcodeproj">
@@ -63,7 +63,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "C45843E31E84EF5B00D88C0B"
+            BlueprintIdentifier = "C431394A1E954AA8008B80D0"
             BuildableName = "WeexGcanvas.framework"
             BlueprintName = "WeexGcanvas"
             ReferencedContainer = "container:WeexGcanvas.xcodeproj">
