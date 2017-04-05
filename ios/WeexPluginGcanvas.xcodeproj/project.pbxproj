@@ -323,7 +323,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.weexplugin.WeexPluginGcanvas;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				WARNING_CFLAGS = "-Wno-documentation";
+				WARNING_CFLAGS = (
+					"-Wno-documentation",
+					"-Wwritable-strings",
+				);
 			};
 			name = Debug;
 		};
@@ -344,7 +347,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.weexplugin.WeexPluginGcanvas;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				WARNING_CFLAGS = "-Wno-documentation";
+				WARNING_CFLAGS = (
+					"-Wno-documentation",
+					"-Wwritable-strings",
+				);
 			};
 			name = Release;
 		};
