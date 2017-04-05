@@ -310,6 +310,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0F1C92092FF9562A4B475501 /* Pods-WeexPluginGcanvas.debug.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -334,6 +335,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 87F9AEB97654FF7EEA032F16 /* Pods-WeexPluginGcanvas.release.xcconfig */;
 			buildSettings = {
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
