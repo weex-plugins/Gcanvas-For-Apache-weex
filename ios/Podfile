@@ -9,7 +9,7 @@ def common
     pod 'SDWebImage', '3.7.5'
 end
 
-target 'WeexPluginGcanvas' do
+target 'WeexGcanvas' do
     common
 end
 

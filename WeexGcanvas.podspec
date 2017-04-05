@@ -1,7 +1,7 @@
 # coding: utf-8
 
 Pod::Spec.new do |s|
-  s.name         = "WeexPluginGcanvas"
+  s.name         = "WeexGcanvas"
   s.version      = "0.0.5"
   s.summary      = "Weex Plugin"
 
