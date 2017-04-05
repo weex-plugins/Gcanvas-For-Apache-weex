@@ -13,8 +13,6 @@
 		C431393F1E9506D2008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C431393B1E9506D2008B80D0 /* WXGCanvasComponent.h */; };
 		C43139401E9506D2008B80D0 /* WXGCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */; };
 		C45843F01E84EF7B00D88C0B /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C45843EF1E84EF7B00D88C0B /* Info.plist */; };
-		C45843FC1E84F39100D88C0B /* WeexPluginGcanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = C45843F61E84F39100D88C0B /* WeexPluginGcanvasModule.h */; };
-		C45843FD1E84F39100D88C0B /* WeexPluginGcanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C45843F71E84F39100D88C0B /* WeexPluginGcanvasModule.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,8 +25,6 @@
 		C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasModule.h; sourceTree = "<group>"; };
 		C45843E41E84EF5B00D88C0B /* WeexPluginGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexPluginGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C45843EF1E84EF7B00D88C0B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C45843F61E84F39100D88C0B /* WeexPluginGcanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeexPluginGcanvasModule.h; sourceTree = "<group>"; };
-		C45843F71E84F39100D88C0B /* WeexPluginGcanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WeexPluginGcanvasModule.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,8 +73,6 @@
 				C431393A1E9506D2008B80D0 /* WXGCanvasModule.m */,
 				C431393B1E9506D2008B80D0 /* WXGCanvasComponent.h */,
 				C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */,
-				C45843F61E84F39100D88C0B /* WeexPluginGcanvasModule.h */,
-				C45843F71E84F39100D88C0B /* WeexPluginGcanvasModule.m */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -99,7 +93,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C45843FC1E84F39100D88C0B /* WeexPluginGcanvasModule.h in Headers */,
 				C43139401E9506D2008B80D0 /* WXGCanvasModule.h in Headers */,
 				C431393F1E9506D2008B80D0 /* WXGCanvasComponent.h in Headers */,
 			);
@@ -211,7 +204,6 @@
 			files = (
 				C431393D1E9506D2008B80D0 /* WXGCanvasComponent.mm in Sources */,
 				C431393E1E9506D2008B80D0 /* WXGCanvasModule.m in Sources */,
-				C45843FD1E84F39100D88C0B /* WeexPluginGcanvasModule.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
