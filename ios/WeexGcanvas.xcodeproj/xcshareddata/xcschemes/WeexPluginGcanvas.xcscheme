@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C45843E31E84EF5B00D88C0B"
-               BuildableName = "WeexPluginGcanvas.framework"
-               BlueprintName = "WeexPluginGcanvas"
-               ReferencedContainer = "container:WeexPluginGcanvas.xcodeproj">
+               BuildableName = "WeexGcanvas.framework"
+               BlueprintName = "WeexGcanvas"
+               ReferencedContainer = "container:WeexGcanvas.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -46,9 +46,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C45843E31E84EF5B00D88C0B"
-            BuildableName = "WeexPluginGcanvas.framework"
-            BlueprintName = "WeexPluginGcanvas"
-            ReferencedContainer = "container:WeexPluginGcanvas.xcodeproj">
+            BuildableName = "WeexGcanvas.framework"
+            BlueprintName = "WeexGcanvas"
+            ReferencedContainer = "container:WeexGcanvas.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -64,9 +64,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C45843E31E84EF5B00D88C0B"
-            BuildableName = "WeexPluginGcanvas.framework"
-            BlueprintName = "WeexPluginGcanvas"
-            ReferencedContainer = "container:WeexPluginGcanvas.xcodeproj">
+            BuildableName = "WeexGcanvas.framework"
+            BlueprintName = "WeexGcanvas"
+            ReferencedContainer = "container:WeexGcanvas.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>

@@ -23,7 +23,7 @@
 		C431393A1E9506D2008B80D0 /* WXGCanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXGCanvasModule.m; sourceTree = "<group>"; };
 		C431393B1E9506D2008B80D0 /* WXGCanvasComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasComponent.h; sourceTree = "<group>"; };
 		C431393C1E9506D2008B80D0 /* WXGCanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasModule.h; sourceTree = "<group>"; };
-		C45843E41E84EF5B00D88C0B /* WeexPluginGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexPluginGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C45843E41E84EF5B00D88C0B /* WeexGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C45843EF1E84EF7B00D88C0B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -61,7 +61,7 @@
 		C45843E51E84EF5B00D88C0B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C45843E41E84EF5B00D88C0B /* WeexPluginGcanvas.framework */,
+				C45843E41E84EF5B00D88C0B /* WeexGcanvas.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -101,9 +101,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		C45843E31E84EF5B00D88C0B /* WeexPluginGcanvas */ = {
+		C45843E31E84EF5B00D88C0B /* WeexGcanvas */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C45843EC1E84EF5C00D88C0B /* Build configuration list for PBXNativeTarget "WeexPluginGcanvas" */;
+			buildConfigurationList = C45843EC1E84EF5C00D88C0B /* Build configuration list for PBXNativeTarget "WeexGcanvas" */;
 			buildPhases = (
 				632ACA55BC2204B1168D1E27 /* [CP] Check Pods Manifest.lock */,
 				C45843DF1E84EF5B00D88C0B /* Sources */,
@@ -116,9 +116,9 @@
 			);
 			dependencies = (
 			);
-			name = WeexPluginGcanvas;
+			name = WeexGcanvas;
 			productName = WeexPluginGcanvas;
-			productReference = C45843E41E84EF5B00D88C0B /* WeexPluginGcanvas.framework */;
+			productReference = C45843E41E84EF5B00D88C0B /* WeexGcanvas.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -136,7 +136,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C45843DE1E84EF5B00D88C0B /* Build configuration list for PBXProject "WeexPluginGcanvas" */;
+			buildConfigurationList = C45843DE1E84EF5B00D88C0B /* Build configuration list for PBXProject "WeexGcanvas" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -148,7 +148,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C45843E31E84EF5B00D88C0B /* WeexPluginGcanvas */,
+				C45843E31E84EF5B00D88C0B /* WeexGcanvas */,
 			);
 		};
 /* End PBXProject section */
@@ -359,7 +359,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C45843DE1E84EF5B00D88C0B /* Build configuration list for PBXProject "WeexPluginGcanvas" */ = {
+		C45843DE1E84EF5B00D88C0B /* Build configuration list for PBXProject "WeexGcanvas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C45843EA1E84EF5C00D88C0B /* Debug */,
@@ -368,7 +368,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C45843EC1E84EF5C00D88C0B /* Build configuration list for PBXNativeTarget "WeexPluginGcanvas" */ = {
+		C45843EC1E84EF5C00D88C0B /* Build configuration list for PBXNativeTarget "WeexGcanvas" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C45843ED1E84EF5C00D88C0B /* Debug */,
