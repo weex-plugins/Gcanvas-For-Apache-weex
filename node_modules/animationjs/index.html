@@ -1,0 +1,136 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>animation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+<link rel="stylesheet" href="//g.alicdn.com/mtb/lib-bootstrap/3.0.3/css/bootstrap.min.css" />
+<script src="//g.alicdn.com/mtb/lib-3rd/??jquery/jquery.min.js,highlight/highlight.min.js"></script>
+<script src="//g.alicdn.com/mtb/lib-bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="//g.alicdn.com/mtb/lib-promise/3.1.0/polyfillB.js"></script>
+<script src="bower_components/lib-cubicbezier/build/cubicbezier.debug.js"></script>
+<script src="build/animation.debug.js"></script>
+    .container {
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+<section class="jumbotron">
+    <div class="container">
+        <h1 class="center">animationjs</h1>
+    </div>
+</section>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+              <div class="form-group">
+                <label for="duration">时间区间(ms)</label>
+                <input type="text" class="form-control" id="duration" value="1000" placeholder="时间区间(ms)">
+              </div>
+              <div class="form-group">
+                <label for="timingFunction">时间函数</label>
+                <input type="text" class="form-control" id="timingFunction" value="ease" placeholder="时间函数(ms)">
+              </div>
+              <button class="btn btn-primary" id="play">运行</button>
+              <button class="btn btn-primary" id="stop">停止</button>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <canvas width="50" height="50" style="margin:20px auto; border:1px solid #666; background-color:#EEE; position: aboslute;"></canvas>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var isIE = window.navigator.userAgent.match(/IEMobile\/([\d\.]+)/);
+    var stylePrefix = !!isIE?'ms':'webkit';
+
+    var animation;
+
+    document.querySelector('#play').addEventListener('click', function(e){
+        if (!animation) {
+            var duration = document.querySelector('#duration').value;
+            var timingFunction = document.querySelector('#timingFunction').value;
+
+            switch (timingFunction) {
+                case 'ease':
+                    timingFunction = '.25,.1,.25,1';
+                    break;
+                case 'linear':
+                    timingFunction = '0,0,1,1';
+                    break;
+                case 'easeIn':
+                    timingFunction = '.42,0,1,1';
+                    break;
+                case 'easeOut':
+                    timingFunction = '0,0,.58,1';
+                    break;
+                case 'easeInOut':
+                    timingFunction = '.42,0,.58,1';
+                    break;
+                default:
+                    break;
+            }
+
+            play(duration, timingFunction);
+        } else {
+            animation.play();
+        }
+
+    }, false);
+
+    document.querySelector('#stop').addEventListener('click', function(e){
+        if (animation) {
+            animation.stop();
+        }
+    }, false);
+
+    function play(duration, timingFunction) {
+        var canvas = document.querySelector('canvas');
+        canvas.style[stylePrefix + 'Transform'] = 'translate(0, 0)';
+
+        var ctx = canvas.getContext('2d');
+
+        cp = timingFunction.split(',');
+
+        if (cp && cp.length === 4) {
+            cp = cp.map(function(i) {
+                return parseFloat(i);
+            });
+
+            ctx.clearRect(0,0,50,50);
+
+            ctx.beginPath();
+            ctx.moveTo(0,0);
+            ctx.bezierCurveTo(50 * cp[0], 50 * cp[1], 50 * cp[2], 50 * cp[3], 50, 50);
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = 'red';
+            ctx.stroke();
+            ctx.closePath();
+
+            var bezier = new lib.cubicbezier(cp[0], cp[1], cp[2], cp[3]);
+
+            var startX = 0;
+            var endX = 300;
+
+            var startY = 0;
+            var endY = 300;
+
+            animation = new lib.animation(parseFloat(duration), bezier, function(i1, i2) {
+                canvas.style[stylePrefix + 'Transform'] = 'translate(' + (startX + (endX - startX) * i1) + 'px, ' + (startY + (endY - startY) * i2) + 'px)';
+            });
+
+            animation.play().then(function() {
+                console.log('end');
+                animation = null;
+            });
+        }
+    }
+</script>
+</body>
+
+</html>
+

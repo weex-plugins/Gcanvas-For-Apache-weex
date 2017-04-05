@@ -1,0 +1,7 @@
+.amfe-confirm .btn-group .btn {
+  float: left;
+  width: 50%;
+}
+.amfe-confirm .btn-group .btn.btn-ok {
+  border-right: 1px solid #ddd;
+}

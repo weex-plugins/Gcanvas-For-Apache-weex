@@ -4,12 +4,12 @@ platform :ios, '7.0'
 
 def common
 	pod 'WeexSDK'
-	pod 'GCanvas'
-	pod 'SDWebImage', '3.7.5'
-	pod 'WeexPlugin', :git => 'https://github.com/kfeagle/WeexPlugin.git'
+	pod 'WeexPluginLoader'
+    pod 'GCanvas'
+    pod 'SDWebImage', '3.7.5'
 end
 
-target 'WeexGCanvas' do
+target 'WeexPluginGcanvas' do
     common
 end
 

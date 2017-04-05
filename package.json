@@ -1,21 +1,25 @@
 {
-  "name": "weex-action-sheet",
-  "version": "0.4.3",
-  "main": "./js/index.js",
-  "subversion": {
-
-  },
-   "ios":{
-      "type":"pod",
-      "version":"0.4.2"
-   },
-  "android":{
-    "type":"maven",
-    "version":"0.4.1"
-  },
-  "description": "action sheet extend",
+  "name": "weex-plugin-gcanvas",
+  "version": "0.0.1",
+  "main": "./js/build/main.js",
+  "description": "weex-plugin-gcanvas extend for weex",
   "license": "Apache-2.0",
-
+  "WeexSDKVersoin":"0.10.0",
+  "//":"ios工程安装配置",
+   "ios":{
+     "//":"安装类型为pod",
+     "type":"pod",
+     "name":"WeexPluginGcanvas",
+     "version:":"0.0.1"
+   },
+  "//":"android工程安装配置",
+  "android":{
+    "//":"安装类型为maven",
+    "type":"maven",
+    "groupId":"org.weex.plugin",
+    "name":"weexplugingcanvas",
+    "version:":"0.0.1"
+  },
   "keywords": [
     "weex",
     "hybrid",
@@ -35,12 +39,15 @@
     "node": ">=4"
   },
   "scripts": {
-    "build:examples": "webpack --config build/webpack.examples.config.js",
+    "dev": "webpack --watch --config build/webpack.config.js",
+    "build": "webpack --config build/webpack.config.js",
     "dev:examples": "webpack --watch --config build/webpack.examples.config.js",
+    "dev:examples:web": "webpack --watch --config build/webpack.examples.web.config.js",
+    "build:examples": "webpack --config build/webpack.examples.config.js",
+    "build:examples:web": "webpack --config build/webpack.examples.web.config.js",
     "copy:examples": "rm -rf .examples/android/app/src/main/assets/* && cp -vrf ./examples/build/* ./android/app/src/main/assets/ &&rm -rf .examples/ios/bundlejs/* && cp -vrf ./examples/build/* .examples/ios/bundles/",
     "lint": "eslint html5",
     "serve": "serve ./ -p 12580"
-
   },
   "dependencies": {
     "animationjs": "^0.1.5",
@@ -64,6 +71,7 @@
     "babel-loader": "^6.2.5",
     "babel-preset-es2015": "^6.16.0",
     "babel-runtime": "^6.11.6",
+    "babel-eslint": "^7.1.1",
 
     "cross-spawn": "^4.0.0",
     "eslint": "^2.11.1",
@@ -87,9 +95,13 @@
     "sinon-chai": "^2.8.0",
     "uglify-js": "^2.6.4",
     "webpack": "^1.13.1",
-    "weex-components": "^0.2.0",
     "weex-loader": "^0.4.0",
     "weex-vdom-tester": "^0.2.0",
-    "wwp": "^0.3.5"
+
+    "style-loader": "^0.13.1",
+    "vue-loader": "^10.3.0",
+    "css-loader": "^0.26.1",
+    "vue": "^2.1.10",
+    "vue-template-compiler": "^2.1.10"
   }
 }

@@ -12,7 +12,7 @@
 #import <GCanvas/GCanvasPlugin.h>
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
-#import <WeexPlugin/WeexPlugin.h>
+#import <WeexPluginLoader/WeexPluginLoader.h>
 
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
     

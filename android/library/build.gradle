@@ -27,7 +27,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.taobao.android:weex_sdk:0.9.5'
-    provided 'com.moxun.weex:auto-registration:0.0.2'
+    compile 'com.taobao.android:weex_sdk:0.10.0'
+    provided 'org.weex.plugin:processor:1.0.0'
     testCompile 'junit:junit:4.12'
 }

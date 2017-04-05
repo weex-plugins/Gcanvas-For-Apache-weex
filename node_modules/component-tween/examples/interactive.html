@@ -1,0 +1,62 @@
+
+<style>
+  canvas {
+    border: 1px solid #eee;
+  }
+</style>
+
+<script src="../build/build.js"></script>
+
+<canvas width=500 height=400></canvas>
+
+<script>
+  var Tween = require('tween');
+  var raf = require('component-raf');
+  var canvas = document.querySelector('canvas');
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width, h = canvas.height;
+
+  function Ball(x, y) {
+    this.moveTo(x, y);
+    this.rad = 10;
+  }
+
+  Ball.prototype.moveTo = function(x, y){
+    this.x = x;
+    this.y = y;
+  };
+
+  Ball.prototype.draw = function(ctx){
+    ctx.save();
+    ctx.fillStyle = 'red';
+    ctx.arc(this.x | 0, this.y | 0, this.rad, 0, Math.PI * 2, false);
+    ctx.fill();
+    ctx.restore();
+  };
+
+  var ball = new Ball(100, 100);
+  ball.draw(ctx);
+
+  canvas.onclick = function(e){
+    console.log('move');
+
+    var tween = Tween({ x: ball.x, y: ball.y })
+      .ease('out-bounce')
+      .to({ x: e.offsetX, y: e.offsetY })
+      .duration(1500);
+
+    tween.update(function(o){
+      canvas.width = canvas.width;
+      ball.moveTo(o.x, o.y);
+      ball.draw(ctx);
+    });
+
+    function animate() {
+      raf(animate);
+      tween.update();
+    }
+
+    animate();
+  };
+
+</script>

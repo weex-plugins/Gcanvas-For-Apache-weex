@@ -1,0 +1,22 @@
+.amfe-prompt .input-wrap {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.133333rem;
+  // padding: 0.24rem 0.213333rem 0.213333rem;
+  height: 0.96rem;
+}
+.amfe-prompt .input-wrap .input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 0.56rem;
+  line-height: 0.56rem;
+  font-size: 0.32rem;
+  border: 1px solid #999;
+}
+.amfe-prompt .btn-group .btn {
+  float: left;
+  width: 50%;
+}
+.amfe-prompt .btn-group .btn.btn-ok {
+  border-right: 1px solid #ddd;
+}

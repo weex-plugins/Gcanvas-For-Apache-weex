@@ -9,7 +9,7 @@
 #import "WXGCanvasComponent.h"
 #import <GLKit/GLKit.h>
 #import <GCanvas/GCVCommon.h>
-#import <WeexPlugin/WeexPlugin.h>
+#import <WeexPluginLoader/WeexPluginLoader.h>
 
 @interface WXGCanvasComponent()
 

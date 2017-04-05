@@ -1,0 +1,22 @@
+.amfe-toast {
+  font-size: 0.32rem;
+  line-height: 0.426667rem;
+  position: fixed;
+  box-sizing: border-box;
+  max-width: 80%;
+  bottom: 2.666667rem;
+  left: 50%;
+  padding: 0.213333rem;
+  background-color: #000;
+  color: #fff;
+  text-align: center;
+  opacity: 0.6;
+  transition: all 0.4s ease-in-out;
+  border-radius: 0.066667rem;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+.amfe-toast.hide {
+  opacity: 0;
+}
