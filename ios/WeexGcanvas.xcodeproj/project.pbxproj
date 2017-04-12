@@ -7,16 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		655B4A770EBD94AB5DEC3273 /* libPods-WeexGcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F1145B86728E853A9E8A0ED /* libPods-WeexGcanvas.a */; };
 		C431395C1E954ACB008B80D0 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C43139561E954ACB008B80D0 /* Info.plist */; };
 		C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */; };
 		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.mm in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */; };
 		C431395F1E954ACB008B80D0 /* WXGCanvasModule.h in Headers */ = {isa = PBXBuildFile; fileRef = C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */; };
 		C43139601E954ACB008B80D0 /* WXGCanvasModule.m in Sources */ = {isa = PBXBuildFile; fileRef = C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */; };
+		C44B5F661E9E5C4E001AF391 /* WeexGcanvas.h in Headers */ = {isa = PBXBuildFile; fileRef = C44B5F651E9E5C21001AF391 /* WeexGcanvas.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4F1145B86728E853A9E8A0ED /* libPods-WeexGcanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeexGcanvas.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7222E97A9E0BDD5D4BA6A21E /* Pods-WeexGcanvas.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.debug.xcconfig"; sourceTree = "<group>"; };
 		912A6A653FE8C3267A392A2F /* Pods-WeexGcanvas.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.release.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.release.xcconfig"; sourceTree = "<group>"; };
 		C431394B1E954AA8008B80D0 /* WeexGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -25,6 +24,7 @@
 		C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WXGCanvasComponent.mm; sourceTree = "<group>"; };
 		C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasModule.h; sourceTree = "<group>"; };
 		C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXGCanvasModule.m; sourceTree = "<group>"; };
+		C44B5F651E9E5C21001AF391 /* WeexGcanvas.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WeexGcanvas.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,7 +32,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				655B4A770EBD94AB5DEC3273 /* libPods-WeexGcanvas.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,6 +73,7 @@
 				C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */,
 				C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */,
 				C431395B1E954ACB008B80D0 /* WXGCanvasModule.m */,
+				C44B5F651E9E5C21001AF391 /* WeexGcanvas.h */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -81,7 +81,6 @@
 		EC99DF3D825954C35FF1B28F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4F1145B86728E853A9E8A0ED /* libPods-WeexGcanvas.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -93,6 +92,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C44B5F661E9E5C4E001AF391 /* WeexGcanvas.h in Headers */,
 				C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */,
 				C431395F1E954ACB008B80D0 /* WXGCanvasModule.h in Headers */,
 			);
@@ -110,7 +110,6 @@
 				C43139471E954AA8008B80D0 /* Frameworks */,
 				C43139481E954AA8008B80D0 /* Headers */,
 				C43139491E954AA8008B80D0 /* Resources */,
-				77ADC76829851BA0A298A2EF /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -165,21 +164,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		77ADC76829851BA0A298A2EF /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		FC9116878B00DA9884F74AC5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
