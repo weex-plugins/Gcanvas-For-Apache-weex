@@ -16,7 +16,7 @@ buildscript {
             exclude module: 'guava'
         }
         classpath 'com.google.guava:guava:17.0'
-        classpath("com.taobao.android:weexplugin-gradle-plugin:1.0.4.1-SNAPSHOT")
+        classpath("com.taobao.android:weexplugin-gradle-plugin:1.0.4.2-SNAPSHOT")
     }
 }
 allprojects {
@@ -55,6 +55,7 @@ dependencies {
     provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.26@aar'
     provided 'com.taobao.android:weexplugin-annotation:1.0.4-SNAPSHOT'
     provided "com.taobao.android:weex_sdk:0.10.0"
+    provided "com.taobao.android:weexplugin-processor:1+"
 
 }
 publishing {
