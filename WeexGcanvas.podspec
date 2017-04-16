@@ -2,7 +2,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "WeexGcanvas"
-  s.version      = "0.0.5"
+  s.version      = "0.0.1.1"
   s.summary      = "Weex Plugin"
 
   s.description  = <<-DESC
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.platform     = :ios
   s.ios.deployment_target = "7.0"
 
-  s.source       = { :git => 'please input the url of your code in github', :tag => 'please input you github tag' }
+  s.source       = { :git => 'https://github.com/weex-plugins/weex-plugin-gcanvas.git', :tag => '0.0.1.1' }
   s.source_files  = "ios/Sources/*.{h,m,mm}"
   
   s.requires_arc = true
