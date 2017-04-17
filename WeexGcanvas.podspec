@@ -2,7 +2,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "WeexGcanvas"
-  s.version      = "0.0.1.1"
+  s.version      = "0.0.1.3"
   s.summary      = "Weex Plugin"
 
   s.description  = <<-DESC
