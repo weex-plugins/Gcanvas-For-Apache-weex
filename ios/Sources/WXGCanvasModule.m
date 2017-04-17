@@ -120,7 +120,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 - (void)setContextType:(NSUInteger)type
 {
     GCVLOG_METHOD(@"setContextType %ld", (unsigned long)type);
-    [self.gcanvasPlugin setContextType:type];
+    [self.gcanvasPlugin setContextType:(int)type];
 }
 
 //设置Context类型
