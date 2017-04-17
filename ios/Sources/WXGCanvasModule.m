@@ -131,7 +131,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 - (void)setContextType:(NSUInteger)type
 {
     GCVLOG_METHOD(@"setContextType %ld", (unsigned long)type);
-//    [self.gcanvasPlugin setContextType:type];
+    [self.gcanvasPlugin setContextType:(int)type];
 }
 
 //设置Context类型
@@ -168,6 +168,10 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         if ([self.gcanvasComponent isKindOfClass:[WXGCanvasComponent class]])
         {
             GCVLOG_METHOD(@" call glkView display");
+            if(!self.gcanvasComponent.glkview.delegate)
+            {
+                self.gcanvasComponent.glkview.delegate = self;
+            }
             [self.gcanvasComponent.glkview display];
         }
         else
@@ -209,7 +213,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                                          compFrame.size.height*self.devicePixelRatio);
         [self.gcanvasPlugin setFrame:gcanvasFrame];
         
-//        [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
+        [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
         self.gcanvasInitalized = YES;
     }
     
