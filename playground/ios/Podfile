@@ -10,6 +10,7 @@ def common
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
     pod 'WeexPluginLoader'
+    pod 'GCanvas'
 end
 
 target 'WeexDemo' do

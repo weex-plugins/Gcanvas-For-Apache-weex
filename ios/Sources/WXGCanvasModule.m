@@ -50,7 +50,9 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 
 - (void)getDeviceInfo:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
-    callback(@{@"result":@"success", @"data":@{@"platform":@"iOS"}});
+    if(callback){
+        callback(@{@"result":@"success", @"data":@{@"platform":@"iOS"}});
+    }
 }
 
 - (void)enable:(NSDictionary *)args callback:(WXModuleCallback)callback
@@ -58,20 +60,25 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     GCVLOG_METHOD(@"args=%@", args);
     if (!args || !args[@"componentId"])
     {
-        callback(@{@"result":@"fail", @"errorMsg":@"input args is error."});
+        if(callback){
+            callback(@{@"result":@"fail", @"errorMsg":@"input args is error."});
+        }
         return;
     }
     
     self.componentRel = args[@"componentId"];//由于component的初始化可能比module慢，所以只在第一次使用时在对component进行初始化处理
     self.gcanvasPlugin = [[GCanvasPlugin alloc] init];
-    
-    callback(@{@"result":@"success"});
+    if(callback){
+        callback(@{@"result":@"success"});
+    }
 }
 
 - (void)disable:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
     GCVLOG_METHOD(@"args=%@", args);
-    callback(@{@"result":@"success"});
+    if(callback){
+        callback(@{@"result":@"success"});
+    }
 }
 
 - (void)render:(NSArray *)commands
@@ -90,13 +97,17 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
         if (!imageCache)
         {
-            callback(@{});
+            if(callback){
+                callback(@{});
+            }
             return;
         }
         CGImageRef cgimageRef = imageCache.image.CGImage;
         CGFloat width = CGImageGetWidth(cgimageRef);
         CGFloat height = CGImageGetHeight(cgimageRef);
-        callback(@{@"width":@(width), @"height":@(height)});
+        if(callback){
+            callback(@{@"width":@(width), @"height":@(height)});
+        }
         
 //        GLuint tid = imageCache.textureId;
 //        if (tid == 0) {
@@ -119,11 +130,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 //设置Context类型
 - (void)setContextType:(NSUInteger)type
 {
-    if (type == 0) {
-        NSLog(@"GCanvas 2D");
-    }else{
-        NSLog(@"WebGL 3D");
-    }
+    GCVLOG_METHOD(@"setContextType %ld", (unsigned long)type);
+    [self.gcanvasPlugin setContextType:(int)type];
 }
 
 //设置Context类型
@@ -160,6 +168,10 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         if ([self.gcanvasComponent isKindOfClass:[WXGCanvasComponent class]])
         {
             GCVLOG_METHOD(@" call glkView display");
+            if(!self.gcanvasComponent.glkview.delegate)
+            {
+                self.gcanvasComponent.glkview.delegate = self;
+            }
             [self.gcanvasComponent.glkview display];
         }
         else
@@ -201,12 +213,9 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                                          compFrame.size.height*self.devicePixelRatio);
         [self.gcanvasPlugin setFrame:gcanvasFrame];
         
+        [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
         self.gcanvasInitalized = YES;
     }
-    
-//    glViewport(0, 0, view.drawableWidth, view.drawableHeight);
-//    GLint vpArray[4];
-//    glGetIntegerv(GL_VIEWPORT,vpArray);
     
     [self.gcanvasPlugin execCommands];
 }
