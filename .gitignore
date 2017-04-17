@@ -1,4 +1,5 @@
-
+playground/ios/Pods/
+playground/ios/Podfile.lock
 ios/Pods/
 ios/Podfile.lock
 node_modules/
