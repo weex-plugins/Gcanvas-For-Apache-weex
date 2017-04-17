@@ -119,11 +119,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 //设置Context类型
 - (void)setContextType:(NSUInteger)type
 {
-    if (type == 0) {
-        NSLog(@"GCanvas 2D");
-    }else{
-        NSLog(@"WebGL 3D");
-    }
+    GCVLOG_METHOD(@"setContextType %ld", (unsigned long)type);
+    [self.gcanvasPlugin setContextType:type];
 }
 
 //设置Context类型
@@ -201,12 +198,9 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                                          compFrame.size.height*self.devicePixelRatio);
         [self.gcanvasPlugin setFrame:gcanvasFrame];
         
+        [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
         self.gcanvasInitalized = YES;
     }
-    
-//    glViewport(0, 0, view.drawableWidth, view.drawableHeight);
-//    GLint vpArray[4];
-//    glGetIntegerv(GL_VIEWPORT,vpArray);
     
     [self.gcanvasPlugin execCommands];
 }
