@@ -21,14 +21,14 @@ weex-gcanvas是一个weex插件，可以通过weexpack快速集成，可以丰�
    ```
 - 添加插件
   ```
-  weex plugin add weex-gcanvas
+  weexpack plugin add weex-gcanvas
   ```
 
 # 已有工程集成
 ## iOS集成插件WeexGcanvas
 - 命令行集成
   ```
-  weex plugin add weex-gcanvas
+  weexpack plugin add weex-gcanvas
   ```
 - 手动集成
   在podfile 中添加
@@ -39,7 +39,7 @@ weex-gcanvas是一个weex插件，可以通过weexpack快速集成，可以丰�
 ## 安卓集成插件weexgcanvas
 - 命令行集成
   ```
-  weex plugin add weex-gcanvas
+  weexpack plugin add weex-gcanvas
   ```
 - 手动集成
   在相应工程的build.gradle文件的dependencies中添加
