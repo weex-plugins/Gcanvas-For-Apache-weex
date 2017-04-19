@@ -3,6 +3,8 @@ playground/ios/Podfile.lock
 ios/Pods/
 ios/Podfile.lock
 node_modules/
+examples/build/
+playground/browser/build/
 # Built application files
 *.apk
 *.ap_
@@ -20,7 +22,6 @@ out/
 
 # Gradle files
 .gradle/
-build/
 
 # Local configuration file (sdk path, etc)
 local.properties
