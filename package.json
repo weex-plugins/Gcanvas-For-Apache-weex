@@ -1,6 +1,6 @@
 {
-  "name": "weex-plugin-gcanvas",
-  "version": "0.3.4",
+  "name": "weex-gcanvas",
+  "version": "0.3.6",
   "main": "./js/src/gcanvas.js",
   "description": "weex-plugin-gcanvas extend for weex",
   "license": "Apache-2.0",
@@ -61,8 +61,6 @@
     "scroll-to": "0.0.2",
     "semver": "^5.1.0",
     "weex-components": "^0.2.0",
-    "weex-picker": "^0.1.0",
-    "weex-rax-framework": "0.0.10",
     "weex-vue-framework": "2.1.8-weex.1"
   },
   "devDependencies": {

@@ -7,13 +7,7 @@ var inWeex = typeof callNative !== 'undefined';
 var debug = true;
 var canvasModule;
 
-/*
-__weex_define__('@weex-temp/x', function (__weex_require__) {
-    canvasModule = __weex_require__('@weex-module/gcanvas');
-});
-*/
 
-//canvasModule=typeof weex!=='undefined'?weex.requireModule('gcanvas'):__weex_require__('@weex-module/gcanvas');
 canvasModule = (typeof weex!=='undefined'&&weex.requireModule) ? ( weex.requireModule('gcanvas') ) : (__weex_require__('@weex-module/gcanvas') );
 
 var GBridge = {
@@ -82,10 +76,31 @@ var GBridge = {
         if (!inWeex) {
             return;
         }
-        canvasModule.getDeviceInfo({}, function (e) {
-            GLog.d('bridge#getDeviceInfo() return val:' + JSON.stringify(e));
-            callback && callback(e);
-        });
+
+        if(this.isBrowser()){
+            //浏览器端不实现
+            callback && callback({
+                data:{platform:0}
+            });
+        }
+        else {
+            canvasModule.getDeviceInfo({}, function (e) {
+                GLog.d('bridge#getDeviceInfo() return val:' + JSON.stringify(e));
+                callback && callback(e);
+            });
+        }
+
+    },
+
+    /**
+     * 判断是不是浏览器
+     *
+     **/
+    isBrowser: function () {
+
+        if(!canvasModule||!canvasModule.getDeviceInfo){
+            return true
+        }
     },
 
     /**
