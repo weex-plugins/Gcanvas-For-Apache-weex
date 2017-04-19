@@ -28,6 +28,9 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.1.1'
     compile 'com.taobao.android:weex_sdk:0.10.0'
-    provided 'org.weex.plugin:processor:1.0.0'
+    provided 'org.weex.plugin:processor:1.0.2'
     testCompile 'junit:junit:4.12'
+
+    compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.25@aar'
+    //compile project(':gcanvas_library')
 }
