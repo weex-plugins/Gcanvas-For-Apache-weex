@@ -466,6 +466,20 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
 
     // GCanvas._toNative(successCallback, errorCallback, 'GCanvas',
     //         'loadTexture', [ image.src, image._id ]);
+
+    GBridge.preLoadImage(image, function(e){
+
+        if (e.url  && e.url != null ){
+            GLog.d("GContext2D loadTexture successCallback! url " + e.url + " id " + e.id);
+            successCallback && successCallback(e);
+        
+        }else{
+            GLog.d("GContext2D loadTexture errorCallback!");
+            errorCallback && errorCallback(e);
+        }
+
+    });
+
 };
 
 /**
@@ -666,7 +680,7 @@ GContext2D.prototype.render = function(flag) {
     var commands = this._drawCommands;
     this._drawCommands = "";
     if (commands != null && commands != "") {
-        GLog.d("GContext2D#render() called, commands is "+ commands);
+        //GLog.d("GContext2D#render() called, commands is "+ commands);
         GBridge.callRender(commands)
     }
 };
