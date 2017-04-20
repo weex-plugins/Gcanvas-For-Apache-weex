@@ -469,7 +469,7 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
 
     GBridge.preLoadImage(image, function(e){
 
-        if (e.url  && e.url != null ){
+        if ( e && e.url ){
             GLog.d("GContext2D loadTexture successCallback! url " + e.url + " id " + e.id);
             successCallback && successCallback(e);
         
