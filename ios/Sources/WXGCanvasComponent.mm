@@ -98,7 +98,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
         glkview.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         [EAGLContext setCurrentContext:glkview.context];
-        glkview.enableSetNeedsDisplay = NO;
+        glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         glkview.layer.borderWidth = 0.5f;

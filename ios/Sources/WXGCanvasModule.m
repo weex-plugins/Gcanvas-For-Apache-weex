@@ -95,8 +95,10 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 - (void)render:(NSArray *)commands
 {
     GCVLOG_METHOD(@"commands=%@, gcanvasComponent=%@", commands, self.gcanvasComponent);
+    NSString *path = NSHomeDirectory();
     [self.gcanvasPlugin addCommands:commands];
     [self execCommand];
+//    [self performSelector:@selector(execCommand) withObject:nil afterDelay:1.0];
 }
 
 //预加载image，便于后续渲染时可以同步执行
@@ -184,6 +186,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                 self.gcanvasComponent.glkview.delegate = self;
             }
             [self.gcanvasComponent.glkview display];
+            [self.gcanvasComponent.glkview setNeedsDisplay];
         }
         else
         {
