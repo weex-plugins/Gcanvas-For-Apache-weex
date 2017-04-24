@@ -174,7 +174,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 - (void)execCommand
 {
     GCVLOG_METHOD(@" start... self.gcanvasComponent=%@", self.gcanvasComponent);
-    if (self.gcanvasComponent.isViewLoaded)
+    if (self.gcanvasComponent.isViewLoaded && self.weexInstance)
     {
         if ([self.gcanvasComponent isKindOfClass:[WXGCanvasComponent class]])
         {
