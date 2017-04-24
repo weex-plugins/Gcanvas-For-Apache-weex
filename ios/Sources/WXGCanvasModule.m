@@ -135,7 +135,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         
         
 //        [self.gcanvasPlugin execCommands];
-        [weakSelf.gcanvasComponent.glkview display];
+//        [weakSelf.gcanvasComponent.glkview display];
+        [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
     }];
 }
 
@@ -180,7 +181,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
             {
                 self.gcanvasComponent.glkview.delegate = self;
             }
-            [self.gcanvasComponent.glkview display];
+//            [self.gcanvasComponent.glkview display];
             [self.gcanvasComponent.glkview setNeedsDisplay];
         }
         else
