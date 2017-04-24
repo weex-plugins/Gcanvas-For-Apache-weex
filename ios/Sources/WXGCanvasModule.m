@@ -103,7 +103,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 - (void)preLoadImage:(NSString *)src callback:(WXModuleCallback)callback
 {
     GCVLOG_METHOD(@" PreLoadImage start...");
-    
+    __weak typeof(self) weakSelf = self;
     [GCVCommon sharedInstance].imageLoader = self;
     [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
         if (!imageCache)
@@ -135,6 +135,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         
         
 //        [self.gcanvasPlugin execCommands];
+        [weakSelf.gcanvasComponent.glkview display];
     }];
 }
 
@@ -160,10 +161,6 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         WXPerformBlockOnComponentThread(^{
             _gcanvasComponent = (WXGCanvasComponent *)[self.weexInstance componentForRef:self.componentRel];
             GCVLOG_METHOD(@" _gcanvasComponent=%@", _gcanvasComponent);
-            if (_gcanvasComponent && [_gcanvasComponent isKindOfClass:[WXGCanvasComponent class]])
-            {
-                _gcanvasComponent.glkview.delegate = self;
-            }
             dispatch_semaphore_signal(semaphore);
         });
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);

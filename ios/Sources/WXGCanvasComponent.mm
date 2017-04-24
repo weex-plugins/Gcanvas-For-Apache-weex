@@ -78,23 +78,6 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         }
         
         self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);
-        
-        self.componetFrame = self.frame;
-        
-        GCVLOG_METHOD(@"frame=(%.2f, %.2f) * (%.2f, %.2f)", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
-    }
-    
-    return self;
-}
-
-- (BOOL)isViewLoaded
-{
-    return (self.glkview != nil);
-}
-
-- (UIView *)loadView
-{
-    if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
         glkview.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         [EAGLContext setCurrentContext:glkview.context];
@@ -104,7 +87,16 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         glkview.layer.borderWidth = 0.5f;
         
         self.glkview = glkview;
+        self.componetFrame = self.frame;
+        
+        GCVLOG_METHOD(@"frame=(%.2f, %.2f) * (%.2f, %.2f)", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
     }
+    
+    return self;
+}
+
+- (UIView *)loadView
+{
     return self.glkview;
 }
 
