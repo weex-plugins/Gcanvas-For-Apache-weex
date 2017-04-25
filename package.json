@@ -9,8 +9,8 @@
    "ios":{
      "//":"安装类型为pod",
      "type":"pod",
-     "name":"WeexPluginGcanvas",
-     "version:":"0.0.1"
+     "name":"WeexGcanvas",
+     "version:":"0.0.1.11"
    },
   "//":"android工程安装配置",
   "android":{
