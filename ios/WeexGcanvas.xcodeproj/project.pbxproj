@@ -114,7 +114,6 @@
 				C43139471E954AA8008B80D0 /* Frameworks */,
 				C43139481E954AA8008B80D0 /* Headers */,
 				C43139491E954AA8008B80D0 /* Resources */,
-				A73FCFB235A4BF9CC71D3C96 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -169,21 +168,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		A73FCFB235A4BF9CC71D3C96 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		FC9116878B00DA9884F74AC5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

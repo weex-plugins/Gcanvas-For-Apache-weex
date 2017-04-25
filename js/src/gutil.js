@@ -16,7 +16,7 @@ var GBridge = {
         if (!inWeex) {
             return;
         }
-        GLog.d('bridge#callRender() commands is ' + commands);
+        //GLog.d('bridge#callRender() commands is ' + commands);
         canvasModule.render([commands]);
     },
 
@@ -25,8 +25,9 @@ var GBridge = {
         if (!inWeex) {
             return;
         }
-        GLog.d('bridge#preLoadImage() image url is ' + src);
+        //GLog.d('bridge#preLoadImage() image url is ' + src);
         canvasModule.preLoadImage(src, function (e) {
+            //GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             cb && cb(e);
         });
     },

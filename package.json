@@ -1,6 +1,8 @@
 {
+
   "name": "weex-gcanvas",
-  "version": "0.3.6",
+
+  "version": "0.3.7",
   "main": "./js/src/gcanvas.js",
   "description": "weex-plugin-gcanvas extend for weex",
   "license": "Apache-2.0",
@@ -9,8 +11,8 @@
    "ios":{
      "//":"安装类型为pod",
      "type":"pod",
-     "name":"WeexPluginGcanvas",
-     "version:":"0.0.1"
+     "name":"WeexGcanvas",
+     "version:":"0.0.1.11"
    },
   "//":"android工程安装配置",
   "android":{
