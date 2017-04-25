@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
                    Weexplugin Source Description
                    DESC
 
-  s.homepage     = "https://github.com"
+  s.homepage     = "https://github.com/weex-plugins/weex-plugin-gcanvas"
   s.license = {
     :type => 'Copyright',
     :text => <<-LICENSE
