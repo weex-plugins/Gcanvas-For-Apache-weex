@@ -1,6 +1,6 @@
 {
   "name": "weex-plugin-gcanvas",
-  "version": "0.3.4",
+  "version": "0.3.7",
   "main": "./js/src/gcanvas.js",
   "description": "weex-plugin-gcanvas extend for weex",
   "license": "Apache-2.0",
