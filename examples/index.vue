@@ -6,7 +6,7 @@
 <script>
 	//	var gcanvas = weex.requireModule('weex-gcanvas');
 
-	var gcanvas=require('weex-gcanvas');
+	var gcanvas=require('../js/src/gcanvas');
 
 
 	module.exports = {

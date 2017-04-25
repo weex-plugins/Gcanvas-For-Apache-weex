@@ -89,8 +89,6 @@
     "rollup-watch": "^2.5.0",
 
     "serve": "^1.4.0",
-    "sinon": "^1.17.4",
-    "sinon-chai": "^2.8.0",
     "uglify-js": "^2.6.4",
     "webpack": "^1.13.1",
     "weex-loader": "^0.4.0",
@@ -99,7 +97,6 @@
     "style-loader": "^0.13.1",
     "vue-loader": "^10.3.0",
     "css-loader": "^0.26.1",
-    "vue": "^2.1.10",
-    "weex-gcanvas": "^0.3.5"
+    "vue": "^2.1.10"
   }
 }

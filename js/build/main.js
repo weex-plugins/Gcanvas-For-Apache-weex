@@ -44,33 +44,54 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	'use strict';
 
-	var WeexPluginGcanvas = {
-	  create: function create(options, callbackID) {
-	    alert("module WeexPluginGcanvas is created sucessfully ");
+	var context;
+	function getProto(Weex) {
+	  return {
+	    create: function create() {
+	      this.node = document.createElement('canvas');
+	      return this.node;
+	    },
+	    getContext: function getContext(type) {
+	      context = this.node.getContext(type || '2d');
+	      return context;
+	    },
+
+	    getContextAsyn: function getContextAsyn(type, callback) {
+	      context = this.node.getContext(type || '2d');
+	      callback(context);
+	    },
+
+	    drawImage: function drawImage(url) {
+	      var img = new Image();
+	      img.src = url;
+	      arguments[0] = img;
+	      return context.drawImage.apply(context, arguments);
+	    }
+
+	  };
+	}
+
+	function init(Weex) {
+	  var Component = Weex.Component;
+	  var extend = Weex.utils.extend;
+
+	  function GCanvas(data) {
+	    Component.call(this, data);
 	  }
-	};
 
-	var meta = {
-	  WeexPluginGcanvas: [{
-	    name: 'show',
-	    args: ['object', 'string']
-	  }]
-	};
+	  GCanvas.prototype = Object.create(Component.prototype);
+	  extend(GCanvas.prototype, getProto(Weex));
 
-	if (window.Vue) {
-	  weex.registerModule('WeexPluginGcanvas', WeexPluginGcanvas);
+	  Weex.registerComponent('gcanvas', GCanvas);
 	}
 
-	function init(weex) {
-	  weex.registerApiModule('WeexPluginGcanvas', WeexPluginGcanvas, meta);
-	}
 	module.exports = {
 	  init: init
 	};
 
-/***/ }
+/***/ })
 /******/ ]);

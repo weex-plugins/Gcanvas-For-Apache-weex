@@ -4,7 +4,7 @@
     </div>
 </template>
 <script>
-    var gcanvas=require('weex-gcanvas');
+    var gcanvas=require('../../js/src/gcanvas');
 
     module.exports = {
         created: function () {
@@ -12,8 +12,7 @@
             gcanvas.disable();
         },
         ready: function () {
-            var ref = this.$el('canvas_holder').ref;
-            gcanvas.start(ref, function(){
+            gcanvas.start(this.$el('canvas_holder'), function(){
                 var ctx = gcanvas.getContext('2d');
 
                 ctx.fillStyle = 'red';
