@@ -4,9 +4,8 @@
 	</div>
 </template>
 <script>
-	//	var gcanvas = weex.requireModule('weex-gcanvas');
-
-	var gcanvas=require('../js/src/gcanvas');
+	// var gcanvas=require('weex-gcanvas'); //正式使用请用这个
+	var gcanvas=require('../js/src/gcanvas'); //调试使用
 
 
 	module.exports = {
@@ -16,7 +15,7 @@
 			gcanvas.disable();
 		},
 		mounted: function () {
-			var ref = this.$refs.canvas_holder.ref;
+			var ref = this.$refs.canvas_holder;
 			gcanvas.start(ref, function () {
 				var ctx = gcanvas.getContext('2d');
 
