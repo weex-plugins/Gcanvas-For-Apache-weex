@@ -1,3 +1,29 @@
+buildscript {
+    repositories {
+
+        //maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
+
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+
+        classpath 'com.android.tools.build:gradle:2.2.3'
+
+    }
+}
+
+
+allprojects {
+    repositories {
+
+        maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
+
+        mavenCentral()
+        jcenter()
+    }
+}
+
 apply plugin: 'com.android.library'
 
 android {
@@ -33,4 +59,18 @@ dependencies {
 
     compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.25@aar'
     //compile project(':gcanvas_library')
+}
+
+apply from: './bintray.gradle'
+buildscript {
+    repositories {
+//        maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+    }
 }
