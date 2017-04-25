@@ -61,16 +61,16 @@ dependencies {
     //compile project(':gcanvas_library')
 }
 
-apply from: './bintray.gradle'
-buildscript {
-    repositories {
-//        maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
-        mavenCentral()
-        jcenter()
-    }
-
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-    }
-}
+//apply from: './bintray.gradle'
+//buildscript {
+//    repositories {
+////        maven { url "http://mvnrepo.alibaba-inc.com/mvn/repository" }
+//        mavenCentral()
+//        jcenter()
+//    }
+//
+//    dependencies {
+//        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+//        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+//    }
+//}
