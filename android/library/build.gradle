@@ -39,6 +39,19 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
+
+    sourceSets {
+        main {
+
+            java.srcDirs = ['src']
+//            resources.srcDirs = ['src']
+//            aidl.srcDirs = ['src']
+//            renderscript.srcDirs = ['src']
+//            res.srcDirs = ['res']
+//            assets.srcDirs = ['assets']
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -53,11 +66,13 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.1.1'
-    compile 'com.taobao.android:weex_sdk:0.10.0'
+    compile 'com.taobao.android:weex_sdk:0.11.2.3'
     provided 'org.weex.plugin:processor:1.0.2'
     testCompile 'junit:junit:4.12'
 
     compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.25@aar'
+    //compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.30-weex-SNAPSHOT'
+
     //compile project(':gcanvas_library')
 }
 

@@ -1,4 +1,4 @@
-package org.weex.plugin.weexplugingcanvas;
+package com.alibaba.weex.plugin.gcanvas;
 
 
 import android.content.Context;
@@ -62,4 +62,3 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     }
 
 }
-

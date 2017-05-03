@@ -1,4 +1,5 @@
-package org.weex.plugin.weexplugingcanvas;
+package com.alibaba.weex.plugin.gcanvas;
+
 
 import android.content.Context;
 
@@ -10,7 +11,6 @@ import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.ComponentCreator;
 import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXVContainer;
-
 
 
 import java.lang.reflect.InvocationTargetException;
@@ -73,7 +73,6 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
 
 }
-
 
 
 

@@ -201,7 +201,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.weex.plugin.weexplugingcanvas;
+package com.alibaba.weex.plugin.gcanvas;
 
 import android.app.Activity;
 import android.content.Context;
@@ -211,6 +211,8 @@ import android.view.Display;
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasHelper;
+import com.taobao.gcanvas.GCanvasResult;
+import com.taobao.gcanvas.GCanvasTexture;
 import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GLog;
 import com.taobao.gcanvas.GUtil;
@@ -225,12 +227,12 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import static com.taobao.gcanvas.GCanvas.fastCanvas;
 
-
-@WeexModule(name = "gcanvas", lazyLoad = true)
+@WeexModule(name= "gcanvas")
 public class GcanvasModule extends WXModule {
 
 
@@ -253,6 +255,8 @@ public class GcanvasModule extends WXModule {
 
     @JSMethod
     public void disable(String args, JSCallback callBack) {
+
+
 
         if (fastCanvas != null) {
 
@@ -739,6 +743,30 @@ public class GcanvasModule extends WXModule {
             if (sPicToTextureMap.containsKey(picUrl)) {
                 GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + sPicToTextureMap.get(picUrl));
                 textureId = sPicToTextureMap.get(picUrl);
+
+
+                HashMap<String, Object> hm = new HashMap<>();
+                hm.put("url", picUrl);
+                hm.put("id", textureId);
+
+
+                List<GCanvasTexture> textureList = fastCanvas.getCanvasView().getRenderer().getTextures();
+                for (GCanvasTexture texture : textureList) {
+                    if (texture.id == textureId) {
+
+                        GLog.d(TAG, "texture width: " + texture.width);
+                        GLog.d(TAG, "texture height: " + texture.height);
+                        
+                        hm.put("width", texture.width);
+                        hm.put("height", texture.height);
+                        break;
+                    }
+                }
+
+
+                if (callback != null) {
+                    callback.invoke(hm);
+                }
             } else {
                 GLog.d(TAG, "cmd match preLoadImage, cache miss: " + picUrl);
 
@@ -756,42 +784,16 @@ public class GcanvasModule extends WXModule {
 
                     sIdCounter++;
 
-                    fastCanvas.executeForWeex("loadTexture", ja, null);
-                } catch (Exception e) {
-                    GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
-                }
-
-
-            }
-
-
-            /*
-            List<GCanvasTexture> textureList = fastCanvas.getCanvasView().getRenderer().getTextures();
-
-            HashMap<String, Object> hm = new HashMap<>();
-            for (GCanvasTexture texture : textureList) {
-                if (texture.id == textureId) {
-
-                    GLog.d(TAG, "texture width: " + texture.width);
-                    GLog.d(TAG, "texture height: " + texture.height);
-
-                    break;
-                }
-            }
-            */
-
-            if (callback != null) {
                 HashMap<String, Object> hm = new HashMap<>();
                 hm.put("url", picUrl);
                 hm.put("id", textureId);
-                callback.invoke(hm);
 
-
-//                WXSDKManager.getInstance().callback(mWXSDKInstance.getInstanceId(),
-//                        callback,
-//                        hm
-//                );
+                    fastCanvas.executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(CMD_PRE_LOAD_IMAGE, hm, callback));
+                } catch (Exception e) {
+                    GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
+                }
             }
+
 
             return;
 
@@ -891,7 +893,6 @@ public class GcanvasModule extends WXModule {
             GLog.d(TAG, "cmd match render args: " + args);
 
 
-
             setDevicePixelRatio();
 
             JSONArray ja = GCanvasHelper.argsToJsonArrary("render", args);
@@ -908,6 +909,50 @@ public class GcanvasModule extends WXModule {
         }
         GLog.d(TAG, "error! js cmd does not match any cmd: *" + cmd + "* args: *" + args + "*");
 
+
+    }
+
+
+}
+class WeexGcanvasPluginResult extends GCanvasResult {
+
+    String cmdType;
+    HashMap<String, Object> hm;
+    JSCallback callback;
+
+    public WeexGcanvasPluginResult(String cmdType, HashMap<String, Object> hm, JSCallback cb) {
+        this.cmdType = cmdType;
+        this.hm = hm;
+        this.callback = cb;
+    }
+
+    @Override
+    protected void onResult(ResultCode resultCode, Object resultMessage) {
+
+        GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
+        GLog.d("WeexGcanvasPluginResult", "onResult resultMessage " + resultMessage);
+        final String message;
+
+        if (cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
+
+            String width;
+            String height;
+
+            try {
+                width = ((JSONArray) resultMessage).getString(0);
+                height = ((JSONArray) resultMessage).getString(1);
+                hm.put("width", width);
+                hm.put("height", height);
+
+            } catch (Exception e) {
+                GLog.e("WeexGcanvasPluginResult", "onResult() Exception: ", e);
+            }
+
+            if (callback != null) {
+                callback.invoke(hm);
+            }
+
+        }
 
     }
 
