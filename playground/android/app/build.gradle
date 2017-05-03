@@ -65,9 +65,9 @@ dependencies {
     compile 'com.taobao.android.weex_inspection:urlconnection_interceptor:1.0.0@aar'
     compile 'com.taobao.android:weex_inspector:0.10.0.5@aar'
 
-    compile ('com.taobao.android:weex_debug:0.0.1@aar') {
-        transitive = false
-    }
+//    compile ('com.taobao.android:weex_debug:0.0.1@aar') {
+//        transitive = false
+//    }
     compile "com.taobao.android:weex_sdk:${rootProject.ext.weex_sdk}"
     compile 'com.alibaba:fastjson:1.1.46.android'
     compile 'org.weex.plugin:plugin-loader:1.0.0'

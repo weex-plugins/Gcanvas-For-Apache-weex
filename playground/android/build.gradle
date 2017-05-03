@@ -15,8 +15,8 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
-        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/repository' }
-        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/snapshots'}
+//        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/repository' }
+//        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/snapshots'}
     }
 }
 
