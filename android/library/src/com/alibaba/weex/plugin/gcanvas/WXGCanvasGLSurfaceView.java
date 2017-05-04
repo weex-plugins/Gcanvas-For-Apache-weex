@@ -7,7 +7,6 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 import com.taobao.gcanvas.GCanvasView;
-import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.view.gesture.WXGesture;
 import com.taobao.weex.ui.view.gesture.WXGestureObservable;
 
@@ -17,17 +16,15 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
 
     private WXGesture wxGesture;
 
-    public WXGCanvasGLSurfaceView(Context context, WXDomObject element) {
-        super(context);
 
+    public WXGCanvasGLSurfaceView(Context context, GCanvasConfig config) {
+        super(context, config);
     }
 
 
     @Override
     protected void onDraw(Canvas canvas) {
-
         super.onDraw(canvas);
-
     }
 
     @Override
@@ -47,18 +44,14 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     @Override
     protected void onLayout(boolean changed, int left, int top, int right,
                             int bottom) {
-
         super.onLayout(changed, left, top, right, bottom);
-
     }
 
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
         super.surfaceDestroyed(holder);
-
-
     }
 
 }
+
