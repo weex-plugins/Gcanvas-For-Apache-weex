@@ -2,9 +2,12 @@ package com.alibaba.weex.plugin.gcanvas;
 
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvas;
+import com.taobao.gcanvas.GCanvasView;
+import com.taobao.gcanvas.GUtil;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
 import com.taobao.weex.dom.WXDomObject;
@@ -12,12 +15,13 @@ import com.taobao.weex.ui.ComponentCreator;
 import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXVContainer;
 
-
 import java.lang.reflect.InvocationTargetException;
 
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
 public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
+
+    private GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
 
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -52,15 +56,21 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
         registerActivityStateListener();
 
-        WXGCanvasGLSurfaceView view = new WXGCanvasGLSurfaceView(context, null);
 
+        String backgroundColor = getDomObject().getStyles().getBackgroundColor();
+        if (!TextUtils.isEmpty(backgroundColor)) {
+            mConfig.clearColor = backgroundColor;
+        } else {
+            mConfig.clearColor = GUtil.clearColor;
+        }
+
+        WXGCanvasGLSurfaceView view = new WXGCanvasGLSurfaceView(context, mConfig);
         return view;
     }
 
 
     @Override
     public void onActivityDestroy() {
-
         if (GCanvas.fastCanvas != null) {
 
             GCanvas.fastCanvas.onDestroy();
@@ -68,7 +78,6 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         }
 
         GcanvasModule.sRef = null;
-
     }
 
 

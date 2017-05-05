@@ -208,6 +208,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.view.Display;
 
+import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasHelper;
@@ -217,6 +218,7 @@ import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GLog;
 import com.taobao.gcanvas.GUtil;
 import com.taobao.weex.WXSDKManager;
+import com.taobao.weex.annotation.Component;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -251,6 +253,45 @@ public class GcanvasModule extends WXModule {
     public static final String CMD_PRE_LOAD_IMAGE = "preLoadImage";
     public static final String CMD_SET_CONTEXT_TYPE = "setContextType";
     public static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
+
+
+
+    @JSMethod
+    public void setup(String args, JSCallback callback) {
+        if (TextUtils.isEmpty(args)) {
+            return;
+        }
+
+        JSONObject jo;
+        try {
+            jo = new JSONObject(args);
+            if (jo.has("renderMode")) {
+                GUtil.preRenderMode = jo.getInt("renderMode");
+
+            }
+            if (jo.has("hybridLayerType")) {
+                GUtil.hybridLayerType = jo.getInt("hybridLayerType");
+            }
+
+            if (jo.has("newCanvasMode")) {
+                GUtil.newCanvasMode = jo.getBoolean("newCanvasMode");
+            }
+
+            if (jo.has("sameLevel")) {
+                GUtil.sameLevel = jo.getBoolean("sameLevel");
+            }
+
+            if (jo.has("supportScroll")) {
+                GUtil.supportScroll = jo.getBoolean("supportScroll");
+            }
+
+            if (jo.has("clearColor")) {
+                GUtil.clearColor = jo.getString("clearColor");
+            }
+        } catch (Exception e) {
+        }
+    }
+
 
 
     @JSMethod
@@ -914,6 +955,7 @@ public class GcanvasModule extends WXModule {
 
 
 }
+
 class WeexGcanvasPluginResult extends GCanvasResult {
 
     String cmdType;
