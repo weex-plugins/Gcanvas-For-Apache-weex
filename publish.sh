@@ -1,0 +1,1 @@
+./android/library/gradlew  clean build publish  -x test -p ./android/library/ -DdeployVersion=1.0.7-SNAPSHOT --refresh-dependencies
