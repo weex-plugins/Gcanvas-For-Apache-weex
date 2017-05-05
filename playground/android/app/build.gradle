@@ -72,4 +72,6 @@ dependencies {
     compile 'com.alibaba:fastjson:1.1.46.android'
     compile 'org.weex.plugin:plugin-loader:1.0.0'
     compile project(path: ':library')
+
+    compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.31@aar'
 }

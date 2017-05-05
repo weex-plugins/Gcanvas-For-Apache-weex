@@ -70,7 +70,7 @@ dependencies {
     provided 'org.weex.plugin:processor:1.0.2'
     testCompile 'junit:junit:4.12'
 
-    compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.25@aar'
+    provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.31@aar'
     //compile 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.30-weex-SNAPSHOT'
 
     //compile project(':gcanvas_library')
