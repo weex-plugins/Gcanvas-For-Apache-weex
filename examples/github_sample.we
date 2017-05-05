@@ -62,7 +62,8 @@
             console.log('模板已经编译并且生成了 Virtual DOM 之后被触发');
 
             ref = this._ids.canvas_holder.el.ref;
-            setTimeout(draw, 17*2);
+            //setTimeout(draw, 17*2);
+            draw();
 
             console.log('leontest ready 2');
         },
