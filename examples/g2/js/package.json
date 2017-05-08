@@ -1,0 +1,20 @@
+{
+  "name": "weex-chart",
+  "version": "0.2.5",
+  "description": "chart component for weex",
+  "main": "index.js",
+  "scripts": {
+    "demo": "weex-devtool ./examples -e index.we -p 8888 --min"
+  },
+  "platform": [
+    "Android",
+    "iOS",
+    "html5"
+  ],
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "g2-mobile": "2.1.13-beta"
+  }
+}

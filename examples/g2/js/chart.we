@@ -1,0 +1,25 @@
+/**
+* Created by godsong on 16/11/3.
+*/
+<template>
+    <gcanvas id="wxc_gcanvas" style="width:{{width}};height:{{height}};backgroundColor:#ffffff"></gcanvas>
+</template>
+<script>
+    var CanvasElement = require('./CanvasElement');
+    var Chart = require('./chart');
+    module.exports = {
+        data: {
+            width: 750,
+            height: 375
+        },
+        created: function () {
+           
+            CanvasElement.reset();
+        },
+        ready: function () {
+            CanvasElement.init(this.$el('wxc_gcanvas') ).then(function (context) {
+                Chart.ready(context);
+            });
+        }
+    }
+</script>

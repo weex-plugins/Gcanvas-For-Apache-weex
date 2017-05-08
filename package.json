@@ -93,7 +93,9 @@
         "vue-loader": "^10.3.0",
         "css-loader": "^0.26.1",
         "vue": "^2.1.10",
-        "weex-components": "^0.2.0"
+        "weex-components": "^0.2.0",
+        "g2-mobile":"^2.1.6",
+        "@ali/hilo-weex":"^0.1.4"
     },
     "weexpack": "0.4.0"
 }

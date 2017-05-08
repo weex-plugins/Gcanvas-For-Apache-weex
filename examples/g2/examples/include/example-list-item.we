@@ -1,0 +1,33 @@
+<template>
+    <wxc-list-item onclick="{{redirect}}" onlongpress="{{press}}">
+        <text class="item-txt">{{ title }}</text>
+    </wxc-list-item>
+</template>
+
+<style>
+    .item-txt {
+        font-size: 48px;
+        color: #555;
+    }
+</style>
+
+<script>
+    require('weex-components');
+    var navigator = require('@weex-module/navigator');
+    module.exports = {
+        data: {
+            title: '',
+            url: ''
+        },
+        methods: {
+            redirect: function () {
+                navigator.push({
+                    'url': this.url,
+                    'animated': 'true'
+                }, function () {
+
+                })
+            }
+        }
+    }
+</script>
