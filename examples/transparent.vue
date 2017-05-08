@@ -17,7 +17,7 @@
 			gcanvas.disable();
 		},
 		mounted: function () {
-			var ref = this.$refs.canvas_holder.ref;
+			var ref = this.$refs.canvas_holder;
 			gcanvas.start(ref, function () {
 				var ctx = gcanvas.getContext('2d');
 
@@ -33,7 +33,7 @@
 
 				var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
 				ctx.drawImage(img, 100, 200, 210, 330);
-				//ctx.drawImage(img, 0,0,105,165, 100, 200, 210, 330);
+				ctx.drawImage(img, 0,0,105,165, 100, 200, 210, 330);
 				ctx.render();
 			});
 		}
