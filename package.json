@@ -95,7 +95,8 @@
         "vue": "^2.1.10",
         "weex-components": "^0.2.0",
         "g2-mobile":"^2.1.6",
-        "@ali/hilo-weex":"^0.1.4"
+        "@ali/hilo-weex":"^0.1.4",
+        "weex-plugin-weex-chart":"^0.2.6"
     },
     "weexpack": "0.4.0"
 }

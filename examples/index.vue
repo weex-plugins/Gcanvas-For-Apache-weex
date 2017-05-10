@@ -13,6 +13,7 @@
           {name: root + '/image', title: 'image'},
           {name: root + '/transparent', title: 'transparent'},
           {name: root + '/g2/example/index', title:'g2'},
+          {name: root + '/we/demo', title:'点图'},
        	  {name: root + '/hilo2d/index', title:'hilo2d'}
         ]
       }
