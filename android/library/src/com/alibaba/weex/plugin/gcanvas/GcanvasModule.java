@@ -208,7 +208,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.view.Display;
 
-import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasHelper;
@@ -218,7 +217,6 @@ import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GLog;
 import com.taobao.gcanvas.GUtil;
 import com.taobao.weex.WXSDKManager;
-import com.taobao.weex.annotation.Component;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.WXModule;
@@ -228,7 +226,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -361,7 +358,6 @@ public class GcanvasModule extends WXModule {
         GLog.d(TAG, "setLogLevel() args: " + args);
         GLog.setLevel(args);
 
-    }
 
 
     @JSMethod
@@ -422,7 +418,7 @@ public class GcanvasModule extends WXModule {
     }
 
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void render(String cmd, JSCallback callBack) {
         if (!TextUtils.isEmpty(cmd)) {
 
@@ -442,113 +438,6 @@ public class GcanvasModule extends WXModule {
             ["d0,0,0,105,165,100,250,210,330;"]
 
             */
-
-
-            Iterator<Map.Entry<String, Integer>> it = sPicToTextureMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, Integer> entry = it.next();
-
-                String url = entry.getKey();
-
-                String[] strarray = cmd.split(";");
-                for (int i = 0; i < strarray.length; i++) {
-
-
-                    if ((strarray[i].startsWith("[\"d") || strarray[i].startsWith("d")) && strarray[i].contains(url)) {
-                        GLog.d(TAG, "render found image cache! strarray[i]: " + strarray[i]);
-                        GLog.d(TAG, "render found image cache! url: " + url + " entry.getValue(): " + entry.getValue());
-
-                        String[] dCmd = strarray[i].split(",");
-
-                        int length;
-                        if (dCmd[0].startsWith("d")) {
-                            length = Integer.parseInt(dCmd[0].charAt(1) + "");
-                            dCmd[0] = "d" + entry.getValue();
-
-                        } else {
-                            length = Integer.parseInt(dCmd[0].charAt(3) + "");
-                            dCmd[0] = "[\"d" + entry.getValue();
-                        }
-                        GLog.d(TAG, "render d command length: " + length);
-
-                        StringBuffer output = new StringBuffer();
-
-                        if (length == 9) {
-
-                            output.append(dCmd[0]);
-                            output.append(",");
-
-                            output.append(dCmd[2]);
-                            output.append(",");
-
-                            output.append(dCmd[3]);
-                            output.append(",");
-
-                            output.append(dCmd[4]);
-                            output.append(",");
-
-                            output.append(dCmd[5]);
-                            output.append(",");
-
-                            output.append(dCmd[6]);
-                            output.append(",");
-
-                            output.append(dCmd[7]);
-                            output.append(",");
-
-                            output.append(dCmd[8]);
-                            output.append(",");
-
-                            output.append(dCmd[9]);
-
-
-                        } else if (length == 5) {
-
-
-                            output.append(dCmd[0]);
-                            output.append(",");
-
-                            output.append("0,0,");
-
-                            output.append(dCmd[4]);
-                            output.append(",");
-
-                            output.append(dCmd[5]);
-                            output.append(",");
-
-
-                            output.append(dCmd[2]);
-                            output.append(",");
-                            output.append(dCmd[3]);
-                            output.append(",");
-                            output.append(dCmd[4]);
-                            output.append(",");
-                            output.append(dCmd[5]);
-
-                        }
-
-                        strarray[i] = output.toString();
-
-                        GLog.d(TAG, "render after replace strarray[i]: " + strarray[i]);
-                    }
-
-
-                }
-
-                String out = "";
-
-                for (int i = 0; i < strarray.length; i++) {
-                    out += strarray[i] + ";";
-
-                }
-                GLog.d(TAG, "render out: " + out);
-
-                // 去掉最后的分号
-                cmd = out.substring(0, out.length() - 1);
-                GLog.d(TAG, "render new cmd: " + cmd);
-
-
-            }
 
             this.execGcanvasCMD(CMD_RENDER, cmd, callBack);
         }
@@ -636,8 +525,8 @@ public class GcanvasModule extends WXModule {
 
     }
 
-
-    void setDevicePixelRatio() {
+    @JSMethod
+    public void setDevicePixelRatio() {
 
         //Display display = ((Activity) (mWXSDKInstance.getContext())).getWindowManager().getDefaultDisplay();
 
@@ -858,7 +747,6 @@ public class GcanvasModule extends WXModule {
             //JSONArray args10 = GCanvasHelper.argsToJsonArrary("setHiQuality", "[true]");
 
             try {
-
                 JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_HIGH_QUALITY, "[" + args + "]");
                 fastCanvas.executeForWeex(CMD_SET_HIGH_QUALITY, ja, null);
             } catch (Exception e) {
@@ -932,25 +820,15 @@ public class GcanvasModule extends WXModule {
         else if (cmd.equals(CMD_RENDER)) {
 
             GLog.d(TAG, "cmd match render args: " + args);
-
-
-            setDevicePixelRatio();
-
-            JSONArray ja = GCanvasHelper.argsToJsonArrary("render", args);
-
             try {
-
-                fastCanvas.executeForWeex(CMD_RENDER, ja, null);
+                fastCanvas.executeRender(CMD_RENDER, args, null);
             } catch (Exception e) {
                 GLog.d(TAG, "match render exp: " + e);
                 return;
             }
-
             return;
         }
         GLog.d(TAG, "error! js cmd does not match any cmd: *" + cmd + "* args: *" + args + "*");
-
-
     }
 
 
