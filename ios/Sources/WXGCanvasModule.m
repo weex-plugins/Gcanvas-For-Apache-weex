@@ -221,9 +221,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                                          compFrame.origin.y,
                                          compFrame.size.width*self.devicePixelRatio,
                                          compFrame.size.height*self.devicePixelRatio);
-        [self.gcanvasPlugin setFrame:gcanvasFrame];
-        
         [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
+        [self.gcanvasPlugin setFrame:gcanvasFrame];
         self.gcanvasInitalized = YES;
     }
     
