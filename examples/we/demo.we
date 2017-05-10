@@ -7,7 +7,7 @@
 
 </template>
 <script>
-    var GM=require('weex-chart')('g2');
+    var GM=require('weex-plugin-weex-chart')('g2');
     var cases=require('./case');
     module.exports={
         ready:function(){
