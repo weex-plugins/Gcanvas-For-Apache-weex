@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
     private GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
+    private WXGCanvasGLSurfaceView mCurrentGLView = null;
 
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -64,8 +65,8 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
             mConfig.clearColor = GUtil.clearColor;
         }
 
-        WXGCanvasGLSurfaceView view = new WXGCanvasGLSurfaceView(context, mConfig);
-        return view;
+        mCurrentGLView = new WXGCanvasGLSurfaceView(context, mConfig);
+        return mCurrentGLView;
     }
 
 
@@ -80,7 +81,17 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         GcanvasModule.sRef = null;
     }
 
+    @Override
+    public void onActivityPause() {
+        mCurrentGLView.onPause();
+        super.onActivityPause();
+    }
 
+    @Override
+    public void onActivityResume() {
+        mCurrentGLView.onResume();
+        super.onActivityResume();
+    }
 }
 
 
