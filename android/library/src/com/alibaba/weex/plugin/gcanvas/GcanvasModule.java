@@ -357,7 +357,7 @@ public class GcanvasModule extends WXModule {
 
         GLog.d(TAG, "setLogLevel() args: " + args);
         GLog.setLevel(args);
-
+    }
 
 
     @JSMethod
