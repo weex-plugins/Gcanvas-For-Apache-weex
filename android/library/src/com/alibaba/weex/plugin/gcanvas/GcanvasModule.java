@@ -853,17 +853,17 @@ class WeexGcanvasPluginResult extends GCanvasResult {
         GLog.d("WeexGcanvasPluginResult", "onResult resultMessage " + resultMessage);
         final String message;
 
-        if (cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
-
+        if (resultCode.equals(ResultCode.OK) && cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
             String width;
             String height;
 
             try {
-                width = ((JSONArray) resultMessage).getString(0);
-                height = ((JSONArray) resultMessage).getString(1);
-                hm.put("width", width);
-                hm.put("height", height);
-
+                if(resultMessage instanceof JSONArray) {
+                    width = ((JSONArray) resultMessage).getString(0);
+                    height = ((JSONArray) resultMessage).getString(1);
+                    hm.put("width", width);
+                    hm.put("height", height);
+                }
             } catch (Exception e) {
                 GLog.e("WeexGcanvasPluginResult", "onResult() Exception: ", e);
             }

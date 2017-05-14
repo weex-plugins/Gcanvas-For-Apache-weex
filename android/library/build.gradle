@@ -57,7 +57,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     //provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.31@aar'
-    provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.55-weex-SNAPSHOT@aar'
+    provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.35@aar'
     provided 'com.taobao.android:weexplugin-annotation:1.0.6'
     provided "com.taobao.android:weex_sdk:0.11.2.17"
 //    provided "com.taobao.android:weexplugin-processor:1.0.4.3-SNAPSHOT"

@@ -81,17 +81,17 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         GcanvasModule.sRef = null;
     }
 
-    @Override
-    public void onActivityPause() {
-        mCurrentGLView.onPause();
-        super.onActivityPause();
-    }
-
-    @Override
-    public void onActivityResume() {
-        mCurrentGLView.onResume();
-        super.onActivityResume();
-    }
+//    @Override
+//    public void onActivityPause() {
+//        mCurrentGLView.onPause();
+//        super.onActivityPause();
+//    }
+//
+//    @Override
+//    public void onActivityResume() {
+//        mCurrentGLView.onResume();
+//        super.onActivityResume();
+//    }
 }
 
 
