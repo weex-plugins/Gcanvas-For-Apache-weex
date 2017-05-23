@@ -19,8 +19,8 @@
 
 #import "WXGCanvasModule.h"
 #import "WXGCanvasComponent.h"
-#import <GCanvas/GCVCommon.h>
-#import <GCanvas/GCanvasPlugin.h>
+#import <GCanvasSDK/GCVCommon.h>
+#import <GCanvasSDK/GCanvasPlugin.h>
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
@@ -46,6 +46,7 @@ WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
 WX_EXPORT_METHOD(@selector(enable:callback:));
 WX_EXPORT_METHOD(@selector(disable:callback:));
 WX_EXPORT_METHOD(@selector(render:));
+WX_EXPORT_METHOD(@selector(loadTexture:callback:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
@@ -99,6 +100,34 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     [self execCommand];
 }
 
+//遇见在图片
+- (void)loadTexture:(NSString *)src callback:(WXModuleCallback)callback
+{
+    GCVLOG_METHOD(@"loadTexture start...");
+    
+    __weak typeof(self) weakSelf = self;
+    [GCVCommon sharedInstance].imageLoader = self;
+    
+    [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
+        if (!imageCache) return;
+        CGImageRef cgimageRef = imageCache.image.CGImage;
+        CGFloat width = CGImageGetWidth(cgimageRef);
+        CGFloat height = CGImageGetHeight(cgimageRef);
+        [self.gcanvasPlugin addTextureId:imageCache.textureId
+                               withAppId:imageCache.jsTextreId
+                                   width:(NSUInteger)width
+                                  height:(NSUInteger)height];
+        //回调结果
+        if( callback )
+        {
+            callback(@{@"width":@(width),
+                       @"height":@(height),
+                       @"id":@(imageCache.jsTextreId)});
+        }
+        [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
+    }];
+}
+
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSString *)src callback:(WXModuleCallback)callback
 {
@@ -106,36 +135,21 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     __weak typeof(self) weakSelf = self;
     [GCVCommon sharedInstance].imageLoader = self;
     [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
-        if (!imageCache)
-        {
-            if(callback){
-                callback(@{});
-            }
-            return;
-        }
+        if (!imageCache) return;
         CGImageRef cgimageRef = imageCache.image.CGImage;
         CGFloat width = CGImageGetWidth(cgimageRef);
         CGFloat height = CGImageGetHeight(cgimageRef);
-        if(callback){
-            callback(@{@"width":@(width), @"height":@(height)});
+        [self.gcanvasPlugin addTextureId:imageCache.textureId
+                               withAppId:imageCache.jsTextreId
+                                   width:(NSUInteger)width
+                                  height:(NSUInteger)height];
+        //回调结果
+        if( callback )
+        {
+            callback(@{@"width":@(width),
+                       @"height":@(height),
+                       @"id":@(imageCache.jsTextreId)});
         }
-        
-//        GLuint tid = imageCache.textureId;
-//        if (tid == 0) {
-//            tid = [GCVCommon bindTexture:imageCache.image];
-//            imageCache.textureId = tid;
-//            [self.gcanvasPlugin addTextureId:tid withAppId:tid width:width height:height];
-//        }
-//        
-//        callback(@{@"width":@(width), @"height":@(height), @"textureId":@(tid)});
-        
-//        CGSize size = imageCache.image.size;
-//        CGFloat scale = [UIScreen mainScreen].nativeScale;
-//        callback(@{@"width":@(size.width*scale), @"height":@(size.height*scale), @"textureId":@(imageCache.textureId)});
-        
-        
-//        [self.gcanvasPlugin execCommands];
-//        [weakSelf.gcanvasComponent.glkview display];
         [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
     }];
 }
@@ -181,7 +195,6 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
             {
                 self.gcanvasComponent.glkview.delegate = self;
             }
-//            [self.gcanvasComponent.glkview display];
             [self.gcanvasComponent.glkview setNeedsDisplay];
         }
         else
@@ -208,6 +221,8 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     
     if (!self.gcanvasInitalized)
     {
+        self.gcanvasInitalized = YES;
+        
         //初始化EAGLContext
         [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
         
@@ -222,9 +237,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                                          compFrame.size.width*self.devicePixelRatio,
                                          compFrame.size.height*self.devicePixelRatio);
         [self.gcanvasPlugin setFrame:gcanvasFrame];
-        
         [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
-        self.gcanvasInitalized = YES;
     }
     
     [self.gcanvasPlugin execCommands];

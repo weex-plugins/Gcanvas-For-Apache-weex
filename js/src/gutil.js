@@ -5,12 +5,22 @@ var GLog = require('./glog').GLog;
 
 var inWeex = typeof callNative !== 'undefined';
 var debug = true;
+var platform;
 var canvasModule;
 
 
 canvasModule = (typeof weex!=='undefined'&&weex.requireModule) ? ( weex.requireModule('gcanvas') ) : (__weex_require__('@weex-module/gcanvas') );
 
 var GBridge = {
+
+    setup: function(data){
+        platform = data.platform;
+    },
+
+    isIOS: function(){
+      return platform === 1;
+    },
+
     /**执行render指令*/
     callRender: function (commands) {
         if (!inWeex) {
@@ -20,14 +30,34 @@ var GBridge = {
         canvasModule.render([commands]);
     },
 
+    /**Android use**/
+    callRenderAndroid: function (commands){
+        if( !inWeex ){
+            return;
+        }
+        canvasModule.render(commands);
+    },
+
+    /**Android use**/
+    callSetup:function(configObj, callback){
+        if (!inWeex) {
+            return;
+        }
+
+        var config = configObj || {};
+        //GLog.d('bridge#callRender() commands is ' + commands);
+        canvasModule.setup && canvasModule.setup(JSON.stringify(config), callback);
+    },
+
     /**预加载图片*/
     preLoadImage: function (src, cb) {
         if (!inWeex) {
             return;
         }
-        //GLog.d('bridge#preLoadImage() image url is ' + src);
+        GLog.d('bridge#preLoadImage() image url is ' + src);
         canvasModule.preLoadImage(src, function (e) {
-            //GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
+            GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
+            e.url = src;
             cb && cb(e);
         });
     },
