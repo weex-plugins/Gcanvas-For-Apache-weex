@@ -359,12 +359,14 @@ public class GcanvasModule extends WXModule {
         GLog.setLevel(args);
     }
 
+    @JSMethod(uiThread = false)
+    public String execGcanvaSyncCMD(String action, String args) {
+        return fastCanvas.executeSyncCmd(action, args);
+    }
 
     @JSMethod
     public void enable(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
-
-
             /*
             Message msg = Message.obtain();
             WXDomTask task = new WXDomTask();
@@ -705,8 +707,7 @@ public class GcanvasModule extends WXModule {
                     JSONArray ja = new JSONArray();
                     ja.put(picUrl);
                     ja.put(sIdCounter);
-
-                    sPicToTextureMap.put(picUrl, sIdCounter);
+                    
                     textureId = sIdCounter;
 
                     GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
@@ -871,7 +872,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
             if (callback != null) {
                 callback.invoke(hm);
             }
-
+            GcanvasModule.sPicToTextureMap.put((String)hm.get("url") , (int)hm.get("id"));
         }
 
     }
