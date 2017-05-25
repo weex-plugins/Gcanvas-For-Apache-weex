@@ -21,9 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 @Component(lazyload = false)
 public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
-    private GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
-    private WXGCanvasGLSurfaceView mCurrentGLView = null;
-
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
             return new WXGcanvasComponent(instance, node, parent, lazy);
@@ -57,7 +54,16 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
         registerActivityStateListener();
 
+        if (GCanvas.fastCanvas != null) {
+            GCanvas.fastCanvas.onDestroy();
+            GCanvas.fastCanvas = null;
+            GcanvasModule.sPicToTextureMap.clear();
+            GcanvasModule.sRef = null;
+            GcanvasModule.sIdCounter = 0;
+            GcanvasModule.isRatioSet = false;
+        }
 
+        GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         if (!TextUtils.isEmpty(backgroundColor)) {
             mConfig.clearColor = backgroundColor;
@@ -65,36 +71,21 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
             mConfig.clearColor = GUtil.clearColor;
         }
 
-        mCurrentGLView = new WXGCanvasGLSurfaceView(context, mConfig);
-        return mCurrentGLView;
+        WXGCanvasGLSurfaceView view = new WXGCanvasGLSurfaceView(context, mConfig);
+        return view;
     }
 
 
     @Override
     public void onActivityDestroy() {
         if (GCanvas.fastCanvas != null) {
-
             GCanvas.fastCanvas.onDestroy();
             GCanvas.fastCanvas = null;
         }
 
         GcanvasModule.sRef = null;
+        GcanvasModule.sPicToTextureMap.clear();
+        GcanvasModule.sIdCounter = 0;
+        GcanvasModule.isRatioSet = false;
     }
-
-//    @Override
-//    public void onActivityPause() {
-//        mCurrentGLView.onPause();
-//        super.onActivityPause();
-//    }
-//
-//    @Override
-//    public void onActivityResume() {
-//        mCurrentGLView.onResume();
-//        super.onActivityResume();
-//    }
 }
-
-
-
-
-
