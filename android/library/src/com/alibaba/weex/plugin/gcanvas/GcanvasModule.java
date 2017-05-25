@@ -258,7 +258,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
     public static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
 
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void setup(String args, JSCallback callback) {
         if (TextUtils.isEmpty(args)) {
             return;
@@ -295,14 +295,13 @@ public class GcanvasModule extends WXModule implements Destroyable {
     }
 
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void disable(String args, JSCallback callBack) {
         destroy();
     }
 
 
-    //@JSMethod(uiThread = false)
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void preLoadImage(String args, JSCallback callBack) {
 
         GLog.d(TAG, "preLoadImage() args: " + args);
@@ -314,9 +313,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     }
 
-
-    //@JSMethod(uiThread = false)
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void setHiQuality(String args) {
 
         GLog.d(TAG, "setHiQuality() args: " + args);
@@ -328,9 +325,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     }
 
-
-    //@JSMethod(uiThread = false)
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void setLogLevel(String args) {
 
         GLog.d(TAG, "setLogLevel() args: " + args);
@@ -343,7 +338,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
         return fastCanvas.executeSyncCmd(action, args);
     }
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void enable(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
             JSONObject jo;
@@ -386,104 +381,32 @@ public class GcanvasModule extends WXModule implements Destroyable {
     }
 
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void getDeviceInfo(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
 
-
-            /*
-            Message msg = Message.obtain();
-
-            WXDomTask task = new WXDomTask();
-
-            if (fastCanvas == null) {
-                GLog.e(TAG, "getDeviceInfo(),  fastCanvas == null");
-            }
-            */
-
-
             HashMap<String, Object> hm = new HashMap<>();
 
-//            WXSDKManager.getInstance().callback(mWXSDKInstance.getInstanceId(),
-//                    callBack,
-//                    hm
-//            );
             JSONObject data = new JSONObject();
             try {
                 data.put("platform", "Android");
             } catch (JSONException e) {
             }
             hm.put("data", data.toString());
-//            WXSDKManager.getInstance().callback(mWXSDKInstance.getInstanceId(),
-//                    callBack,
-//                    hm
-//            );
             callBack.invoke(hm);
         }
     }
 
-
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void setContextType(String args, JSCallback callBack) {
-
-
         if (!TextUtils.isEmpty(args)) {
-
-
-            /*
-
-            Message msg = Message.obtain();
-            WXDomTask task = new WXDomTask();
-
-
-            JSONObject jo;
-            String _args;
-            try {
-                GLog.i(TAG, "setContextType args: " + args);
-                GLog.i(TAG, "setContextType callBack: " + callBack);
-
-                jo = new JSONObject(args);
-
-                task.instanceId = mWXSDKInstance.getInstanceId();
-                task.args = new ArrayList<>();
-
-                task.args.add(sRef);
-                task.args.add(CMD_RENDER);
-                task.args.add(jo.get("type").toString());
-                task.args.add(callBack);
-
-                _args = jo.get("type").toString();
-                GLog.i(TAG, "setContextType _args: " + _args);
-
-
-            //msg.what = WXDomHandler.MsgType.WX_GCANVAS;
-            //msg.obj = task;
-
-            } catch (Exception e) {
-
-
-                return;
-            }
-
-
-            WXSDKManager.getInstance().getWXDomManager().sendMessage(msg);
-            */
-
-
             this.execGcanvasCMD(CMD_SET_CONTEXT_TYPE, args, callBack);
         }
-
     }
 
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void setDevicePixelRatio() {
-
-        //Display display = ((Activity) (mWXSDKInstance.getContext())).getWindowManager().getDefaultDisplay();
-
-
-        //Context _ctx = WXSDKManager.getInstance().getSDKInstance().getContext()
-
         Context ctx = (mWXSDKInstance.getContext());
         if (ctx == null) {
             GLog.e(TAG, "setDevicePixelRatio error ctx == null");
@@ -548,43 +471,12 @@ public class GcanvasModule extends WXModule implements Destroyable {
             view = (WXGCanvasGLSurfaceView) myComponent.getHostView();
         }
 
-
-
-
-
-        /*
-        //WXGcanvasComponent
-        if (WXGcanvasComponent.sWXGCanvasGLSurfaceView == null) {
-            GLog.i(TAG, "WXGcanvasComponent.sWXGCanvasGLSurfaceView == null sRef: " + WXGcanvasComponent.sWXGCanvasGLSurfaceView);
-        } else {
-            GLog.i(TAG, "WXGcanvasComponent.sWXGCanvasGLSurfaceView != null sRef: " + WXGcanvasComponent.sWXGCanvasGLSurfaceView);
-        }
-
-        if (view == null) {
-            GLog.i(TAG, "checkGCanvasView view == null sRef: " + view);
-        } else {
-            GLog.i(TAG, "checkGCanvasView view != null sRef: " + view);
-        }
-
-        if (view2 == null) {
-            GLog.i(TAG, "view2 == null sRef: " + view2);
-        } else {
-            GLog.i(TAG, "view2 != null sRef: " + view2);
-        }
-        */
-
-
         if (view != null && fastCanvas.getCanvasView() == null) {
-            //if (view != null) {
             GLog.d(TAG, "fastCanvas.setCanvasView() " + view);
             fastCanvas.setCanvasView(view);
         } else {
             GLog.d(TAG, "fastCanvas.setCanvasView() failed " + fastCanvas.getCanvasView());
-
-
         }
-
-
     }
 
 
@@ -598,9 +490,6 @@ public class GcanvasModule extends WXModule implements Destroyable {
         GLog.d(TAG, "execGcanvas args: " + args);
         GLog.d(TAG, "execGcanvas callback: " + callback);
 
-
-        //fastCanvas = null;
-
         if (cmd.equals(CMD_ENABLE)) {
             fastCanvas = null;
             GLog.d(TAG, "enable, reset fastCanvas");
@@ -611,17 +500,14 @@ public class GcanvasModule extends WXModule implements Destroyable {
             GLog.d(TAG, "InitActivity  ok GCanvas");
         }
 
-
         if (fastCanvas == null) {
             initFastGCanvas();
         }
-
 
         checkGCanvasView();
 
         if (cmd.equals(CMD_PRE_LOAD_IMAGE)) {
             GLog.d(TAG, "cmd match preLoadImage: " + args);
-
 
             String picUrl = args;
 
@@ -630,11 +516,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + sPicToTextureMap.get(picUrl));
                 textureId = sPicToTextureMap.get(picUrl);
 
-
                 HashMap<String, Object> hm = new HashMap<>();
                 hm.put("url", picUrl);
                 hm.put("id", textureId);
-
 
                 List<GCanvasTexture> textureList = fastCanvas.getCanvasView().getRenderer().getTextures();
                 for (GCanvasTexture texture : textureList) {
@@ -649,20 +533,17 @@ public class GcanvasModule extends WXModule implements Destroyable {
                     }
                 }
 
-
                 if (callback != null) {
                     callback.invoke(hm);
                 }
             } else {
                 GLog.d(TAG, "cmd match preLoadImage, cache miss: " + picUrl);
 
-
                 try {
                     JSONArray ja = new JSONArray();
                     ja.put(picUrl);
                     ja.put(sIdCounter);
 
-//                    sPicToTextureMap.put(picUrl, sIdCounter);
                     textureId = sIdCounter;
 
                     GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
@@ -680,27 +561,21 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 }
             }
 
-
             return;
 
         } else if (cmd.equals(CMD_SET_CONTEXT_TYPE)) {
             GLog.d(TAG, "cmd match setContextType, args: " + args);
 
             try {
-                //JSONArray args = GCanvasHelper.argsToJsonArrary("setContextType", "[0]");
-
                 JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_CONTEXT_TYPE, "[" + args + "]");
                 fastCanvas.executeForWeex(CMD_SET_CONTEXT_TYPE, ja, null);
             } catch (Exception e) {
                 GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
             }
-
             return;
 
         } else if (cmd.equals(CMD_SET_HIGH_QUALITY)) {
             GLog.d(TAG, "cmd match setHighQuality");
-
-            //JSONArray args10 = GCanvasHelper.argsToJsonArrary("setHiQuality", "[true]");
 
             try {
 
@@ -716,22 +591,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             GLog.d(TAG, "cmd match enable, args: " + args);
 
-
             setDevicePixelRatio();
-
-//
-//            try {
-//
-//
-//                JSONArray ja = GCanvasHelper.argsToJsonArrary("setViewMode", "[weex]");
-//
-//                fastCanvas.executeForWeex("setViewMode", ja, null);
-//
-//            } catch (Exception e) {
-//                GLog.e(TAG, "match setViewMode Exception: " + e);
-//                return;
-//            }
-
 
             fastCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
 
@@ -743,37 +603,14 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 JSONArray ja = GCanvasHelper.argsToJsonArrary("enable", jo.get("config").toString());
 
                 fastCanvas.executeForWeex(CMD_ENABLE, ja, null);
-
-                //JSONArray args12 = GCanvasHelper.argsToJsonArrary("setPosition", "[0,0,906,1080]");
-
-                //JSONArray args15 = GCanvasHelper.argsToJsonArrary("setOrtho", "[1280,1920]");
-                //fastCanvas.executeForWeex("setOrtho", args15, null);
-
             } catch (Exception e) {
                 GLog.e(TAG, "match enable Exception: " + e);
                 return;
             }
 
-
-//            WXSDKManager.getInstance().callback(mWXSDKInstance.getInstanceId(),
-//                    callback,
-//                    new HashMap<String, Object>());
-
             callback.invoke(new HashMap<String, Object>());
             return;
         }
-        /*
-        else if (cmd.equals("getDeviceInfo")) {
-            GLog.d(TAG, "cmd match getDeviceInfo");
-            HashMap<String, Object> hm = new HashMap<>();
-
-            WXSDKManager.getInstance().callback(mWXSDKInstance.getInstanceId(),
-                    callback,
-                    hm
-            );
-            return;
-        }
-         */
         else if (cmd.equals(CMD_RENDER)) {
             if (!isRatioSet) {
                 setDevicePixelRatio();
@@ -847,8 +684,6 @@ class WeexGcanvasPluginResult extends GCanvasResult {
                 callback.invoke(hm);
             }
         }
-
     }
-
 }
 
