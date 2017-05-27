@@ -50,7 +50,7 @@ WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 
-WX_EXPORT_METHOD_SYNC(@selector(toDataURL:));
+WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 - (void)dealloc
 {
@@ -155,9 +155,9 @@ WX_EXPORT_METHOD_SYNC(@selector(toDataURL:));
 }
 
 #pragma mark - SYNC Method
-- (NSString*)toDataURL:(NSString *)args
+- (NSString*)execGcanvaSyncCMD:(NSUInteger )type args:(NSString*)args
 {
-    return [self.gcanvasPlugin toDataURL:args];
+    return [self.gcanvasPlugin execGcanvaSyncCMD:type args:args];
 }
 
 #pragma mark - Private
