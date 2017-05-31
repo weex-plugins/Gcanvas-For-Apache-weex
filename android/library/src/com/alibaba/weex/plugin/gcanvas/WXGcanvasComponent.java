@@ -21,6 +21,8 @@ import java.lang.reflect.InvocationTargetException;
 @Component(lazyload = false)
 public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
+    private WXGCanvasGLSurfaceView mSurfaceView;
+
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
             return new WXGcanvasComponent(instance, node, parent, lazy);
@@ -54,15 +56,6 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
         registerActivityStateListener();
 
-        if (GCanvas.fastCanvas != null) {
-            GCanvas.fastCanvas.onDestroy();
-            GCanvas.fastCanvas = null;
-            GcanvasModule.sPicToTextureMap.clear();
-            GcanvasModule.sRef = null;
-            GcanvasModule.sIdCounter = 0;
-            GcanvasModule.isRatioSet = false;
-        }
-
         GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         if (!TextUtils.isEmpty(backgroundColor)) {
@@ -71,21 +64,33 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
             mConfig.clearColor = GUtil.clearColor;
         }
 
-        WXGCanvasGLSurfaceView view = new WXGCanvasGLSurfaceView(context, mConfig);
-        return view;
+        mSurfaceView = new WXGCanvasGLSurfaceView(context, mConfig);
+        mSurfaceView.setOnCanvasLifecycleListener(GcanvasModule.sLifeListener);
+        return mSurfaceView;
     }
 
 
     @Override
-    public void onActivityDestroy() {
-        if (GCanvas.fastCanvas != null) {
-            GCanvas.fastCanvas.onDestroy();
-            GCanvas.fastCanvas = null;
+    public void onActivityResume() {
+        super.onActivityResume();
+        if (null != mSurfaceView) {
+            mSurfaceView.onResume();
         }
+    }
 
-        GcanvasModule.sRef = null;
-        GcanvasModule.sPicToTextureMap.clear();
-        GcanvasModule.sIdCounter = 0;
-        GcanvasModule.isRatioSet = false;
+    @Override
+    public void onActivityPause() {
+        super.onActivityPause();
+        if (null != mSurfaceView) {
+            mSurfaceView.onPause();
+        }
+    }
+
+    @Override
+    public void onActivityDestroy() {
+        super.onActivityDestroy();
+        if (null != mSurfaceView) {
+            mSurfaceView.setOnCanvasLifecycleListener(null);
+        }
     }
 }
