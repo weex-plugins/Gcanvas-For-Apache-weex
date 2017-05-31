@@ -25,7 +25,7 @@
 @interface WXGCanvasComponent()
 
 @property(nonatomic, assign) CGRect frame;
-@property(nonatomic) BOOL isViewDidUnload;
+
 @end
 
 @implementation WXGCanvasComponent
@@ -90,21 +90,14 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 -(void)viewDidUnload
 {
     [super viewDidUnload];
-    self.isViewDidUnload = YES;
 }
 
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    self.isViewDidUnload = NO;
-}
-
-- (BOOL)isViewLoaded
-{
-    if(self.glkview != nil && self.isViewDidUnload == NO){
-        return YES;
+    if(self.renderCallBack){
+        self.renderCallBack();
     }
-    return NO;
 }
 
 - (UIView *)loadView

@@ -98,6 +98,12 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     GCVLOG_METHOD(@"commands=%@, gcanvasComponent=%@", commands, self.gcanvasComponent);
     [self.gcanvasPlugin addCommands:commands];
     [self execCommand];
+    __weak typeof(self) weakSelf = self;
+    self.gcanvasComponent.renderCallBack =  ^(){
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf.gcanvasPlugin addCommands:commands];
+        [strongSelf execCommand];
+    };
 }
 
 //预加载image，便于后续渲染时可以同步执行
