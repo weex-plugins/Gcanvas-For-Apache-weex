@@ -619,6 +619,11 @@ public class GcanvasModule extends WXModule implements Destroyable {
         }
     }
 
+    @JSMethod(uiThread = false)
+    public String execGcanvaSyncCMD(String action, String args) {
+        return fastCanvas.executeSyncCmd(action, args);
+    }
+
     public void execGcanvasCMD(final String cmd,
                                final String args, final JSCallback callback) {
         if (mState.isDestroyed()) {
