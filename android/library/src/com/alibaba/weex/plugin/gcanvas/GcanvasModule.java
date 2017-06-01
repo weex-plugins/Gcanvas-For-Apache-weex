@@ -436,7 +436,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
     }
 
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void setDevicePixelRatio() {
         Context ctx = (mWXSDKInstance.getContext());
         if (ctx == null) {
