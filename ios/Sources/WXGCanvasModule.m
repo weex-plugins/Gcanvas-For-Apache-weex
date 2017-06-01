@@ -212,7 +212,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
         
         //设置gcanvas像素比率
-        self.devicePixelRatio = self.gcanvasComponent.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / self.gcanvasComponent.componetFrame.size.width ;
+        self.devicePixelRatio = self.gcanvasComponent.calculatedFrame.size.width * [UIScreen mainScreen].scale / self.gcanvasComponent.componetFrame.size.width ;
         [self.gcanvasPlugin setDevicePixelRatio:self.devicePixelRatio];
         
         //设置gcanvas frame
