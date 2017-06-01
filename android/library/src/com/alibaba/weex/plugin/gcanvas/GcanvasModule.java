@@ -233,32 +233,55 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.alibaba.weex.plugin.gcanvas.GcanvasModule.sPicToTextureMap;
 import static com.taobao.gcanvas.GCanvas.fastCanvas;
 
 @WeexModule(name= "gcanvas")
 public class GcanvasModule extends WXModule implements Destroyable {
 
 
-    public static Object sRef;
+    private Object sRef;
 
 
-    public static int sIdCounter = 0;
-    public static Map<String, Integer> sPicToTextureMap = new HashMap<>();
+    public static GcanvasModule sSingleton;
+
+
+    private static WeexGcanvasPluginResult.GCanvasModuleState mState = new WeexGcanvasPluginResult.GCanvasModuleState();
+
+    public static GCanvasView.CanvasLifecycleListener sLifeListener = new GCanvasView.CanvasLifecycleListener() {
+        @Override
+        public void onGCanvasViewDestroy() {
+            mState.destroy();
+        }
+
+        @Override
+        public void onGCanvasViewCreated() {
+            mState.ready();
+        }
+    };
+
+    private int sIdCounter = 0;
+    private Map<String, Integer> sPicToTextureMap = new HashMap<>();
 
 
     private static String TAG = "GcanvasModule";
-    static boolean isRatioSet = false;
 
-    public static final String CMD_RENDER = "render";
-    public static final String CMD_ENABLE = "enable";
-    public static final String CMD_DISABLE = "disable";
-    public static final String CMD_PRE_LOAD_IMAGE = "preLoadImage";
-    public static final String CMD_SET_CONTEXT_TYPE = "setContextType";
-    public static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
+    private static final String CMD_RENDER = "render";
+    private static final String CMD_ENABLE = "enable";
+    private static final String CMD_DISABLE = "disable";
+    static final String CMD_PRE_LOAD_IMAGE = "preLoadImage";
+    private static final String CMD_SET_CONTEXT_TYPE = "setContextType";
+    private static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
+    private static final String CMD_SET_DEVICE_PIXEL = "setDevicePixelRatio";
 
+    public GcanvasModule() {
+        sSingleton = this;
+        mState.init();
+        sIdCounter = 0;
+        sPicToTextureMap.clear();
+        sRef = null;
+    }
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void setup(String args, JSCallback callback) {
         if (TextUtils.isEmpty(args)) {
             return;
@@ -295,13 +318,15 @@ public class GcanvasModule extends WXModule implements Destroyable {
     }
 
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void disable(String args, JSCallback callBack) {
-        destroy();
+//        if (null != fastCanvas) {
+//            destroy();
+//        }
     }
 
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void preLoadImage(String args, JSCallback callBack) {
 
         GLog.d(TAG, "preLoadImage() args: " + args);
@@ -313,7 +338,8 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     }
 
-    @JSMethod(uiThread = false)
+    //@JSMethod(uiThread = false)
+    @JSMethod
     public void setHiQuality(String args) {
 
         GLog.d(TAG, "setHiQuality() args: " + args);
@@ -325,7 +351,8 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     }
 
-    @JSMethod(uiThread = false)
+    //@JSMethod(uiThread = false)
+    @JSMethod
     public void setLogLevel(String args) {
 
         GLog.d(TAG, "setLogLevel() args: " + args);
@@ -333,12 +360,8 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     }
 
-    @JSMethod(uiThread = false)
-    public String execGcanvaSyncCMD(String action, String args) {
-        return fastCanvas.executeSyncCmd(action, args);
-    }
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void enable(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
             JSONObject jo;
@@ -359,9 +382,11 @@ public class GcanvasModule extends WXModule implements Destroyable {
     public void render(String cmd, JSCallback callBack) {
         if (!TextUtils.isEmpty(cmd)) {
 
-            GLog.d(TAG, "render cmd: " + cmd);
-
             //替换图片渲染命令
+
+            if (sSingleton == null || fastCanvas == null || !mState.isReady()) {
+                return;
+            }
 
             /*
             原始
@@ -376,12 +401,15 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             */
 
-            this.execGcanvasCMD(CMD_RENDER, cmd, callBack);
+            try {
+                fastCanvas.executeRender(CMD_RENDER, cmd, null);
+            } catch (Throwable e) {
+            }
         }
     }
 
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void getDeviceInfo(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
 
@@ -397,11 +425,14 @@ public class GcanvasModule extends WXModule implements Destroyable {
         }
     }
 
-    @JSMethod(uiThread = false)
+    @JSMethod
     public void setContextType(String args, JSCallback callBack) {
+
+
         if (!TextUtils.isEmpty(args)) {
             this.execGcanvasCMD(CMD_SET_CONTEXT_TYPE, args, callBack);
         }
+
     }
 
 
@@ -415,17 +446,15 @@ public class GcanvasModule extends WXModule implements Destroyable {
         Display display = ((Activity) ctx).getWindowManager().getDefaultDisplay();
 
         int width = display.getWidth();
-        int height = display.getHeight();
         double devicePixelRatio = width / 750.0;
 
         GLog.d(TAG, "enable width " + width);
         GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
-        JSONArray args = GCanvasHelper.argsToJsonArrary("setDevicePixelRatio", "[" + devicePixelRatio + "]");
 
         try {
-            fastCanvas.executeForWeex("setDevicePixelRatio", args, null);
+            execGcanvasCMD(CMD_SET_DEVICE_PIXEL, String.valueOf(devicePixelRatio), null);
         } catch (Exception e) {
-            GLog.d(TAG, "setDevicePixelRatio Exception: " + e);
+            GLog.e(TAG, "setDevicePixelRatio Exception: " + e);
         }
     }
 
@@ -441,16 +470,10 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
 
     private void initFastGCanvas() {
-
         GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
-        if (null != fastCanvas) {
-            fastCanvas.onDestroy();
-        }
         fastCanvas = new GCanvas();
         fastCanvas.initialize(mWXSDKInstance.getUIContext());
         WXEnvironment.sLogLevel = LogLevel.INFO;
-
-        setDevicePixelRatio();
     }
 
 
@@ -474,6 +497,8 @@ public class GcanvasModule extends WXModule implements Destroyable {
         if (view != null && fastCanvas.getCanvasView() == null) {
             GLog.d(TAG, "fastCanvas.setCanvasView() " + view);
             fastCanvas.setCanvasView(view);
+            view.onResume();
+            setDevicePixelRatio();
         } else {
             GLog.d(TAG, "fastCanvas.setCanvasView() failed " + fastCanvas.getCanvasView());
         }
@@ -482,18 +507,20 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     public void execGcanvasCMD(String cmd,
                                String args, JSCallback callback) {
-
-
+        if (mState.isDestroyed()) {
+            return;
+        }
         GLog.d(TAG, "*****************************************");
 
         GLog.d(TAG, "execGcanvas cmd: " + cmd);
         GLog.d(TAG, "execGcanvas args: " + args);
         GLog.d(TAG, "execGcanvas callback: " + callback);
 
-        if (cmd.equals(CMD_ENABLE)) {
-            fastCanvas = null;
-            GLog.d(TAG, "enable, reset fastCanvas");
-        }
+
+//        if (cmd.equals(CMD_ENABLE)) {
+//            fastCanvas = null;
+//            GLog.d(TAG, "enable, reset fastCanvas");
+//        }
 
         GUtil.preInitActivity = (Activity) mWXSDKInstance.getContext();
         if (GUtil.preInitActivity != null) {
@@ -555,14 +582,11 @@ public class GcanvasModule extends WXModule implements Destroyable {
                     hm.put("url", picUrl);
                     hm.put("id", textureId);
 
-                    fastCanvas.executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(CMD_PRE_LOAD_IMAGE, hm, callback));
+                    fastCanvas.executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
                 } catch (Exception e) {
                     GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
                 }
             }
-
-            return;
-
         } else if (cmd.equals(CMD_SET_CONTEXT_TYPE)) {
             GLog.d(TAG, "cmd match setContextType, args: " + args);
 
@@ -572,8 +596,6 @@ public class GcanvasModule extends WXModule implements Destroyable {
             } catch (Exception e) {
                 GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
             }
-            return;
-
         } else if (cmd.equals(CMD_SET_HIGH_QUALITY)) {
             GLog.d(TAG, "cmd match setHighQuality");
 
@@ -610,38 +632,26 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             callback.invoke(new HashMap<String, Object>());
             return;
-        }
-        else if (cmd.equals(CMD_RENDER)) {
-            if (!isRatioSet) {
-                setDevicePixelRatio();
-                isRatioSet = true;
-            }
-
+        } else if (cmd.equals(CMD_SET_DEVICE_PIXEL)) {
             try {
-                fastCanvas.executeRender(CMD_RENDER, args, null);
-            } catch (Exception e) {
-                GLog.d(TAG, "match render exp: " + e);
+                fastCanvas.executeForWeex(CMD_SET_DEVICE_PIXEL, GCanvasHelper.argsToJsonArrary(CMD_SET_DEVICE_PIXEL, "[" + args + "]"), null);
+            } catch (Throwable e) {
             }
-
         }
-
     }
 
 
     @Override
     public void destroy() {
-        if (fastCanvas != null) {
-            GLog.d(TAG, "destroy(),  fastCanvas.onDestroy()");
+        if (null != fastCanvas) {
             fastCanvas.onDestroy();
             fastCanvas = null;
-        } else {
-            GLog.d(TAG, "destroy(),  fastCanvas == null");
         }
-
+        sSingleton = null;
         sRef = null;
         sIdCounter = 0;
         sPicToTextureMap.clear();
-        isRatioSet = false;
+        mState.destroy();
     }
 }
 
@@ -650,11 +660,14 @@ class WeexGcanvasPluginResult extends GCanvasResult {
     String cmdType;
     HashMap<String, Object> hm;
     JSCallback callback;
+    Map<String, Integer> textureMap;
 
-    public WeexGcanvasPluginResult(String cmdType, HashMap<String, Object> hm, JSCallback cb) {
+
+    public WeexGcanvasPluginResult(Map<String, Integer> textureMap, String cmdType, HashMap<String, Object> hm, JSCallback cb) {
         this.cmdType = cmdType;
         this.hm = hm;
         this.callback = cb;
+        this.textureMap = textureMap;
     }
 
     @Override
@@ -667,9 +680,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
         if (ResultCode.OK.equals(resultCode) && cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
             String width;
             String height;
-
-
-            sPicToTextureMap.put((String) hm.get("url"), (Integer) hm.get("id"));
+            textureMap.put((String) hm.get("url"), (Integer) hm.get("id"));
             try {
                 width = ((JSONArray) resultMessage).getString(0);
                 height = ((JSONArray) resultMessage).getString(1);
@@ -684,6 +695,59 @@ class WeexGcanvasPluginResult extends GCanvasResult {
                 callback.invoke(hm);
             }
         }
+
+    }
+
+    static class GCanvasModuleState {
+
+        static final short VIEW_INIT = 0;
+
+        static final short VIEW_READY = 1;
+        static final short VIEW_DESTROY = -1;
+
+        private volatile int mState;
+
+        public GCanvasModuleState() {
+            this.mState = VIEW_INIT;
+        }
+
+        private void setState(int state) {
+            switch (state) {
+                case VIEW_INIT:
+                    if (mState != VIEW_READY) {
+                        mState = state;
+                    }
+                    break;
+
+                case VIEW_READY:
+                case VIEW_DESTROY:
+                    mState = state;
+                    break;
+            }
+        }
+
+        public synchronized int status() {
+            return mState;
+        }
+
+        public synchronized void ready() {
+            setState(VIEW_READY);
+        }
+
+        public synchronized void destroy() {
+            setState(VIEW_DESTROY);
+        }
+
+        public synchronized void init() {
+            setState(VIEW_INIT);
+        }
+
+        public synchronized boolean isReady() {
+            return mState == VIEW_READY;
+        }
+
+        public synchronized boolean isDestroyed() {
+            return mState == VIEW_DESTROY;
+        }
     }
 }
-
