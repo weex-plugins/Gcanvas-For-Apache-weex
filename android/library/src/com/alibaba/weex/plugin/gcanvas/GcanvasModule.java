@@ -731,8 +731,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
 
         static {
             try {
-                sIsTaobaoWeex = WXEnvironment.getConfig().get("appName").contains("taobao");
-                GLog.e("CANVAS", "=========" + WXEnvironment.getConfig().get("appName"));
+                sIsTaobaoWeex = WXEnvironment.getConfig().get("appName").equals("TB");
             } catch (Throwable throwable) {
 
             }
