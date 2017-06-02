@@ -732,16 +732,6 @@ class WeexGcanvasPluginResult extends GCanvasResult {
 
     static class GCanvasModuleState {
 
-        private static boolean sIsTaobaoWeex = false;
-
-        static {
-            try {
-                sIsTaobaoWeex = WXEnvironment.getConfig().get("appName").equals("TB");
-            } catch (Throwable throwable) {
-
-            }
-        }
-
         private int mDestroyCount, mReadyCount;
 
         public GCanvasModuleState() {
@@ -763,11 +753,11 @@ class WeexGcanvasPluginResult extends GCanvasResult {
         }
 
         public synchronized boolean isReady() {
-            return sIsTaobaoWeex ? mReadyCount >= 2 : (mReadyCount > 0);
+            return mReadyCount > 0 && mReadyCount > mDestroyCount;
         }
 
         public synchronized boolean isDestroyed() {
-            return sIsTaobaoWeex ? mDestroyCount >= 2 : (mDestroyCount > 0);
+            return mDestroyCount > 0 && mDestroyCount >= mReadyCount;
         }
     }
 }
