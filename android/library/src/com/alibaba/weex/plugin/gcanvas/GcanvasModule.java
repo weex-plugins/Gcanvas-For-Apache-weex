@@ -243,24 +243,11 @@ import static com.taobao.gcanvas.GCanvas.fastCanvas;
 public class GcanvasModule extends WXModule implements Destroyable {
 
 
-    private Object sRef;
+    private Object mRef;
 
 
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
 
-    private static WeexGcanvasPluginResult.GCanvasModuleState mState = new WeexGcanvasPluginResult.GCanvasModuleState();
-
-    public static GCanvasView.CanvasLifecycleListener sLifeListener = new GCanvasView.CanvasLifecycleListener() {
-        @Override
-        public void onGCanvasViewDestroy() {
-            mState.destroy();
-        }
-
-        @Override
-        public void onGCanvasViewCreated() {
-            mState.ready();
-        }
-    };
 
     private int sIdCounter = 0;
     private Map<String, Integer> sPicToTextureMap = new HashMap<>();
@@ -367,7 +354,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
             JSONObject jo;
             try {
                 jo = new JSONObject(args);
-                sRef = (jo.get("componentId"));
+                mRef = (jo.get("componentId"));
 
             } catch (Exception e) {
                 return;
@@ -384,7 +371,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             //替换图片渲染命令
 
-            if (fastCanvas == null || !mState.isReady()) {
+            WXGcanvasComponent component = getCanvasComponent();
+
+            if (fastCanvas == null || null == component || !component.getCurrentState().isReady()) {
                 return;
             }
 
@@ -477,9 +466,22 @@ public class GcanvasModule extends WXModule implements Destroyable {
         GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
         fastCanvas = new GCanvas();
         fastCanvas.initialize(mWXSDKInstance.getUIContext());
-        WXEnvironment.sLogLevel = LogLevel.INFO;
     }
 
+
+    private WXGcanvasComponent getCanvasComponent() {
+        if (null == mWXSDKInstance || mRef == null) {
+            return null;
+        }
+
+        WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), (String) mRef);
+
+        if (myComponent instanceof WXGcanvasComponent) {
+            return (WXGcanvasComponent) myComponent;
+        }
+
+        return null;
+    }
 
     void checkGCanvasView() {
 
@@ -487,15 +489,15 @@ public class GcanvasModule extends WXModule implements Destroyable {
             return;
         }
 
-        WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), (String) sRef);
+        WXGcanvasComponent component = getCanvasComponent();
 
         WXGCanvasGLSurfaceView view = null;
-        if (myComponent == null) {
-            GLog.d(TAG, "checkGCanvasView myComponent == null sRef: " + (String) sRef);
+        if (component == null) {
+            GLog.d(TAG, "checkGCanvasView myComponent == null mRef: " + (String) mRef);
         } else {
-            GLog.d(TAG, "checkGCanvasView myComponent != null sRef: " + (String) sRef);
+            GLog.d(TAG, "checkGCanvasView myComponent != null mRef: " + (String) mRef);
 
-            view = (WXGCanvasGLSurfaceView) myComponent.getHostView();
+            view = component.getHostView();
         }
 
         if (view != null && fastCanvas.getCanvasView() == null) {
@@ -627,25 +629,28 @@ public class GcanvasModule extends WXModule implements Destroyable {
         return fastCanvas.executeSyncCmd(action, args);
     }
 
-
     private synchronized void executeRenderCmd() {
-            if (!commandCaches.isEmpty()) {
-                for (CommandCache cache : commandCaches) {
+        if (!commandCaches.isEmpty()) {
+            for (CommandCache cache : commandCaches) {
+                WXGcanvasComponent component = getCanvasComponent();
+                if (component != null && component.getCurrentState().isReady()) {
                     executeCmdImpl(cache.cmd, cache.args, cache.callback);
                 }
-                commandCaches.clear();
             }
+            commandCaches.clear();
+        }
     }
 
     public void execGcanvasCMD(final String cmd,
                                final String args, final JSCallback callback) {
-        if (mState.isDestroyed()) {
+        WXGcanvasComponent component = getCanvasComponent();
+        if (null == component || component.getCurrentState().isDestroyed()) {
             GLog.i(TAG, "abandon cmd:" + cmd);
             return;
         }
 
 
-        if (!mState.isReady()) {
+        if (!component.getCurrentState().isReady()) {
             commandCaches.add(new CommandCache(cmd, args, callback));
             if (null == fastCanvas) {
                 initFastGCanvas();
@@ -678,10 +683,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
             fastCanvas.onDestroy();
             fastCanvas = null;
         }
-        sRef = null;
+        mRef = null;
         sIdCounter = 0;
         sPicToTextureMap.clear();
-        mState.clear();
     }
 
     static class CommandCache {
@@ -714,7 +718,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 return;
             }
 
-            if (mState.isReady()) {
+            WXGcanvasComponent component = module.getCanvasComponent();
+
+            if (component != null && component.getCurrentState().isReady()) {
                 module.executeRenderCmd();
             }
         }
@@ -760,44 +766,6 @@ class WeexGcanvasPluginResult extends GCanvasResult {
             if (callback != null) {
                 callback.invoke(hm);
             }
-        }
-
-    }
-
-    static class GCanvasModuleState {
-
-        private int mDestroyCount, mReadyCount;
-
-        private long mFirstReadyTime = 0;
-
-        public GCanvasModuleState() {
-            this.mDestroyCount = 0;
-            this.mReadyCount = 0;
-        }
-
-        public synchronized void clear() {
-            this.mDestroyCount = 0;
-            this.mReadyCount = 0;
-            this.mFirstReadyTime = 0;
-        }
-
-        public synchronized void ready() {
-            this.mReadyCount++;
-            if (mFirstReadyTime == 0) {
-                mFirstReadyTime = System.currentTimeMillis();
-            }
-        }
-
-        public synchronized void destroy() {
-            this.mDestroyCount++;
-        }
-
-        public synchronized boolean isReady() {
-            return mReadyCount > 0 && mReadyCount > mDestroyCount && (System.currentTimeMillis() - mFirstReadyTime) > 160;
-        }
-
-        public synchronized boolean isDestroyed() {
-            return mDestroyCount > 0 && mDestroyCount > mReadyCount;
         }
     }
 }

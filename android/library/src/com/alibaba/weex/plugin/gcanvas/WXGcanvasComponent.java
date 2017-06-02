@@ -22,6 +22,20 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
 
     private WXGCanvasGLSurfaceView mSurfaceView;
 
+    private final GCanvasState mState = new GCanvasState();
+
+    public GCanvasView.CanvasLifecycleListener mLifeListener = new GCanvasView.CanvasLifecycleListener() {
+        @Override
+        public void onGCanvasViewDestroy() {
+            mState.destroy();
+        }
+
+        @Override
+        public void onGCanvasViewCreated() {
+            mState.ready();
+        }
+    };
+
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
             return new WXGcanvasComponent(instance, node, parent, lazy);
@@ -31,6 +45,11 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
             return new WXGcanvasComponent(instance, node, parent);
         }
 
+    }
+
+
+    public GCanvasState getCurrentState() {
+        return mState;
     }
 
 
@@ -64,7 +83,7 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         }
 
         mSurfaceView = new WXGCanvasGLSurfaceView(context, mConfig);
-        mSurfaceView.setOnCanvasLifecycleListener(GcanvasModule.sLifeListener);
+        mSurfaceView.setOnCanvasLifecycleListener(mLifeListener);
         return mSurfaceView;
     }
 
@@ -90,6 +109,46 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         super.onActivityDestroy();
         if (null != mSurfaceView) {
             mSurfaceView.setOnCanvasLifecycleListener(null);
+        }
+    }
+
+    static class GCanvasState {
+
+        private int mDestroyCount, mReadyCount;
+
+        private long mFirstReadyTime = 0;
+
+        public GCanvasState() {
+            this.mDestroyCount = 0;
+            this.mReadyCount = 0;
+        }
+
+        public synchronized void init() {
+        }
+
+        public synchronized void clear() {
+            this.mDestroyCount = 0;
+            this.mReadyCount = 0;
+            this.mFirstReadyTime = 0;
+        }
+
+        public synchronized void ready() {
+            this.mReadyCount++;
+            if (mFirstReadyTime == 0) {
+                mFirstReadyTime = System.currentTimeMillis();
+            }
+        }
+
+        public synchronized void destroy() {
+            this.mDestroyCount++;
+        }
+
+        public synchronized boolean isReady() {
+            return mReadyCount > 0 && mReadyCount > mDestroyCount && (System.currentTimeMillis() - mFirstReadyTime) > 160;
+        }
+
+        public synchronized boolean isDestroyed() {
+            return mDestroyCount > 0 && mDestroyCount > mReadyCount;
         }
     }
 }
