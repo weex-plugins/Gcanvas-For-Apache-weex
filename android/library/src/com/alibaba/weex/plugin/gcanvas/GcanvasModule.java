@@ -205,6 +205,8 @@ package com.alibaba.weex.plugin.gcanvas;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Display;
 
@@ -229,6 +231,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -243,8 +246,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
     private Object sRef;
 
 
-    public static GcanvasModule sSingleton;
-
+    private Handler mUIHandler = new Handler(Looper.getMainLooper());
 
     private static WeexGcanvasPluginResult.GCanvasModuleState mState = new WeexGcanvasPluginResult.GCanvasModuleState();
 
@@ -276,10 +278,12 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     private CopyOnWriteArrayList<CommandCache> commandCaches = new CopyOnWriteArrayList<>();
 
+    private CommandCacheRunner runner;
+
     public GcanvasModule() {
-        sSingleton = this;
         sIdCounter = 0;
         sPicToTextureMap.clear();
+        runner = new CommandCacheRunner(this);
     }
 
     @JSMethod
@@ -345,20 +349,15 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
         GLog.d(TAG, "setHiQuality() args: " + args);
         if (!TextUtils.isEmpty(args)) {
-
             this.execGcanvasCMD(CMD_SET_HIGH_QUALITY, args, null);
-
         }
-
     }
 
     //@JSMethod(uiThread = false)
     @JSMethod
     public void setLogLevel(String args) {
-
         GLog.d(TAG, "setLogLevel() args: " + args);
         GLog.setLevel(args);
-
     }
 
 
@@ -385,7 +384,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             //替换图片渲染命令
 
-            if (sSingleton == null || fastCanvas == null || !mState.isReady()) {
+            if (fastCanvas == null || !mState.isReady()) {
                 return;
             }
 
@@ -401,6 +400,13 @@ public class GcanvasModule extends WXModule implements Destroyable {
             ["d0,0,0,105,165,100,250,210,330;"]
 
             */
+
+
+            if (!commandCaches.isEmpty()) {
+                mUIHandler.removeCallbacks(runner);
+                mUIHandler.post(runner);
+                return;
+            }
 
             try {
                 fastCanvas.executeRender(CMD_RENDER, cmd, null);
@@ -428,12 +434,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     @JSMethod
     public void setContextType(String args, JSCallback callBack) {
-
-
         if (!TextUtils.isEmpty(args)) {
             this.execGcanvasCMD(CMD_SET_CONTEXT_TYPE, args, callBack);
         }
-
     }
 
 
@@ -624,6 +627,16 @@ public class GcanvasModule extends WXModule implements Destroyable {
         return fastCanvas.executeSyncCmd(action, args);
     }
 
+
+    private synchronized void executeRenderCmd() {
+            if (!commandCaches.isEmpty()) {
+                for (CommandCache cache : commandCaches) {
+                    executeCmdImpl(cache.cmd, cache.args, cache.callback);
+                }
+                commandCaches.clear();
+            }
+    }
+
     public void execGcanvasCMD(final String cmd,
                                final String args, final JSCallback callback) {
         if (mState.isDestroyed()) {
@@ -634,16 +647,13 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
         if (!mState.isReady()) {
             commandCaches.add(new CommandCache(cmd, args, callback));
+            if (null == fastCanvas) {
+                initFastGCanvas();
+            }
             return;
         }
 
-
-        if (!commandCaches.isEmpty()) {
-            for (CommandCache cache : commandCaches) {
-                executeCmdImpl(cache.cmd, cache.args, cache.callback);
-            }
-            commandCaches.clear();
-        }
+        executeRenderCmd();
 
         GLog.d(TAG, "*****************************************");
 
@@ -662,12 +672,12 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     @Override
     public void destroy() {
+        mUIHandler.removeCallbacksAndMessages(null);
         commandCaches.clear();
         if (null != fastCanvas) {
             fastCanvas.onDestroy();
             fastCanvas = null;
         }
-        sSingleton = null;
         sRef = null;
         sIdCounter = 0;
         sPicToTextureMap.clear();
@@ -683,6 +693,30 @@ public class GcanvasModule extends WXModule implements Destroyable {
             this.cmd = cmd;
             this.args = args;
             this.callback = callback;
+        }
+    }
+
+    static class CommandCacheRunner implements Runnable {
+        private WeakReference<GcanvasModule> outRef;
+
+        public CommandCacheRunner(GcanvasModule module) {
+            this.outRef = new WeakReference<>(module);
+        }
+
+        @Override
+        public void run() {
+            GcanvasModule module = outRef.get();
+            if (null == module) {
+                return;
+            }
+
+            if (fastCanvas == null) {
+                return;
+            }
+
+            if (mState.isReady()) {
+                module.executeRenderCmd();
+            }
         }
     }
 }
@@ -763,7 +797,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
         }
 
         public synchronized boolean isDestroyed() {
-            return mDestroyCount > 0 && mDestroyCount >= mReadyCount;
+            return mDestroyCount > 0 && mDestroyCount > mReadyCount;
         }
     }
 }
