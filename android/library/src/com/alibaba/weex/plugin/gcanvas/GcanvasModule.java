@@ -734,6 +734,8 @@ class WeexGcanvasPluginResult extends GCanvasResult {
 
         private int mDestroyCount, mReadyCount;
 
+        private long mFirstReadyTime = 0;
+
         public GCanvasModuleState() {
             this.mDestroyCount = 0;
             this.mReadyCount = 0;
@@ -742,10 +744,14 @@ class WeexGcanvasPluginResult extends GCanvasResult {
         public synchronized void clear() {
             this.mDestroyCount = 0;
             this.mReadyCount = 0;
+            this.mFirstReadyTime = 0;
         }
 
         public synchronized void ready() {
             this.mReadyCount++;
+            if (mFirstReadyTime == 0) {
+                mFirstReadyTime = System.currentTimeMillis();
+            }
         }
 
         public synchronized void destroy() {
@@ -753,7 +759,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
         }
 
         public synchronized boolean isReady() {
-            return mReadyCount > 0 && mReadyCount > mDestroyCount;
+            return mReadyCount > 0 && mReadyCount > mDestroyCount && (System.currentTimeMillis() - mFirstReadyTime) > 160;
         }
 
         public synchronized boolean isDestroyed() {
