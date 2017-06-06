@@ -244,11 +244,14 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         return;
     }
     
+    //设置当前的上线文EAGLContext
+    if( [EAGLContext currentContext] != self.gcanvasComponent.glkview.context )
+    {
+        [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
+    }
+    
     if (!self.gcanvasInitalized)
     {
-        //初始化EAGLContext
-        [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
-        
         //设置gcanvas像素比率
         self.devicePixelRatio = self.gcanvasComponent.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / self.gcanvasComponent.componetFrame.size.width ;
         [self.gcanvasPlugin setDevicePixelRatio:self.devicePixelRatio];
