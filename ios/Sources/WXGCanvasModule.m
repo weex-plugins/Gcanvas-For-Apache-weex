@@ -161,10 +161,35 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 }
 
 #pragma mark - SYNC Method
-- (NSString*)execGcanvaSyncCMD:(NSUInteger )type args:(NSString*)args
+- (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
 {
-    return [self.gcanvasPlugin execGcanvaSyncCMD:type args:args];
+    
+    __block NSString * result = @"";
+    
+//    UIImage *snapshotImage = [self.gcanvasComponent.glkview snapshot];
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        NSData *imageData = UIImagePNGRepresentation(snapshotImage);
+//        result = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+////        UIImageWriteToSavedPhotosAlbum(myImage, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
+//    });
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        result = [self.gcanvasPlugin execGcanvaSyncCMD:typeStr args:args];
+    });
+    return result;
 }
+
+////回调方法
+//- (void)image: (UIImage *) image didFinishSavingWithError: (NSError *) error contextInfo: (void *) contextInfo
+//{
+//    NSString *msg = nil ;
+//    if(error != NULL){
+//        msg = @"保存图片失败" ;
+//    }else{
+//        msg = @"保存图片成功" ;
+//    }
+//    NSLog(msg);
+//}
 
 #pragma mark - Private
 - (WXGCanvasComponent *)gcanvasComponent
