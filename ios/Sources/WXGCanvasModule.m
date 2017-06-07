@@ -79,7 +79,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     }
     
     self.componentRel = args[@"componentId"];//由于component的初始化可能比module慢，所以只在第一次使用时在对component进行初始化处理
-    self.gcanvasPlugin = [[GCanvasPlugin alloc] init];
+    self.gcanvasPlugin = [[GCanvasPlugin alloc] initWithInstanceId:self.componentRel];
     if(callback){
         callback(@{@"result":@"success"});
     }
@@ -247,11 +247,13 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     //设置当前的上线文EAGLContext
     if( [EAGLContext currentContext] != self.gcanvasComponent.glkview.context )
     {
-        [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
+        self.gcanvasInitalized = NO;
     }
     
     if (!self.gcanvasInitalized)
     {
+        [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
+        
         //设置gcanvas像素比率
         self.devicePixelRatio = self.gcanvasComponent.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / self.gcanvasComponent.componetFrame.size.width ;
         [self.gcanvasPlugin setDevicePixelRatio:self.devicePixelRatio];
