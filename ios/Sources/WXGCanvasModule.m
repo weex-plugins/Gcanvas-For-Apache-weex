@@ -196,13 +196,19 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 {
     if (!_gcanvasComponent)
     {
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-        WXPerformBlockOnComponentThread(^{
-            _gcanvasComponent = (WXGCanvasComponent *)[self.weexInstance componentForRef:self.componentRel];
-            GCVLOG_METHOD(@" _gcanvasComponent=%@", _gcanvasComponent);
-            dispatch_semaphore_signal(semaphore);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                WXPerformBlockOnComponentThread(^{
+                    _gcanvasComponent = (WXGCanvasComponent *)[self.weexInstance componentForRef:self.componentRel];
+                    GCVLOG_METHOD(@" _gcanvasComponent=%@", _gcanvasComponent);
+                    dispatch_semaphore_signal(semaphore);
+
+                });
+            });
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         });
-        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
     }
     return _gcanvasComponent;
 }
