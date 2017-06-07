@@ -112,7 +112,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     GCVLOG_METHOD(@" PreLoadImage start...");
     __weak typeof(self) weakSelf = self;
     [GCVCommon sharedInstance].imageLoader = self;
-    [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
+    [[GCVCommon sharedInstance] addPreLoadImage:src instanceId:self.weexInstance.instanceId completion:^(GCVImageCache *imageCache) {
         if (!imageCache)
         {
             if(callback){
@@ -276,7 +276,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         self.gcanvasInitalized = YES;
     }
     
-    [self.gcanvasPlugin execCommands];
+    [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
 }
 
 #pragma mark - GCVImageLoaderProtocol
