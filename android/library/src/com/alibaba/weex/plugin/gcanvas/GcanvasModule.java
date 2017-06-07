@@ -264,6 +264,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
     private static final String CMD_SET_DEVICE_PIXEL = "setDevicePixelRatio";
 
     private CopyOnWriteArrayList<CommandCache> commandCaches = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<String> cacheRenderCmds = new CopyOnWriteArrayList<>();
 
     private CommandCacheRunner runner;
 
@@ -330,7 +331,6 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     }
 
-    //@JSMethod(uiThread = false)
     @JSMethod
     public void setHiQuality(String args) {
 
@@ -355,7 +355,6 @@ public class GcanvasModule extends WXModule implements Destroyable {
             try {
                 jo = new JSONObject(args);
                 mRef = (jo.get("componentId"));
-
             } catch (Exception e) {
                 return;
             }
@@ -373,8 +372,15 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             WXGcanvasComponent component = getCanvasComponent();
 
-            if (fastCanvas == null || null == component || !component.getCurrentState().isReady()) {
+            if (fastCanvas == null || null == component) {
                 return;
+            }
+
+
+            if (!component.getCurrentState().isReady()) {
+                cacheRenderCmds.addIfAbsent(cmd);
+                mUIHandler.removeCallbacks(runner);
+                mUIHandler.postDelayed(runner, 16);
             }
 
             /*
@@ -387,15 +393,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
             ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,0,0,105,165,100,250,210,330;"]
             替换后
             ["d0,0,0,105,165,100,250,210,330;"]
-
             */
-
-
-            if (!commandCaches.isEmpty()) {
-                mUIHandler.removeCallbacks(runner);
-                mUIHandler.post(runner);
-                return;
-            }
 
             try {
                 fastCanvas.executeRender(CMD_RENDER, cmd, null);
@@ -626,6 +624,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     @JSMethod(uiThread = false)
     public String execGcanvaSyncCMD(String action, String args) {
+        if (null == fastCanvas) {
+            return "";
+        }
         return fastCanvas.executeSyncCmd(action, args);
     }
 
@@ -638,6 +639,17 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 }
             }
             commandCaches.clear();
+
+            for (String renderCmd : cacheRenderCmds) {
+                WXGcanvasComponent component = getCanvasComponent();
+                if (null != fastCanvas && component != null && component.getCurrentState().isReady()) {
+                    try {
+                        fastCanvas.executeRender(CMD_RENDER, renderCmd, null);
+                    } catch (Throwable e) {
+                    }
+                }
+            }
+            cacheRenderCmds.clear();
         }
     }
 
@@ -648,7 +660,6 @@ public class GcanvasModule extends WXModule implements Destroyable {
             GLog.i(TAG, "abandon cmd:" + cmd);
             return;
         }
-
 
         if (!component.getCurrentState().isReady()) {
             commandCaches.add(new CommandCache(cmd, args, callback));
@@ -720,8 +731,12 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             WXGcanvasComponent component = module.getCanvasComponent();
 
-            if (component != null && component.getCurrentState().isReady()) {
-                module.executeRenderCmd();
+            if (component != null) {
+                if (component.getCurrentState().isReady()) {
+                    module.executeRenderCmd();
+                } else {
+                    module.mUIHandler.postDelayed(this, 16);
+                }
             }
         }
     }
