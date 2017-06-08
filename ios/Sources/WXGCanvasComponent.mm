@@ -58,7 +58,7 @@
 @interface WXGCanvasComponent()
 
 @property(nonatomic, assign) CGRect frame;
-
+@property(nonatomic, assign) BOOL isUnLoad;
 @end
 
 @implementation WXGCanvasComponent
@@ -123,7 +123,10 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 -(void)viewDidUnload
 {
     [super viewDidUnload];
-    [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName object:nil];
+    if(!self.isUnLoad){
+        [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName object:nil];
+        self.isUnLoad = YES;
+    }
 
 }
 

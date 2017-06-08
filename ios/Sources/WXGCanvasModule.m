@@ -85,6 +85,8 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     if(callback){
         callback(@{@"result":@"success"});
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reset) name:KGCanvasResetNotificationName object:nil];
 }
 
 - (void)disable:(NSDictionary *)args callback:(WXModuleCallback)callback
@@ -106,13 +108,14 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         [strongSelf.gcanvasPlugin addCommands:commands];
         [strongSelf execCommand];
     };
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reset) name:KGCanvasResetNotificationName object:nil];
 }
 
 - (void)reset
 {
     if(self.gcanvasComponent.view.window){
         self.gcanvasInitalized = NO;
+        [self.gcanvasPlugin removeCommands];
+        
     }
 }
 
