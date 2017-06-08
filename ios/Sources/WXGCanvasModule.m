@@ -114,8 +114,10 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 {
     if(self.gcanvasComponent.view.window){
         self.gcanvasInitalized = NO;
-        [self.gcanvasPlugin removeCommands];
-        
+        if( self.gcanvasPlugin )
+        {
+            [self.gcanvasPlugin removeCommands];
+        }
     }
 }
 
