@@ -56,6 +56,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 - (void)dealloc
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[GCVCommon sharedInstance] clearLoadImageDict];
 }
 
@@ -243,8 +244,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     }
     
     //设置当前的上线文EAGLContext
-    
-    
     if (!self.gcanvasInitalized)
     {
         [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
@@ -263,7 +262,11 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         
         [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
         self.gcanvasInitalized = YES;
+        
+        [self.gcanvasPlugin removeCommands];
     }
+    
+    NSLog(@"jerry weexinstance:%@", self.weexInstance.instanceId);
     
     [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
 }
