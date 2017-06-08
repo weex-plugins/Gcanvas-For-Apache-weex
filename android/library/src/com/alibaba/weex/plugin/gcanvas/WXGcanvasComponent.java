@@ -3,8 +3,12 @@ package com.alibaba.weex.plugin.gcanvas;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.alibaba.weex.plugin.annotation.WeexComponent;
+import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GUtil;
 import com.taobao.weex.WXSDKInstance;
@@ -18,13 +22,60 @@ import java.lang.reflect.InvocationTargetException;
 
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
-public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
+public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
     private WXGCanvasGLSurfaceView mSurfaceView;
 
     private final GCanvasState mState = new GCanvasState();
 
-    public GCanvasView.CanvasLifecycleListener mLifeListener = new GCanvasView.CanvasLifecycleListener() {
+//    private GcanvasModule mModule;
+
+    private FrameLayout mContainer;
+
+    private GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
+
+    private GCanvas mCanvas;
+
+    private boolean mIsDetached = false;
+
+    public WXGCanvasGLSurfaceView.WXCanvasLifecycleListener mLifeListener = new WXGCanvasGLSurfaceView.WXCanvasLifecycleListener() {
+        @Override
+        public void onGCanvasViewAttachToWindow() {
+            if (mIsDetached) {
+
+                Context context = mContainer.getContext();
+
+                int width = 0, height = 0;
+
+                if (mSurfaceView != null) {
+                    width = mSurfaceView.getMeasuredWidth();
+                    height = mSurfaceView.getMeasuredHeight();
+                    mSurfaceView.setWXLifecycleListener(null);
+                    mContainer.removeView(mSurfaceView);
+                    mSurfaceView = null;
+                }
+
+                mCanvas.onDestroy();
+                mCanvas = null;
+                initGCanvas(context);
+                mSurfaceView = new WXGCanvasGLSurfaceView(context, mConfig);
+                mContainer.addView(mSurfaceView, new FrameLayout.LayoutParams(width, height));
+                mSurfaceView.setWXLifecycleListener(mLifeListener);
+                prepareGCanvasView();
+//                if (null != mModule && mModule.enableCache != null) {
+//                    mModule.enable(mModule.enableCache, null);
+//                }
+
+                mIsDetached = false;
+            }
+        }
+
+        @Override
+        public void onGCanvasViewDetachedFromWindow() {
+            mState.clear();
+            mIsDetached = true;
+        }
+
         @Override
         public void onGCanvasViewDestroy() {
             mState.destroy();
@@ -36,6 +87,14 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         }
     };
 
+    private void initGCanvas(Context context) {
+        mCanvas = new GCanvas();
+        GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
+        mCanvas.initialize(context);
+        mCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
+    }
+
+
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
             return new WXGcanvasComponent(instance, node, parent, lazy);
@@ -44,14 +103,11 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
             return new WXGcanvasComponent(instance, node, parent);
         }
-
     }
-
 
     public GCanvasState getCurrentState() {
         return mState;
     }
-
 
     @Deprecated
     public WXGcanvasComponent(WXSDKInstance instance, WXDomObject dom, WXVContainer parent, String instanceId, boolean isLazy) {
@@ -63,18 +119,33 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         super(instance, node, parent, lazy);
     }
 
-
     public WXGcanvasComponent(WXSDKInstance instance, WXDomObject node,
                               WXVContainer parent) {
         super(instance, node, parent);
     }
 
+    GCanvas getGCanvas() {
+        return mCanvas;
+    }
+
+    void prepareGCanvasView() {
+        if (null != mCanvas) {
+            mCanvas.setCanvasView(mSurfaceView);
+            if (mCanvas.enableCanvas()) {
+                mSurfaceView.onResume();
+            }
+        }
+    }
+
+    boolean isGCanvasViewPrepared() {
+        return null != mCanvas && mCanvas.getCanvasView() == mSurfaceView;
+    }
+
     @Override
-    protected WXGCanvasGLSurfaceView initComponentHostView(Context context) {
+    protected FrameLayout initComponentHostView(Context context) {
 
         registerActivityStateListener();
 
-        GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         if (!TextUtils.isEmpty(backgroundColor)) {
             mConfig.clearColor = backgroundColor;
@@ -82,9 +153,13 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
             mConfig.clearColor = GUtil.clearColor;
         }
 
+        mContainer = new FrameLayout(context);
         mSurfaceView = new WXGCanvasGLSurfaceView(context, mConfig);
-        mSurfaceView.setOnCanvasLifecycleListener(mLifeListener);
-        return mSurfaceView;
+        mSurfaceView.setWXLifecycleListener(mLifeListener);
+        mContainer.addView(mSurfaceView,
+                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        initGCanvas(context);
+        return mContainer;
     }
 
 
@@ -104,12 +179,23 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         }
     }
 
+//    void setModule(GcanvasModule module) {
+//        this.mModule = module;
+//    }
+
     @Override
     public void onActivityDestroy() {
         super.onActivityDestroy();
         if (null != mSurfaceView) {
             mSurfaceView.setOnCanvasLifecycleListener(null);
         }
+        if (null != this.mCanvas) {
+            this.mCanvas.onDestroy();
+        }
+
+        this.mCanvas = null;
+        this.mSurfaceView = null;
+//        this.mModule = null;
     }
 
     static class GCanvasState {
@@ -121,9 +207,6 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         public GCanvasState() {
             this.mDestroyCount = 0;
             this.mReadyCount = 0;
-        }
-
-        public synchronized void init() {
         }
 
         public synchronized void clear() {
@@ -144,7 +227,7 @@ public class WXGcanvasComponent extends WXComponent<WXGCanvasGLSurfaceView> {
         }
 
         public synchronized boolean isReady() {
-            return mReadyCount > 0 && mReadyCount > mDestroyCount && (System.currentTimeMillis() - mFirstReadyTime) > 160;
+            return mReadyCount > 0 && mReadyCount > mDestroyCount && (System.currentTimeMillis() - mFirstReadyTime) > 80;
         }
 
         public synchronized boolean isDestroyed() {

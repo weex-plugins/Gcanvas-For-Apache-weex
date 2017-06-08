@@ -215,17 +215,14 @@ import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasHelper;
 import com.taobao.gcanvas.GCanvasResult;
 import com.taobao.gcanvas.GCanvasTexture;
-import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GLog;
 import com.taobao.gcanvas.GUtil;
-import com.taobao.weex.WXEnvironment;
 import com.taobao.weex.WXSDKManager;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.Destroyable;
 import com.taobao.weex.common.WXModule;
 import com.taobao.weex.ui.component.WXComponent;
-import com.taobao.weex.utils.LogLevel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -237,14 +234,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.taobao.gcanvas.GCanvas.fastCanvas;
-
 @WeexModule(name= "gcanvas")
 public class GcanvasModule extends WXModule implements Destroyable {
 
 
     private Object mRef;
 
+//    String enableCache;
 
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
 
@@ -267,6 +263,8 @@ public class GcanvasModule extends WXModule implements Destroyable {
     private CopyOnWriteArrayList<String> cacheRenderCmds = new CopyOnWriteArrayList<>();
 
     private CommandCacheRunner runner;
+
+    private WXGcanvasComponent mWXGCanvasComp = null;
 
     public GcanvasModule() {
         sIdCounter = 0;
@@ -324,9 +322,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
         GLog.d(TAG, "preLoadImage() args: " + args);
         if (!TextUtils.isEmpty(args)) {
-
             this.execGcanvasCMD(CMD_PRE_LOAD_IMAGE, args, callBack);
-
         }
 
     }
@@ -355,7 +351,14 @@ public class GcanvasModule extends WXModule implements Destroyable {
             try {
                 jo = new JSONObject(args);
                 mRef = (jo.get("componentId"));
-            } catch (Exception e) {
+                WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), (String) mRef);
+
+                if (myComponent instanceof WXGcanvasComponent) {
+                    mWXGCanvasComp = (WXGcanvasComponent) myComponent;
+//                    mWXGCanvasComp.setModule(this);
+                }
+//                enableCache = args;
+            } catch (Throwable e) {
                 return;
             }
 
@@ -370,17 +373,16 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
             //替换图片渲染命令
 
-            WXGcanvasComponent component = getCanvasComponent();
-
-            if (fastCanvas == null || null == component) {
+            if (null == mWXGCanvasComp || mWXGCanvasComp.getGCanvas() == null) {
                 return;
             }
 
 
-            if (!component.getCurrentState().isReady()) {
+            if (!mWXGCanvasComp.getCurrentState().isReady()) {
                 cacheRenderCmds.addIfAbsent(cmd);
                 mUIHandler.removeCallbacks(runner);
                 mUIHandler.postDelayed(runner, 16);
+                return;
             }
 
             /*
@@ -396,7 +398,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
             */
 
             try {
-                fastCanvas.executeRender(CMD_RENDER, cmd, null);
+                mWXGCanvasComp.getGCanvas().executeRender(CMD_RENDER, cmd, null);
             } catch (Throwable e) {
             }
         }
@@ -449,62 +451,68 @@ public class GcanvasModule extends WXModule implements Destroyable {
         }
     }
 
-    private void initFastGCanvas(GCanvasView view) {
+//    private void initFastGCanvas(GCanvasView view) {
+//
+//        GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
+//        fastCanvas = new GCanvas();
+//        fastCanvas.initialize(mWXSDKInstance.getContext());
+//
+//        GLog.e(TAG, "initFastGCanvas setCanvasView: " + view);
+//        fastCanvas.setCanvasView(view);
+//    }
+//
+//
+//    private void initFastGCanvas() {
+//        Log.i(TAG, "!!!!initFastCanvas");
+//        GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
+//        fastCanvas = new GCanvas();
+//        fastCanvas.initialize(mWXSDKInstance.getUIContext());
+//        WXEnvironment.sLogLevel = LogLevel.INFO;
+//    }
 
-        GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
-        fastCanvas = new GCanvas();
-        fastCanvas.initialize(mWXSDKInstance.getContext());
 
-        GLog.e(TAG, "initFastGCanvas setCanvasView: " + view);
-        fastCanvas.setCanvasView(view);
-    }
-
-
-    private void initFastGCanvas() {
-        GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
-        fastCanvas = new GCanvas();
-        fastCanvas.initialize(mWXSDKInstance.getUIContext());
-    }
-
-
-    private WXGcanvasComponent getCanvasComponent() {
-        if (null == mWXSDKInstance || mRef == null) {
-            return null;
-        }
-
-        WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), (String) mRef);
-
-        if (myComponent instanceof WXGcanvasComponent) {
-            return (WXGcanvasComponent) myComponent;
-        }
-
-        return null;
-    }
+//    private WXGcanvasComponent getCanvasComponent() {
+//        if (null == mWXSDKInstance || mRef == null) {
+//            return null;
+//        }
+//
+//        WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), (String) mRef);
+//
+//        if (myComponent instanceof WXGcanvasComponent) {
+//            ((WXGcanvasComponent) myComponent).setModule(this);
+//            return (WXGcanvasComponent) myComponent;
+//        }
+//
+//        return null;
+//    }
 
     void checkGCanvasView() {
 
-        if (fastCanvas != null && fastCanvas.getCanvasView() != null) {
+        if (mWXGCanvasComp != null && mWXGCanvasComp.isGCanvasViewPrepared()) {
             return;
         }
 
-        WXGcanvasComponent component = getCanvasComponent();
+//        WXGcanvasComponent component = getCanvasComponent();
 
-        WXGCanvasGLSurfaceView view = null;
-        if (component == null) {
-            GLog.d(TAG, "checkGCanvasView myComponent == null mRef: " + (String) mRef);
-        } else {
-            GLog.d(TAG, "checkGCanvasView myComponent != null mRef: " + (String) mRef);
+//        WXGCanvasGLSurfaceView view = null;
+//        if (component == null) {
+//            GLog.d(TAG, "checkGCanvasView myComponent == null mRef: " + (String) mRef);
+//        } else {
+//            GLog.d(TAG, "checkGCanvasView myComponent != null mRef: " + (String) mRef);
+//
+//            view = component.getHostView();
+//        }
+//
+//        if (view != null && fastCanvas.getCanvasView() == null) {
+//            GLog.d(TAG, "fastCanvas.setCanvasView() " + view);
+//            fastCanvas.setCanvasView(view);
+//
+//        } else {
+//            GLog.d(TAG, "fastCanvas.setCanvasView() failed " + fastCanvas.getCanvasView());
+//        }
 
-            view = component.getHostView();
-        }
-
-        if (view != null && fastCanvas.getCanvasView() == null) {
-            GLog.d(TAG, "fastCanvas.setCanvasView() " + view);
-            fastCanvas.setCanvasView(view);
-            view.onResume();
-            setDevicePixelRatio();
-        } else {
-            GLog.d(TAG, "fastCanvas.setCanvasView() failed " + fastCanvas.getCanvasView());
+        if (null != mWXGCanvasComp) {
+            mWXGCanvasComp.prepareGCanvasView();
         }
     }
 
@@ -515,11 +523,19 @@ public class GcanvasModule extends WXModule implements Destroyable {
             GLog.d(TAG, "InitActivity  ok GCanvas");
         }
 
-        if (fastCanvas == null) {
-            initFastGCanvas();
+//        if (mWXGCanvasComp == null) {
+//            Log.i(TAG, "fast canvas is null:" + cmd);
+//            initFastGCanvas();
+//        }
+
+
+        if (null == mWXGCanvasComp || null == mWXGCanvasComp.getGCanvas()) {
+            return;
         }
 
         checkGCanvasView();
+
+        GCanvas fastCanvas = mWXGCanvasComp.getGCanvas();
 
         if (cmd.equals(CMD_PRE_LOAD_IMAGE)) {
             GLog.d(TAG, "cmd match preLoadImage: " + args);
@@ -535,7 +551,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 hm.put("url", picUrl);
                 hm.put("id", textureId);
 
-                List<GCanvasTexture> textureList = fastCanvas.getCanvasView().getRenderer().getTextures();
+                List<GCanvasTexture> textureList = mWXGCanvasComp.getGCanvas().getCanvasView().getRenderer().getTextures();
                 for (GCanvasTexture texture : textureList) {
                     if (texture.id == textureId) {
 
@@ -570,7 +586,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
                     hm.put("url", picUrl);
                     hm.put("id", textureId);
 
-                    fastCanvas.executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
+                    mWXGCanvasComp.getGCanvas().executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
                 } catch (Exception e) {
                     GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
                 }
@@ -599,9 +615,6 @@ public class GcanvasModule extends WXModule implements Destroyable {
             GLog.d(TAG, "cmd match enable, args: " + args);
 
             try {
-
-                fastCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
-
                 JSONObject jo = new JSONObject(args);
 
                 JSONArray ja = GCanvasHelper.argsToJsonArrary("enable", jo.get("config").toString());
@@ -613,7 +626,9 @@ public class GcanvasModule extends WXModule implements Destroyable {
                 return;
             }
 
-            callback.invoke(new HashMap<String, Object>());
+            if (null != callback) {
+                callback.invoke(new HashMap<String, Object>());
+            }
         } else if (cmd.equals(CMD_SET_DEVICE_PIXEL)) {
             try {
                 fastCanvas.executeForWeex(CMD_SET_DEVICE_PIXEL, GCanvasHelper.argsToJsonArrary(CMD_SET_DEVICE_PIXEL, "[" + args + "]"), null);
@@ -624,27 +639,26 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     @JSMethod(uiThread = false)
     public String execGcanvaSyncCMD(String action, String args) {
-        if (null == fastCanvas) {
+        if (null == mWXGCanvasComp || mWXGCanvasComp.getGCanvas() == null) {
             return "";
         }
-        return fastCanvas.executeSyncCmd(action, args);
+        return mWXGCanvasComp.getGCanvas().executeSyncCmd(action, args);
     }
 
     private synchronized void executeRenderCmd() {
         if (!commandCaches.isEmpty()) {
             for (CommandCache cache : commandCaches) {
-                WXGcanvasComponent component = getCanvasComponent();
-                if (component != null && component.getCurrentState().isReady()) {
+                if (mWXGCanvasComp != null && mWXGCanvasComp.getCurrentState().isReady()) {
                     executeCmdImpl(cache.cmd, cache.args, cache.callback);
                 }
             }
             commandCaches.clear();
 
             for (String renderCmd : cacheRenderCmds) {
-                WXGcanvasComponent component = getCanvasComponent();
-                if (null != fastCanvas && component != null && component.getCurrentState().isReady()) {
+//                WXGcanvasComponent component = getCanvasComponent();
+                if (mWXGCanvasComp != null && mWXGCanvasComp.getGCanvas() != null && mWXGCanvasComp.getCurrentState().isReady()) {
                     try {
-                        fastCanvas.executeRender(CMD_RENDER, renderCmd, null);
+                        mWXGCanvasComp.getGCanvas().executeRender(CMD_RENDER, renderCmd, null);
                     } catch (Throwable e) {
                     }
                 }
@@ -655,7 +669,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
     public void execGcanvasCMD(final String cmd,
                                final String args, final JSCallback callback) {
-        WXGcanvasComponent component = getCanvasComponent();
+        WXGcanvasComponent component = mWXGCanvasComp;
         if (null == component || component.getCurrentState().isDestroyed()) {
             GLog.i(TAG, "abandon cmd:" + cmd);
             return;
@@ -663,9 +677,11 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
         if (!component.getCurrentState().isReady()) {
             commandCaches.add(new CommandCache(cmd, args, callback));
-            if (null == fastCanvas) {
-                initFastGCanvas();
-            }
+//            if (null == fastCanvas) {
+//                initFastGCanvas();
+//            }
+            mUIHandler.removeCallbacks(runner);
+            mUIHandler.postDelayed(runner, 16);
             return;
         }
 
@@ -682,18 +698,22 @@ public class GcanvasModule extends WXModule implements Destroyable {
 //            GLog.d(TAG, "enable, reset fastCanvas");
 //        }
 
+        GLog.i(TAG, "execute cmd:" + cmd);
+
         executeCmdImpl(cmd, args, callback);
     }
 
 
     @Override
     public void destroy() {
+        GLog.i(TAG, "canvas module destroy!!!");
+        mWXGCanvasComp = null;
         mUIHandler.removeCallbacksAndMessages(null);
         commandCaches.clear();
-        if (null != fastCanvas) {
-            fastCanvas.onDestroy();
-            fastCanvas = null;
-        }
+//        if (null != fastCanvas) {
+//            fastCanvas.onDestroy();
+//            fastCanvas = null;
+//        }
         mRef = null;
         sIdCounter = 0;
         sPicToTextureMap.clear();
@@ -724,22 +744,20 @@ public class GcanvasModule extends WXModule implements Destroyable {
             if (null == module) {
                 return;
             }
+            WXGcanvasComponent component = module.mWXGCanvasComp;
 
-            if (fastCanvas == null) {
+            if (component == null || component.getGCanvas() == null) {
                 return;
             }
 
-            WXGcanvasComponent component = module.getCanvasComponent();
-
-            if (component != null) {
-                if (component.getCurrentState().isReady()) {
-                    module.executeRenderCmd();
-                } else {
-                    module.mUIHandler.postDelayed(this, 16);
-                }
+            if (component.getCurrentState().isReady()) {
+                module.executeRenderCmd();
+            } else {
+                module.mUIHandler.postDelayed(this, 16);
             }
         }
     }
+
 }
 
 class WeexGcanvasPluginResult extends GCanvasResult {
