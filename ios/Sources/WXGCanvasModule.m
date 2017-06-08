@@ -268,7 +268,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
         self.gcanvasInitalized = YES;
         
-        [self.gcanvasPlugin removeCommands];
     }
     
     NSLog(@"jerry weexinstance:%@", self.weexInstance.instanceId);
