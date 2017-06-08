@@ -269,9 +269,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         self.gcanvasInitalized = YES;
         
     }
-    
-    NSLog(@"jerry weexinstance:%@", self.weexInstance.instanceId);
-    
+        
     [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
 }
 

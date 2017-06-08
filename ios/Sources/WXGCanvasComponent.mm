@@ -47,8 +47,6 @@
     else
     {
         EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
-        NSLog(@"jerry newContext %@",newContext);
-        NSLog(@"jerry currentContext %@",[EAGLContext currentContext]);
         return newContext;
     }
 }
