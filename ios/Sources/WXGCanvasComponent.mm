@@ -21,9 +21,10 @@
 #import <GLKit/GLKit.h>
 #import <GCanvas/GCVCommon.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+#import "WeexGcanvas.h"
 
 
-@interface WXGCanvasEAGLContext
+@interface WXGCanvasEAGLContext:NSObject
 
 + (EAGLContext*)createEAGLContext;
 
@@ -46,6 +47,8 @@
     else
     {
         EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+        NSLog(@"jerry newContext %@",newContext);
+        NSLog(@"jerry currentContext %@",[EAGLContext currentContext]);
         return newContext;
     }
 }
@@ -120,6 +123,8 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 -(void)viewDidUnload
 {
     [super viewDidUnload];
+    [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName object:nil];
+
 }
 
 -(void)viewDidLoad
@@ -134,9 +139,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 {
     if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
-//        glkview.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
         glkview.context = [WXGCanvasEAGLContext createEAGLContext];
-        [EAGLContext setCurrentContext:glkview.context];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
@@ -144,6 +147,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         
         self.glkview = glkview;
     }
+    
     return self.glkview;
 }
 

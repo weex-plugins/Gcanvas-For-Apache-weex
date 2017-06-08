@@ -19,6 +19,7 @@
 
 #import "WXGCanvasModule.h"
 #import "WXGCanvasComponent.h"
+#import "WeexGcanvas.h"
 #import <GCanvas/GCVCommon.h>
 #import <GCanvas/GCanvasPlugin.h>
 #import <WeexSDK/WXComponentManager.h>
@@ -104,6 +105,14 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         [strongSelf.gcanvasPlugin addCommands:commands];
         [strongSelf execCommand];
     };
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reset) name:KGCanvasResetNotificationName object:nil];
+}
+
+- (void)reset
+{
+    if(self.gcanvasComponent.view.window){
+        self.gcanvasInitalized = NO;
+    }
 }
 
 //预加载image，便于后续渲染时可以同步执行
@@ -126,23 +135,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         if(callback){
             callback(@{@"width":@(width), @"height":@(height)});
         }
-        
-//        GLuint tid = imageCache.textureId;
-//        if (tid == 0) {
-//            tid = [GCVCommon bindTexture:imageCache.image];
-//            imageCache.textureId = tid;
-//            [self.gcanvasPlugin addTextureId:tid withAppId:tid width:width height:height];
-//        }
-//        
-//        callback(@{@"width":@(width), @"height":@(height), @"textureId":@(tid)});
-        
-//        CGSize size = imageCache.image.size;
-//        CGFloat scale = [UIScreen mainScreen].nativeScale;
-//        callback(@{@"width":@(size.width*scale), @"height":@(size.height*scale), @"textureId":@(imageCache.textureId)});
-        
-        
-//        [self.gcanvasPlugin execCommands];
-//        [weakSelf.gcanvasComponent.glkview display];
+
         [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
     }];
 }
@@ -225,7 +218,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
             {
                 self.gcanvasComponent.glkview.delegate = self;
             }
-//            [self.gcanvasComponent.glkview display];
             [self.gcanvasComponent.glkview setNeedsDisplay];
         }
         else
@@ -251,10 +243,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     }
     
     //设置当前的上线文EAGLContext
-    if( [EAGLContext currentContext] != self.gcanvasComponent.glkview.context )
-    {
-        self.gcanvasInitalized = NO;
-    }
+    
     
     if (!self.gcanvasInitalized)
     {
