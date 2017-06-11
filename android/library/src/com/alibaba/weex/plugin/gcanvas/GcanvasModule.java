@@ -216,7 +216,6 @@ import com.taobao.gcanvas.GCanvasHelper;
 import com.taobao.gcanvas.GCanvasResult;
 import com.taobao.gcanvas.GCanvasTexture;
 import com.taobao.gcanvas.GLog;
-import com.taobao.gcanvas.GUtil;
 import com.taobao.weex.WXSDKManager;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
@@ -278,31 +277,34 @@ public class GcanvasModule extends WXModule implements Destroyable {
             return;
         }
 
+        if (null == mWXGCanvasComp) {
+            return;
+        }
+
         JSONObject jo;
         try {
             jo = new JSONObject(args);
             if (jo.has("renderMode")) {
-                GUtil.preRenderMode = jo.getInt("renderMode");
-
+                mWXGCanvasComp.getCanvasConfig().renderMode = jo.getInt("renderMode");
             }
             if (jo.has("hybridLayerType")) {
-                GUtil.hybridLayerType = jo.getInt("hybridLayerType");
+                mWXGCanvasComp.getCanvasConfig().hybridLayerType = jo.getInt("hybridLayerType");
             }
 
             if (jo.has("newCanvasMode")) {
-                GUtil.newCanvasMode = jo.getBoolean("newCanvasMode");
+                mWXGCanvasComp.getCanvasConfig().newCanvasMode = jo.getBoolean("newCanvasMode");
             }
 
             if (jo.has("sameLevel")) {
-                GUtil.sameLevel = jo.getBoolean("sameLevel");
+                mWXGCanvasComp.getCanvasConfig().sameLevel = jo.getBoolean("sameLevel");
             }
 
             if (jo.has("supportScroll")) {
-                GUtil.supportScroll = jo.getBoolean("supportScroll");
+                mWXGCanvasComp.getCanvasConfig().supportScroll = jo.getBoolean("supportScroll");
             }
 
             if (jo.has("clearColor")) {
-                GUtil.clearColor = jo.getString("clearColor");
+                mWXGCanvasComp.getCanvasConfig().clearColor = jo.getString("clearColor");
             }
         } catch (Exception e) {
         }
@@ -513,15 +515,16 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
         if (null != mWXGCanvasComp) {
             mWXGCanvasComp.prepareGCanvasView();
+            setDevicePixelRatio();
         }
     }
 
 
     private void executeCmdImpl(String cmd, String args, JSCallback callback) {
-        GUtil.preInitActivity = (Activity) mWXSDKInstance.getContext();
-        if (GUtil.preInitActivity != null) {
-            GLog.d(TAG, "InitActivity  ok GCanvas");
-        }
+//        GUtil.preInitActivity = (Activity) mWXSDKInstance.getContext();
+//        if (GUtil.preInitActivity != null) {
+//            GLog.d(TAG, "InitActivity  ok GCanvas");
+//        }
 
 //        if (mWXGCanvasComp == null) {
 //            Log.i(TAG, "fast canvas is null:" + cmd);

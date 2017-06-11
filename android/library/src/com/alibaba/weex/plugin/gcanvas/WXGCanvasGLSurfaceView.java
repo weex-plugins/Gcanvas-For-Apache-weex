@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasView;
 import com.taobao.weex.ui.view.gesture.WXGesture;
 import com.taobao.weex.ui.view.gesture.WXGestureObservable;
@@ -17,8 +18,8 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
 
     protected WXCanvasLifecycleListener mWXLifecycleListener;
 
-    public WXGCanvasGLSurfaceView(Context context, GCanvasConfig config) {
-        super(context, config);
+    public WXGCanvasGLSurfaceView(GCanvas canvas, Context context) {
+        super(canvas, context);
     }
 
     @Override

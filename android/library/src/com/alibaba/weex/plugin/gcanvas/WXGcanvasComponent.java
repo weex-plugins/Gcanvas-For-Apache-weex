@@ -10,7 +10,6 @@ import android.widget.FrameLayout;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasView;
-import com.taobao.gcanvas.GUtil;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
 import com.taobao.weex.dom.WXDomObject;
@@ -31,8 +30,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 //    private GcanvasModule mModule;
 
     private FrameLayout mContainer;
-
-    private GCanvasView.GCanvasConfig mConfig = new GCanvasView.GCanvasConfig();
 
     private GCanvas mCanvas;
 
@@ -55,10 +52,13 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
                     mSurfaceView = null;
                 }
 
+                GCanvasView.GCanvasConfig config = mCanvas.config;
                 mCanvas.onDestroy();
                 mCanvas = null;
+
                 initGCanvas(context);
-                mSurfaceView = new WXGCanvasGLSurfaceView(context, mConfig);
+                mCanvas.config = config;
+                mSurfaceView = new WXGCanvasGLSurfaceView(mCanvas, context);
                 mContainer.addView(mSurfaceView, new FrameLayout.LayoutParams(width, height));
                 mSurfaceView.setWXLifecycleListener(mLifeListener);
                 prepareGCanvasView();
@@ -86,6 +86,10 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
             mState.ready();
         }
     };
+
+    public GCanvasView.GCanvasConfig getCanvasConfig() {
+        return mCanvas == null ? null : mCanvas.config;
+    }
 
     private void initGCanvas(Context context) {
         mCanvas = new GCanvas();
@@ -145,20 +149,19 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
     protected FrameLayout initComponentHostView(Context context) {
 
         registerActivityStateListener();
+        initGCanvas(context);
 
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         if (!TextUtils.isEmpty(backgroundColor)) {
-            mConfig.clearColor = backgroundColor;
-        } else {
-            mConfig.clearColor = GUtil.clearColor;
+            mCanvas.config.clearColor = backgroundColor;
         }
 
         mContainer = new FrameLayout(context);
-        mSurfaceView = new WXGCanvasGLSurfaceView(context, mConfig);
+        mSurfaceView = new WXGCanvasGLSurfaceView(mCanvas, context);
         mSurfaceView.setWXLifecycleListener(mLifeListener);
         mContainer.addView(mSurfaceView,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        initGCanvas(context);
+
         return mContainer;
     }
 
