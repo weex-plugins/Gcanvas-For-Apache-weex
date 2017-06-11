@@ -27,65 +27,13 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
     private final GCanvasState mState = new GCanvasState();
 
-//    private GcanvasModule mModule;
-
     private FrameLayout mContainer;
 
     private GCanvas mCanvas;
 
     private boolean mIsDetached = false;
 
-    public WXGCanvasGLSurfaceView.WXCanvasLifecycleListener mLifeListener = new WXGCanvasGLSurfaceView.WXCanvasLifecycleListener() {
-        @Override
-        public void onGCanvasViewAttachToWindow() {
-            if (mIsDetached) {
-
-                Context context = mContainer.getContext();
-
-                int width = 0, height = 0;
-
-                if (mSurfaceView != null) {
-                    width = mSurfaceView.getMeasuredWidth();
-                    height = mSurfaceView.getMeasuredHeight();
-                    mSurfaceView.setWXLifecycleListener(null);
-                    mContainer.removeView(mSurfaceView);
-                    mSurfaceView = null;
-                }
-
-                GCanvasView.GCanvasConfig config = mCanvas.config;
-                mCanvas.onDestroy();
-                mCanvas = null;
-
-                initGCanvas(context);
-                mCanvas.config = config;
-                mSurfaceView = new WXGCanvasGLSurfaceView(mCanvas, context);
-                mContainer.addView(mSurfaceView, new FrameLayout.LayoutParams(width, height));
-                mSurfaceView.setWXLifecycleListener(mLifeListener);
-                prepareGCanvasView();
-//                if (null != mModule && mModule.enableCache != null) {
-//                    mModule.enable(mModule.enableCache, null);
-//                }
-
-                mIsDetached = false;
-            }
-        }
-
-        @Override
-        public void onGCanvasViewDetachedFromWindow() {
-            mState.clear();
-            mIsDetached = true;
-        }
-
-        @Override
-        public void onGCanvasViewDestroy() {
-            mState.destroy();
-        }
-
-        @Override
-        public void onGCanvasViewCreated() {
-            mState.ready();
-        }
-    };
+    WXCanvasComponentLifeListener mLifeListener = new WXCanvasComponentLifeListener();
 
     public GCanvasView.GCanvasConfig getCanvasConfig() {
         return mCanvas == null ? null : mCanvas.config;
@@ -96,6 +44,12 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
         mCanvas.initialize(context);
         mCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
+    }
+
+    void setWXSurfaceViewLifeListener(WXGCanvasGLSurfaceView.WXCanvasLifecycleListener lifeListener) {
+        if (null != mLifeListener) {
+            mLifeListener.mDelegateListener = lifeListener;
+        }
     }
 
 
@@ -198,7 +152,76 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
         this.mCanvas = null;
         this.mSurfaceView = null;
+        this.mLifeListener.mDelegateListener = null;
+        this.mLifeListener = null;
 //        this.mModule = null;
+    }
+
+    class WXCanvasComponentLifeListener implements WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
+
+        private WXGCanvasGLSurfaceView.WXCanvasLifecycleListener mDelegateListener;
+
+
+        @Override
+        public void onGCanvasViewDestroy() {
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewDestroy();
+            }
+            mState.destroy();
+        }
+
+        @Override
+        public void onGCanvasViewCreated() {
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewCreated();
+            }
+            mState.ready();
+        }
+
+        @Override
+        public void onGCanvasViewAttachToWindow() {
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewAttachToWindow();
+            }
+            if (mIsDetached) {
+                Context context = mContainer.getContext();
+
+                int width = 0, height = 0;
+
+                if (mSurfaceView != null) {
+                    width = mSurfaceView.getMeasuredWidth();
+                    height = mSurfaceView.getMeasuredHeight();
+                    mSurfaceView.setWXLifecycleListener(null);
+                    mContainer.removeView(mSurfaceView);
+                    mSurfaceView = null;
+                }
+
+                GCanvasView.GCanvasConfig config = mCanvas.config;
+                mCanvas.onDestroy();
+                mCanvas = null;
+
+                initGCanvas(context);
+                mCanvas.config = config;
+                mSurfaceView = new WXGCanvasGLSurfaceView(mCanvas, context);
+                mContainer.addView(mSurfaceView, new FrameLayout.LayoutParams(width, height));
+                mSurfaceView.setWXLifecycleListener(mLifeListener);
+                prepareGCanvasView();
+//                if (null != mModule && mModule.enableCache != null) {
+//                    mModule.enable(mModule.enableCache, null);
+//                }
+
+                mIsDetached = false;
+            }
+        }
+
+        @Override
+        public void onGCanvasViewDetachedFromWindow() {
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewDetachedFromWindow();
+            }
+            mState.clear();
+            mIsDetached = true;
+        }
     }
 
     static class GCanvasState {

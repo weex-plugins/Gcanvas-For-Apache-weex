@@ -233,8 +233,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@WeexModule(name= "gcanvas")
-public class GcanvasModule extends WXModule implements Destroyable {
+@WeexModule(name = "gcanvas")
+public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
 
 
     private Object mRef;
@@ -357,6 +357,7 @@ public class GcanvasModule extends WXModule implements Destroyable {
 
                 if (myComponent instanceof WXGcanvasComponent) {
                     mWXGCanvasComp = (WXGcanvasComponent) myComponent;
+                    mWXGCanvasComp.setWXSurfaceViewLifeListener(this);
 //                    mWXGCanvasComp.setModule(this);
                 }
 //                enableCache = args;
@@ -710,16 +711,37 @@ public class GcanvasModule extends WXModule implements Destroyable {
     @Override
     public void destroy() {
         GLog.i(TAG, "canvas module destroy!!!");
+        mWXGCanvasComp.setWXSurfaceViewLifeListener(null);
         mWXGCanvasComp = null;
         mUIHandler.removeCallbacksAndMessages(null);
         commandCaches.clear();
-//        if (null != fastCanvas) {
-//            fastCanvas.onDestroy();
-//            fastCanvas = null;
-//        }
+        cacheRenderCmds.clear();
         mRef = null;
         sIdCounter = 0;
         sPicToTextureMap.clear();
+    }
+
+    @Override
+    public void onGCanvasViewDestroy() {
+
+    }
+
+    @Override
+    public void onGCanvasViewCreated() {
+
+    }
+
+    @Override
+    public void onGCanvasViewAttachToWindow() {
+    }
+
+    @Override
+    public void onGCanvasViewDetachedFromWindow() {
+        mUIHandler.removeCallbacksAndMessages(null);
+        sIdCounter = 0;
+        sPicToTextureMap.clear();
+        commandCaches.clear();
+        cacheRenderCmds.clear();
     }
 
     static class CommandCache {
