@@ -21,11 +21,42 @@
 #import <GLKit/GLKit.h>
 #import <GCanvasSDK/GCVCommon.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+#import "WeexGcanvas.h"
+
+
+@interface WXGCanvasEAGLContext:NSObject
+
++ (EAGLContext*)createEAGLContext;
+
+@end
+
+@implementation WXGCanvasEAGLContext
+
++ (EAGLContext*)createEAGLContext
+{
+    static EAGLContext * firstContext = nil;
+    static dispatch_once_t onceToken;
+    
+    if( !firstContext )
+    {
+        dispatch_once(&onceToken, ^{
+            firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        });
+        return firstContext;
+    }
+    else
+    {
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+        return newContext;
+    }
+}
+@end
+
 
 @interface WXGCanvasComponent()
 
 @property(nonatomic, assign) CGRect frame;
-    
+@property(nonatomic, assign) BOOL isUnLoad;
 @end
 
 @implementation WXGCanvasComponent
@@ -87,17 +118,29 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
     return self;
 }
 
-- (BOOL)isViewLoaded
+-(void)viewDidUnload
 {
-    return (self.glkview != nil);
+    [super viewDidUnload];
+    if(!self.isUnLoad){
+        [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName object:nil];
+        self.isUnLoad = YES;
+    }
+
+}
+
+-(void)viewDidLoad
+{
+    [super viewDidLoad];
+    if(self.renderCallBack){
+        self.renderCallBack();
+    }
 }
 
 - (UIView *)loadView
 {
     if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
-        glkview.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        [EAGLContext setCurrentContext:glkview.context];
+        glkview.context = [WXGCanvasEAGLContext createEAGLContext];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
@@ -105,6 +148,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         
         self.glkview = glkview;
     }
+    
     return self.glkview;
 }
 

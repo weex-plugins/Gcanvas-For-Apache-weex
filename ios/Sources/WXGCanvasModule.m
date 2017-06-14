@@ -19,8 +19,9 @@
 
 #import "WXGCanvasModule.h"
 #import "WXGCanvasComponent.h"
-#import <GCanvasSDK/GCVCommon.h>
-#import <GCanvasSDK/GCanvasPlugin.h>
+#import "WeexGcanvas.h"
+#import <GCanvas/GCVCommon.h>
+#import <GCanvas/GCanvasPlugin.h>
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
@@ -46,15 +47,16 @@ WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
 WX_EXPORT_METHOD(@selector(enable:callback:));
 WX_EXPORT_METHOD(@selector(disable:callback:));
 WX_EXPORT_METHOD(@selector(render:));
-WX_EXPORT_METHOD(@selector(loadTexture:callback:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 
+WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 - (void)dealloc
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [[GCVCommon sharedInstance] clearLoadImageDict];
 }
 
@@ -79,10 +81,12 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     }
     
     self.componentRel = args[@"componentId"];//由于component的初始化可能比module慢，所以只在第一次使用时在对component进行初始化处理
-    self.gcanvasPlugin = [[GCanvasPlugin alloc] init];
+    self.gcanvasPlugin = [[GCanvasPlugin alloc] initWithInstanceId:self.componentRel];
     if(callback){
         callback(@{@"result":@"success"});
     }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reset) name:KGCanvasResetNotificationName object:nil];
 }
 
 - (void)disable:(NSDictionary *)args callback:(WXModuleCallback)callback
@@ -98,34 +102,23 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     GCVLOG_METHOD(@"commands=%@, gcanvasComponent=%@", commands, self.gcanvasComponent);
     [self.gcanvasPlugin addCommands:commands];
     [self execCommand];
+    __weak typeof(self) weakSelf = self;
+    self.gcanvasComponent.renderCallBack =  ^(){
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf.gcanvasPlugin addCommands:commands];
+        [strongSelf execCommand];
+    };
 }
 
-//遇见在图片
-- (void)loadTexture:(NSString *)src callback:(WXModuleCallback)callback
+- (void)reset
 {
-    GCVLOG_METHOD(@"loadTexture start...");
-    
-    __weak typeof(self) weakSelf = self;
-    [GCVCommon sharedInstance].imageLoader = self;
-    
-    [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
-        if (!imageCache) return;
-        CGImageRef cgimageRef = imageCache.image.CGImage;
-        CGFloat width = CGImageGetWidth(cgimageRef);
-        CGFloat height = CGImageGetHeight(cgimageRef);
-        [self.gcanvasPlugin addTextureId:imageCache.textureId
-                               withAppId:imageCache.jsTextreId
-                                   width:(NSUInteger)width
-                                  height:(NSUInteger)height];
-        //回调结果
-        if( callback )
+    if(self.gcanvasComponent.view.window){
+        self.gcanvasInitalized = NO;
+        if( self.gcanvasPlugin )
         {
-            callback(@{@"width":@(width),
-                       @"height":@(height),
-                       @"id":@(imageCache.jsTextreId)});
+            [self.gcanvasPlugin removeCommands];
         }
-        [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
-    }];
+    }
 }
 
 //预加载image，便于后续渲染时可以同步执行
@@ -134,22 +127,21 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     GCVLOG_METHOD(@" PreLoadImage start...");
     __weak typeof(self) weakSelf = self;
     [GCVCommon sharedInstance].imageLoader = self;
-    [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache) {
-        if (!imageCache) return;
+    [[GCVCommon sharedInstance] addPreLoadImage:src instanceId:self.weexInstance.instanceId completion:^(GCVImageCache *imageCache) {
+        if (!imageCache)
+        {
+            if(callback){
+                callback(@{});
+            }
+            return;
+        }
         CGImageRef cgimageRef = imageCache.image.CGImage;
         CGFloat width = CGImageGetWidth(cgimageRef);
         CGFloat height = CGImageGetHeight(cgimageRef);
-        [self.gcanvasPlugin addTextureId:imageCache.textureId
-                               withAppId:imageCache.jsTextreId
-                                   width:(NSUInteger)width
-                                  height:(NSUInteger)height];
-        //回调结果
-        if( callback )
-        {
-            callback(@{@"width":@(width),
-                       @"height":@(height),
-                       @"id":@(imageCache.jsTextreId)});
+        if(callback){
+            callback(@{@"width":@(width), @"height":@(height)});
         }
+
         [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
     }];
 }
@@ -167,18 +159,55 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
     
 }
 
+#pragma mark - SYNC Method
+- (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
+{
+    
+    __block NSString * result = @"";
+    
+//    UIImage *snapshotImage = [self.gcanvasComponent.glkview snapshot];
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        NSData *imageData = UIImagePNGRepresentation(snapshotImage);
+//        result = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+////        UIImageWriteToSavedPhotosAlbum(myImage, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
+//    });
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        result = [self.gcanvasPlugin execGcanvaSyncCMD:typeStr args:args];
+    });
+    return result;
+}
+
+////回调方法
+//- (void)image: (UIImage *) image didFinishSavingWithError: (NSError *) error contextInfo: (void *) contextInfo
+//{
+//    NSString *msg = nil ;
+//    if(error != NULL){
+//        msg = @"保存图片失败" ;
+//    }else{
+//        msg = @"保存图片成功" ;
+//    }
+//    NSLog(msg);
+//}
+
 #pragma mark - Private
 - (WXGCanvasComponent *)gcanvasComponent
 {
     if (!_gcanvasComponent)
     {
-        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-        WXPerformBlockOnComponentThread(^{
-            _gcanvasComponent = (WXGCanvasComponent *)[self.weexInstance componentForRef:self.componentRel];
-            GCVLOG_METHOD(@" _gcanvasComponent=%@", _gcanvasComponent);
-            dispatch_semaphore_signal(semaphore);
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                WXPerformBlockOnComponentThread(^{
+                    _gcanvasComponent = (WXGCanvasComponent *)[self.weexInstance componentForRef:self.componentRel];
+                    GCVLOG_METHOD(@" _gcanvasComponent=%@", _gcanvasComponent);
+                    dispatch_semaphore_signal(semaphore);
+
+                });
+            });
+            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         });
-        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
     }
     return _gcanvasComponent;
 }
@@ -219,11 +248,9 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
         return;
     }
     
+    //设置当前的上线文EAGLContext
     if (!self.gcanvasInitalized)
     {
-        self.gcanvasInitalized = YES;
-        
-        //初始化EAGLContext
         [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
         
         //设置gcanvas像素比率
@@ -237,10 +264,13 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
                                          compFrame.size.width*self.devicePixelRatio,
                                          compFrame.size.height*self.devicePixelRatio);
         [self.gcanvasPlugin setFrame:gcanvasFrame];
+        
         [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
+        self.gcanvasInitalized = YES;
+        
     }
-    
-    [self.gcanvasPlugin execCommands];
+        
+    [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
 }
 
 #pragma mark - GCVImageLoaderProtocol
