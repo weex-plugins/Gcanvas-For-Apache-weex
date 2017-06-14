@@ -19,7 +19,7 @@
 
 #import "WXGCanvasComponent.h"
 #import <GLKit/GLKit.h>
-#import <GCanvasSDK/GCVCommon.h>
+#import <GCanvas/GCVCommon.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import "WeexGcanvas.h"
 

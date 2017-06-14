@@ -127,7 +127,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     GCVLOG_METHOD(@" PreLoadImage start...");
     __weak typeof(self) weakSelf = self;
     [GCVCommon sharedInstance].imageLoader = self;
-    [[GCVCommon sharedInstance] addPreLoadImage:src instanceId:self.weexInstance.instanceId completion:^(GCVImageCache *imageCache) {
+    [[GCVCommon sharedInstance] addPreLoadImage:src instanceId:self.weexInstance.instanceId completion:^(GCVImageCache *imageCache, BOOL fromCache) {
         if (!imageCache)
         {
             if(callback){
@@ -135,11 +135,17 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
             }
             return;
         }
+        
         CGImageRef cgimageRef = imageCache.image.CGImage;
         CGFloat width = CGImageGetWidth(cgimageRef);
         CGFloat height = CGImageGetHeight(cgimageRef);
         if(callback){
             callback(@{@"width":@(width), @"height":@(height)});
+        }
+        
+        if( !fromCache )
+        {
+            [self.gcanvasPlugin addTextureId:imageCache.textureId withAppId:imageCache.jsTextreId width:width height:height];
         }
 
         [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
@@ -269,8 +275,9 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         self.gcanvasInitalized = YES;
         
     }
-        
-    [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
+    
+    [self.gcanvasPlugin execCommands];
+//    [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
 }
 
 #pragma mark - GCVImageLoaderProtocol
