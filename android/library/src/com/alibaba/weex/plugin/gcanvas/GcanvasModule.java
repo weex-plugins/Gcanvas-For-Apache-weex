@@ -214,7 +214,6 @@ import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasHelper;
 import com.taobao.gcanvas.GCanvasResult;
-import com.taobao.gcanvas.GCanvasTexture;
 import com.taobao.gcanvas.GLog;
 import com.taobao.weex.WXSDKManager;
 import com.taobao.weex.annotation.JSMethod;
@@ -229,14 +228,11 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @WeexModule(name = "gcanvas")
 public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
-
-
     private Object mRef;
 
 //    String enableCache;
@@ -475,7 +471,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 //            initFastGCanvas();
 //        }
 
-
         if (null == mWXGCanvasComp || null == mWXGCanvasComp.getGCanvas()) {
             return;
         }
@@ -485,7 +480,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         GCanvas fastCanvas = mWXGCanvasComp.getGCanvas();
 
         if (cmd.equals(CMD_PRE_LOAD_IMAGE)) {
-            GLog.d(TAG, "cmd match preLoadImage: " + args);
+            // GLog.d(TAG, "cmd match preLoadImage: " + args);
 
             String picUrl = args;
 
@@ -503,6 +498,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 }
             } else if (cache == null) {
                 try {
+                    GLog.d(TAG, "cmd match preLoadImage cache miss! id = " + sIdCounter + ",  url:" + picUrl);
                     JSONArray ja = new JSONArray();
                     ja.put(picUrl);
                     ja.put(sIdCounter);
@@ -511,7 +507,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                     hm.put("url", picUrl);
                     hm.put("id", sIdCounter);
 
-                    GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
 
                     GCanvasImageCache canvasImageCache = new GCanvasImageCache();
                     canvasImageCache.url = picUrl;
@@ -613,6 +608,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         }
 
         if (!component.getCurrentState().isReady()) {
+            GLog.i(TAG, "add cmd to queue:" + cmd + "args");
             commandCaches.add(new CommandCache(cmd, args, callback));
             mUIHandler.removeCallbacks(runner);
             mUIHandler.postDelayed(runner, 16);
@@ -646,12 +642,12 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
     @Override
     public void onGCanvasViewDestroy() {
-
+        GLog.i(TAG, "onGCanvasViewDestroy");
     }
 
     @Override
     public void onGCanvasViewCreated() {
-
+        GLog.d(TAG, "onGCanvasViewCreated");
     }
 
     @Override
@@ -660,15 +656,10 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
     @Override
     public void onGCanvasViewDetachedFromWindow() {
+        GLog.d(TAG, "onGCanvasViewDetachedFromWindow");
         mUIHandler.removeCallbacksAndMessages(null);
-        commandCaches.clear();
-        cacheRenderCmds.clear();
+        // 清除texture map, 保障在重新attach图片重新加载
         sPicToTextureMap.clear();
-    }
-
-
-    static class CanvasComponent {
-        WXGcanvasComponent component;
     }
 
     static class CommandCache {
@@ -746,11 +737,8 @@ class WeexGcanvasPluginResult extends GCanvasResult {
 
     @Override
     protected void onResult(ResultCode resultCode, Object resultMessage) {
-
         GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
-        GLog.d("WeexGcanvasPluginResult", "onResult resultMessage " + resultMessage);
         String url = (String) hm.get("url");
-
         if (ResultCode.OK.equals(resultCode) && cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
 
             String width;
@@ -777,6 +765,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
             }
         } else {
             textureMap.remove(url);
+            GLog.e("WeexGcanvasPluginResult", "onResult load image error. remove url => "+ url);
         }
     }
 }
