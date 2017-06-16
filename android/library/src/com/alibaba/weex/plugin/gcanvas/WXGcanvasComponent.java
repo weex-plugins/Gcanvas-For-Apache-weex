@@ -40,7 +40,7 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
     }
 
     private void initGCanvas(Context context) {
-        mCanvas = new GCanvas();
+        mCanvas = new GCanvas(getRef());
         GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
         mCanvas.initialize(context);
         mCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
@@ -180,9 +180,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
         @Override
         public void onGCanvasViewAttachToWindow() {
-            if (null != mDelegateListener) {
-                mDelegateListener.onGCanvasViewAttachToWindow();
-            }
             if (mIsDetached) {
                 Context context = mContainer.getContext();
 
@@ -211,16 +208,19 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 //                }
 
                 mIsDetached = false;
+                if (null != mDelegateListener) {
+                    mDelegateListener.onGCanvasViewAttachToWindow();
+                }
             }
         }
 
         @Override
         public void onGCanvasViewDetachedFromWindow() {
+            mState.clear();
+            mIsDetached = true;
             if (null != mDelegateListener) {
                 mDelegateListener.onGCanvasViewDetachedFromWindow();
             }
-            mState.clear();
-            mIsDetached = true;
         }
     }
 

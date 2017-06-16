@@ -245,7 +245,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
 
     private int sIdCounter = 0;
-    private Map<String, Integer> sPicToTextureMap = new HashMap<>();
+    private Map<String, GCanvasImageCache> sPicToTextureMap = new HashMap<>();
 
 
     private static String TAG = "GcanvasModule";
@@ -373,7 +373,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
             //替换图片渲染命令
 
-            if (null == mWXGCanvasComp || mWXGCanvasComp.getGCanvas() == null) {
+            if (null == mWXGCanvasComp || !mWXGCanvasComp.isGCanvasViewPrepared()) {
                 return;
             }
 
@@ -489,50 +489,39 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
             String picUrl = args;
 
-            Integer textureId = sPicToTextureMap.get(picUrl);
-            if (null != textureId && textureId != -1) {
-                GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + sPicToTextureMap.get(picUrl));
-                textureId = sPicToTextureMap.get(picUrl);
-
+            GCanvasImageCache cache = sPicToTextureMap.get(picUrl);
+            if (null != cache && cache.textureId != -1) {
+                GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + cache);
                 HashMap<String, Object> hm = new HashMap<>();
-                hm.put("url", picUrl);
-                hm.put("id", textureId);
-
-                List<GCanvasTexture> textureList = mWXGCanvasComp.getGCanvas().getCanvasView().getRenderer().getTextures();
-                for (GCanvasTexture texture : textureList) {
-                    if (texture.id == textureId) {
-
-                        GLog.d(TAG, "texture width: " + texture.width);
-                        GLog.d(TAG, "texture height: " + texture.height);
-
-                        hm.put("width", texture.width);
-                        hm.put("height", texture.height);
-                        break;
-                    }
-                }
+                hm.put("url", cache.url);
+                hm.put("id", cache.textureId);
+                hm.put("width", cache.width);
+                hm.put("height", cache.height);
 
                 if (callback != null) {
                     callback.invoke(hm);
                 }
-            } else if (textureId == null) {
-                GLog.d(TAG, "cmd match preLoadImage, cache miss: " + picUrl);
-
+            } else if (cache == null) {
                 try {
                     JSONArray ja = new JSONArray();
                     ja.put(picUrl);
                     ja.put(sIdCounter);
 
-                    textureId = sIdCounter;
+                    HashMap<String, Object> hm = new HashMap<>();
+                    hm.put("url", picUrl);
+                    hm.put("id", sIdCounter);
 
                     GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
-                    GLog.d(TAG, "cmd match preLoadImage, sIdCounter: " + sIdCounter);
+
+                    GCanvasImageCache canvasImageCache = new GCanvasImageCache();
+                    canvasImageCache.url = picUrl;
+                    sPicToTextureMap.put(picUrl, canvasImageCache);
+
+                    //GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
+                    //GLog.d(TAG, "cmd match preLoadImage, sIdCounter: " + sIdCounter);
 
                     sIdCounter++;
 
-                    sPicToTextureMap.put(picUrl, -1);
-                    HashMap<String, Object> hm = new HashMap<>();
-                    hm.put("url", picUrl);
-                    hm.put("id", textureId);
 
                     mWXGCanvasComp.getGCanvas().executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
                 } catch (Exception e) {
@@ -632,11 +621,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
         executeRenderCmd();
 
-        GLog.d(TAG, "*****************************************");
-
-        GLog.d(TAG, "execGcanvas cmd: " + cmd);
-        GLog.d(TAG, "execGcanvas args: " + args);
-        GLog.d(TAG, "execGcanvas callback: " + callback);
+//        GLog.d(TAG, "*****************************************");
+//
+//        GLog.d(TAG, "execGcanvas cmd: " + cmd);
+//        GLog.d(TAG, "execGcanvas args: " + args);
+//        GLog.d( TAG, "execGcanvas callback: " + callback);
 
         executeCmdImpl(cmd, args, callback);
     }
@@ -672,10 +661,14 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     @Override
     public void onGCanvasViewDetachedFromWindow() {
         mUIHandler.removeCallbacksAndMessages(null);
-        sIdCounter = 0;
-        sPicToTextureMap.clear();
         commandCaches.clear();
         cacheRenderCmds.clear();
+        sPicToTextureMap.clear();
+    }
+
+
+    static class CanvasComponent {
+        WXGcanvasComponent component;
     }
 
     static class CommandCache {
@@ -687,6 +680,23 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             this.cmd = cmd;
             this.args = args;
             this.callback = callback;
+        }
+    }
+
+    static class GCanvasImageCache {
+        public String url;
+        public int textureId = -1;
+        public String width;
+        public String height;
+
+        @Override
+        public String toString() {
+            return "GCanvasImageCache{" +
+                    "url='" + url + '\'' +
+                    ", textureId=" + textureId +
+                    ", width='" + width + '\'' +
+                    ", height='" + height + '\'' +
+                    '}';
         }
     }
 
@@ -724,10 +734,10 @@ class WeexGcanvasPluginResult extends GCanvasResult {
     String cmdType;
     HashMap<String, Object> hm;
     JSCallback callback;
-    Map<String, Integer> textureMap;
+    Map<String, GcanvasModule.GCanvasImageCache> textureMap;
 
 
-    public WeexGcanvasPluginResult(Map<String, Integer> textureMap, String cmdType, HashMap<String, Object> hm, JSCallback cb) {
+    public WeexGcanvasPluginResult(Map<String, GcanvasModule.GCanvasImageCache> textureMap, String cmdType, HashMap<String, Object> hm, JSCallback cb) {
         this.cmdType = cmdType;
         this.hm = hm;
         this.callback = cb;
@@ -739,18 +749,25 @@ class WeexGcanvasPluginResult extends GCanvasResult {
 
         GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
         GLog.d("WeexGcanvasPluginResult", "onResult resultMessage " + resultMessage);
-        final String message;
+        String url = (String) hm.get("url");
 
         if (ResultCode.OK.equals(resultCode) && cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
+
             String width;
             String height;
-            textureMap.put((String) hm.get("url"), (Integer) hm.get("id"));
+            GcanvasModule.GCanvasImageCache cache = textureMap.get(url);
+            if (null == cache) {
+                return;
+            }
+            cache.url = url;
+            cache.textureId = (Integer) hm.get("id");
             try {
                 width = ((JSONArray) resultMessage).getString(0);
                 height = ((JSONArray) resultMessage).getString(1);
                 hm.put("width", width);
                 hm.put("height", height);
-
+                cache.width = width;
+                cache.height = height;
             } catch (Exception e) {
                 GLog.e("WeexGcanvasPluginResult", "onResult() Exception: ", e);
             }
@@ -759,7 +776,7 @@ class WeexGcanvasPluginResult extends GCanvasResult {
                 callback.invoke(hm);
             }
         } else {
-            textureMap.remove(hm.get("url"));
+            textureMap.remove(url);
         }
     }
 }
