@@ -8,7 +8,13 @@ var debug = true;
 var platform;
 var canvasModule;
 
-
+/*
+WX_EXPORT_METHOD(@selector(render:componentId:));
+WX_EXPORT_METHOD(@selector(preLoadImage:componentId:callback:));
+WX_EXPORT_METHOD(@selector(setContextType:componentId:));
+WX_EXPORT_METHOD(@selector(setLogLevel:componentId:));
+WX_EXPORT_METHOD(@selector(resetComponent:));
+*/
 canvasModule = (typeof weex!=='undefined'&&weex.requireModule) ? ( weex.requireModule('gcanvas') ) : (__weex_require__('@weex-module/gcanvas') );
 
 var GBridge = {
@@ -22,20 +28,20 @@ var GBridge = {
     },
 
     /**执行render指令*/
-    callRender: function (commands) {
+    callRender: function (componentId, commands) {
         if (!inWeex) {
             return;
         }
         //GLog.d('bridge#callRender() commands is ' + commands);
-        canvasModule.render([commands]);
-    },
-
-    /**Android use**/
-    callRenderAndroid: function (commands){
-        if( !inWeex ){
-            return;
+        if( platform == 1 ) //iOS
+        {
+            canvasModule.render([commands], componentId);
         }
-        canvasModule.render(commands);
+        else    //Android
+        {
+            //TODO, componentId
+            canvasModule.render(commands, componentId);
+        }
     },
 
     /**Android use**/
@@ -50,12 +56,12 @@ var GBridge = {
     },
 
     /**预加载图片*/
-    preLoadImage: function (src, cb) {
+    preLoadImage: function (src, componentId, cb) {
         if (!inWeex) {
             return;
         }
-        GLog.d('bridge#preLoadImage() image url is ' + src);
-        canvasModule.preLoadImage(src, function (e) {
+        GLog.d('bridge#preLoadImage() componentId '+ componentId +' image url is ' + src);
+        canvasModule.preLoadImage(src, componentId, function (e) {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             e.url = src;
             cb && cb(e);
@@ -140,13 +146,13 @@ var GBridge = {
      *
      * @param context_type 0代表2d,1代表3d
      * */
-    setContextType: function (context_type){
+    setContextType: function (componentId, context_type){
         if(context_type != 0 && context_type != 1){
             GLog.d('bridge#setContextType(): invalid context type===>' + context_type);
             return;
         }
-        GLog.d('bridge#setContextType(): context type is ' + context_type);
-        canvasModule.setContextType(context_type);
+        GLog.d('bridge#setContextType(): context type is ' + context_type + ' componentId:' + componentId);
+        canvasModule.setContextType(context_type, componentId);
     },
 
     /**
@@ -169,6 +175,12 @@ var GBridge = {
     setHiQuality: function (quality){
         GLog.d('bridge#setHiQuality(): quality: ' + quality);
         canvasModule.setHiQuality(quality);
+    }, 
+
+
+    resetComponent: function(componentId){
+        GLog.d('bridge#resetComponent(): componentId: ' + componentId);
+        canvasModule.resetComponent && canvasModule.resetComponent(componentId);
     }
 };
 

@@ -29,7 +29,8 @@ function GContext2D() {
 //    this._apiContext.font = this._font;
 
     this._savedGlobalAlpha =[];
-    this.timer =null;
+    this.timer = null;
+    this.componentId = null;
 }
 
 var _hashmap = new GHashMap();
@@ -760,23 +761,16 @@ GContext2D.prototype.drawImage = function(image, // image
  * GCanvas.render(); // calls GContext2D.render()
  */
 
-GContext2D.prototype.render = function(flag, platform, cb) {
-    // if (typeof flag === "undefined"){
-    //     clearInterval(this.timer);
-    //     this.timer = null;
-    // }
-    if(cb && typeof cb === 'function'){
-        cb();
+GContext2D.prototype.render = function(flag) {
+    if (typeof flag === "undefined"){
+        clearInterval(this.timer);
+        this.timer = null;
     }
+
     var commands = this._drawCommands;
     this._drawCommands = "";
     if (commands !== null && commands !== "") {
-        // GLog.d("GContext2D#render() called, commands is "+ commands);
-        if(platform === 1){
-            GBridge.callRender(commands);
-        }else{
-            GBridge.callRenderAndroid(commands);
-        }
+        GBridge.callRender(this.componentId, commands);
     }
 };
 

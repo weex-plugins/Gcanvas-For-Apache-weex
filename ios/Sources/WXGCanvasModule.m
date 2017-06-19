@@ -27,12 +27,17 @@
 #import <WeexPluginLoader/WeexPluginLoader.h>
 
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
-    
-@property (nonatomic, weak) WXGCanvasComponent *gcanvasComponent;
-@property (nonatomic, strong) NSString* componentRel;
-@property (nonatomic, strong) GCanvasPlugin* gcanvasPlugin;
+
+//@property (nonatomic, weak) WXGCanvasComponent *gcanvasComponent;
+//@property (nonatomic, strong) NSString* componentRel;
+//@property (nonatomic, strong) GCanvasPlugin* gcanvasPlugin;
+//@property (nonatomic, assign) CGFloat devicePixelRatio;
+//@property (nonatomic, assign) BOOL gcanvasInitalized;
+
+//modify
 @property (nonatomic, assign) CGFloat devicePixelRatio;
-@property (nonatomic, assign) BOOL gcanvasInitalized;
+@property (strong, nonatomic) NSMutableDictionary *pluginDict;
+@property (strong, nonatomic) NSMutableDictionary *componentDict;
 
 @end
 
@@ -46,12 +51,23 @@ WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
 WX_EXPORT_METHOD(@selector(enable:callback:));
 WX_EXPORT_METHOD(@selector(disable:callback:));
-WX_EXPORT_METHOD(@selector(render:));
-WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
-WX_EXPORT_METHOD(@selector(setContextType:));
+
+//WX_EXPORT_METHOD(@selector(render:));
+//WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
+//WX_EXPORT_METHOD(@selector(setContextType:));
+
+//modify
+WX_EXPORT_METHOD(@selector(render:componentId:));
+WX_EXPORT_METHOD(@selector(preLoadImage:componentId:callback:));
+WX_EXPORT_METHOD(@selector(setContextType:componentId:));
+
 WX_EXPORT_METHOD(@selector(setLogLevel:));
+WX_EXPORT_METHOD(@selector(resetComponent:));
 
 WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
+
+
+
 
 - (void)dealloc
 {
@@ -71,7 +87,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 - (void)enable:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
-    GCVLOG_METHOD(@"args=%@", args);
     if (!args || !args[@"componentId"])
     {
         if(callback){
@@ -80,13 +95,27 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         return;
     }
     
-    self.componentRel = args[@"componentId"];//由于component的初始化可能比module慢，所以只在第一次使用时在对component进行初始化处理
-    self.gcanvasPlugin = [[GCanvasPlugin alloc] initWithInstanceId:self.componentRel];
+    NSString *componentId = args[@"componentId"];
+    
+    GCVLOG_METHOD(@"enable:callback:, componentId=%@", componentId);
+    
+    //plugin
+    GCanvasPlugin *plugin = [[GCanvasPlugin alloc] initWithComponentId:componentId];
+    
+    if( !self.pluginDict )
+    {
+        self.pluginDict = NSMutableDictionary.dictionary;
+    }
+    self.pluginDict[componentId] = plugin;
+    
     if(callback){
         callback(@{@"result":@"success"});
     }
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reset) name:KGCanvasResetNotificationName object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(onGCanvasResetNotify:)
+                                                 name:KGCanvasResetNotificationName
+                                               object:nil];
 }
 
 - (void)disable:(NSDictionary *)args callback:(WXModuleCallback)callback
@@ -97,37 +126,58 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     }
 }
 
-- (void)render:(NSArray *)commands
+- (void)render:(NSArray *)commands componentId:(NSString*)componentId
 {
-    GCVLOG_METHOD(@"commands=%@, gcanvasComponent=%@", commands, self.gcanvasComponent);
-    [self.gcanvasPlugin addCommands:commands];
-    [self execCommand];
+    GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
+    
+    GCanvasPlugin *plugin = self.pluginDict[componentId];
+    if (plugin)
+    {
+        [plugin addCommands:commands];
+    }
+    
+    [self execCommandById:componentId];
+    
     __weak typeof(self) weakSelf = self;
-    self.gcanvasComponent.renderCallBack =  ^(){
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf.gcanvasPlugin addCommands:commands];
-        [strongSelf execCommand];
-    };
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    if( component )
+    {
+        component.renderCallBack =  ^(){
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [plugin addCommands:commands];
+            [strongSelf execCommandById:componentId];
+        };
+    }
 }
 
-- (void)reset
+- (void)resetComponent:(NSString*)componentId
 {
-    if(self.gcanvasComponent.view.window){
-        self.gcanvasInitalized = NO;
-        if( self.gcanvasPlugin )
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    if (component  && component.view.window)
+    {
+        component.gcanvasInitalized = NO;
+        
+        GCanvasPlugin *plugin = self.pluginDict[componentId];
+        if (plugin)
         {
-            [self.gcanvasPlugin removeCommands];
+            [plugin removeCommands];
         }
     }
 }
 
 //预加载image，便于后续渲染时可以同步执行
-- (void)preLoadImage:(NSString *)src callback:(WXModuleCallback)callback
+- (void)preLoadImage:(NSString *)src componentId:(NSString*)componentId callback:(WXModuleCallback)callback
 {
     GCVLOG_METHOD(@" PreLoadImage start...");
+    if( ![GCVCommon sharedInstance].imageLoader )
+    {
+        [GCVCommon sharedInstance].imageLoader = self;
+    }
+    
     __weak typeof(self) weakSelf = self;
-    [GCVCommon sharedInstance].imageLoader = self;
-    [[GCVCommon sharedInstance] addPreLoadImage:src instanceId:self.weexInstance.instanceId completion:^(GCVImageCache *imageCache, BOOL fromCache) {
+    [[GCVCommon sharedInstance] addPreLoadImage:src
+                                    componentId:componentId
+                                     completion:^(GCVImageCache *imageCache, BOOL fromCache) {
         if (!imageCache)
         {
             if(callback){
@@ -145,18 +195,32 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         
         if( !fromCache )
         {
-            [self.gcanvasPlugin addTextureId:imageCache.textureId withAppId:imageCache.jsTextreId width:width height:height];
+            GCanvasPlugin *plugin = weakSelf.pluginDict[componentId];
+            if( plugin )
+            {
+                [plugin addTextureId:imageCache.textureId
+                           withAppId:imageCache.jsTextreId
+                               width:width height:height];
+            }
         }
-
-        [weakSelf.gcanvasComponent.glkview setNeedsDisplay];
+                                         
+        WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+         if( component ){
+             [component.glkview setNeedsDisplay];
+         }
     }];
 }
 
+
 //设置Context类型
-- (void)setContextType:(NSUInteger)type
+- (void)setContextType:(NSUInteger)type componentId:(NSString*)componentId
 {
-    GCVLOG_METHOD(@"setContextType %ld", (unsigned long)type);
-    [self.gcanvasPlugin setContextType:(int)type];
+    GCVLOG_METHOD(@"setContextType %ld componentId:%@", (unsigned long)type, componentId);
+    GCanvasPlugin *plugin = self.pluginDict[componentId];
+    if( plugin )
+    {
+        [plugin setContextType:(int)type];
+    }
 }
 
 //设置Context类型
@@ -171,16 +235,16 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     
     __block NSString * result = @"";
     
-//    UIImage *snapshotImage = [self.gcanvasComponent.glkview snapshot];
+////    UIImage *snapshotImage = [self.gcanvasComponent.glkview snapshot];
+////    dispatch_async(dispatch_get_main_queue(), ^{
+////        NSData *imageData = UIImagePNGRepresentation(snapshotImage);
+////        result = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+//////        UIImageWriteToSavedPhotosAlbum(myImage, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
+////    });
+//    
 //    dispatch_async(dispatch_get_main_queue(), ^{
-//        NSData *imageData = UIImagePNGRepresentation(snapshotImage);
-//        result = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-////        UIImageWriteToSavedPhotosAlbum(myImage, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
+//        result = [self.gcanvasPlugin execGcanvaSyncCMD:typeStr args:args];
 //    });
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        result = [self.gcanvasPlugin execGcanvaSyncCMD:typeStr args:args];
-    });
     return result;
 }
 
@@ -196,51 +260,102 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 //    NSLog(msg);
 //}
 
-#pragma mark - Private
-- (WXGCanvasComponent *)gcanvasComponent
-{
-    if (!_gcanvasComponent)
-    {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                WXPerformBlockOnComponentThread(^{
-                    _gcanvasComponent = (WXGCanvasComponent *)[self.weexInstance componentForRef:self.componentRel];
-                    GCVLOG_METHOD(@" _gcanvasComponent=%@", _gcanvasComponent);
-                    dispatch_semaphore_signal(semaphore);
 
-                });
-            });
-            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-        });
-        
-    }
-    return _gcanvasComponent;
+#pragma mark - Notification
+- (void)onGCanvasResetNotify:(NSNotification*)notification
+{
+    NSString *componentId = notification.userInfo[@"componentId"];
+    [self resetComponent:componentId];
 }
 
-- (void)execCommand
+#pragma mark - Private
+- (WXGCanvasComponent*)gcanvasComponentById:(NSString*)componentId
 {
-    GCVLOG_METHOD(@" start... self.gcanvasComponent=%@", self.gcanvasComponent);
-    if (self.gcanvasComponent.isViewLoaded && self.weexInstance)
+    if( !self.componentDict )
     {
-        if ([self.gcanvasComponent isKindOfClass:[WXGCanvasComponent class]])
+        self.componentDict = NSMutableDictionary.dictionary;
+    }
+    
+    __block WXGCanvasComponent *component = self.componentDict[componentId];
+    if( !component )
+    {
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+
+        WXPerformBlockOnComponentThread(^{
+            component = (WXGCanvasComponent *)[self.weexInstance componentForRef:componentId];
+            component.componentId = componentId;
+            self.componentDict[componentId] = component;
+            
+            dispatch_semaphore_signal(semaphore);
+
+        });
+        
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
+//        //component
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                WXPerformBlockOnComponentThread(^{
+//                    component = (WXGCanvasComponent *)[self.weexInstance componentForRef:componentId];
+//                    component.componentId = componentId;
+//                    self.componentDict[componentId] = component;
+//                    dispatch_semaphore_signal(semaphore);
+//                });
+//            });
+//            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+//        });
+    }
+    return component;
+}
+
+- (WXGCanvasComponent*)gcanvasComponentByGLKView:(GLKView*)glkview
+{
+    __block WXGCanvasComponent *tmpComponent = nil;
+    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *componentId, WXGCanvasComponent *component, BOOL * _Nonnull stop) {
+        if( component.glkview == glkview )
+        {
+            tmpComponent = component;
+            *stop = YES;
+        }
+    }];
+    return tmpComponent;
+}
+
+- (void)execCommandById:(NSString*)componentId
+{
+    GCVLOG_METHOD(@"execCommandById:, componentId: %@",componentId);
+    
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    if (!component) {
+        GCVLOG_METHOD(@"component is NULL, componentId: %@",componentId);
+        return;
+    }
+    
+    if (component.isViewLoaded && self.weexInstance)
+    {
+        if ([component isKindOfClass:[WXGCanvasComponent class]])
         {
             GCVLOG_METHOD(@" call glkView display");
-            if(!self.gcanvasComponent.glkview.delegate)
+            if(!component.glkview.delegate)
             {
-                self.gcanvasComponent.glkview.delegate = self;
+                component.glkview.delegate = self;
             }
-            [self.gcanvasComponent.glkview setNeedsDisplay];
+            [component.glkview setNeedsDisplay];
         }
         else
         {
-            [self.gcanvasPlugin removeCommands];
+            GCanvasPlugin *plugin = self.pluginDict[componentId];
+            if( plugin )
+            {
+                [plugin removeCommands];
+            }
         }
     }
     else
     {
         //gcanvasComponent组件未加载则延迟执行命令
-        [self performSelector:@selector(execCommand) withObject:nil afterDelay:0.05f];
+        [self performSelector:@selector(execCommandById:) withObject:componentId afterDelay:0.05f];
     }
 }
 
@@ -249,35 +364,43 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 {
     GCVLOG_METHOD(@"rect=(%.2f, %.2f) * (%.2f, %.2f)", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
     
-    if(!self.gcanvasComponent.glkview.context)
+    
+    WXGCanvasComponent *componet = [self gcanvasComponentByGLKView:view];
+    if(!componet.glkview.context)
     {
         return;
     }
     
-    //设置当前的上线文EAGLContext
-    if (!self.gcanvasInitalized)
+    GCanvasPlugin *plugin = self.pluginDict[componet.componentId];
+    if( !plugin )
     {
-        [EAGLContext setCurrentContext:self.gcanvasComponent.glkview.context];
-        
+        return;
+    }
+    
+    GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@", componet.componentId);
+    
+    [EAGLContext setCurrentContext:componet.glkview.context];
+
+    //设置当前的上线文EAGLContext
+    if (!componet.gcanvasInitalized)
+    {
         //设置gcanvas像素比率
-        self.devicePixelRatio = self.gcanvasComponent.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / self.gcanvasComponent.componetFrame.size.width ;
-        [self.gcanvasPlugin setDevicePixelRatio:self.devicePixelRatio];
+        self.devicePixelRatio = componet.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / componet.componetFrame.size.width ;
+        [plugin setDevicePixelRatio:self.devicePixelRatio];
         
         //设置gcanvas frame
-        CGRect compFrame = self.gcanvasComponent.componetFrame;
+        CGRect compFrame = componet.componetFrame;
         CGRect gcanvasFrame = CGRectMake(compFrame.origin.x,
                                          compFrame.origin.y,
                                          compFrame.size.width*self.devicePixelRatio,
                                          compFrame.size.height*self.devicePixelRatio);
-        [self.gcanvasPlugin setFrame:gcanvasFrame];
-        
-        [self.gcanvasPlugin setClearColor:self.gcanvasComponent.glkview.backgroundColor];
-        self.gcanvasInitalized = YES;
-        
+        [plugin setClearColor:componet.glkview.backgroundColor];
+        [plugin setFrame:gcanvasFrame];
+
+        componet.gcanvasInitalized = YES;
     }
     
-    [self.gcanvasPlugin execCommands];
-//    [self.gcanvasPlugin execCommands:self.weexInstance.instanceId];
+    [plugin execCommands];
 }
 
 #pragma mark - GCVImageLoaderProtocol

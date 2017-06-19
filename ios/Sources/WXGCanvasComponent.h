@@ -25,10 +25,11 @@ typedef void (^WXGCanvasComponentRenderCallback)();
 
 @interface WXGCanvasComponent : WXComponent
 
-@property(nonatomic, strong) GLKView* glkview;
-@property(nonatomic, assign) CGRect componetFrame;
-@property(nonatomic,copy)WXGCanvasComponentRenderCallback renderCallBack;
-
+@property (nonatomic, strong) GLKView* glkview;
+@property (nonatomic, assign) CGRect componetFrame;
+@property (nonatomic,copy)WXGCanvasComponentRenderCallback renderCallBack;
+@property (nonatomic, assign) BOOL gcanvasInitalized;
+@property (strong, nonatomic) NSString *componentId;    //跟ref是一致的
 
 
 @end
