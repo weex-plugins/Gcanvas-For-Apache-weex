@@ -1,6 +1,6 @@
 <template>
 	<div ref="test">
-		<gcanvas ref="canvas_holder" style="width:750;height:750;"></gcanvas>
+		<gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,0,0,0.1)"></gcanvas>
 	</div>
 </template>
 <script>

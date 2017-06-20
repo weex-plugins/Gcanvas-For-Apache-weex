@@ -2,9 +2,7 @@
   <list @viewappear="viewappear" @viewdisappear="viewdisappear">
     <cell>
       <div ref="test" @appear="cellappear" @disappear="celldisappear">
-        <text style="width:750;height:100;backgroundColor:yellow">canvas_demo 1</text>
-        <gcanvas ref="canvas_holder" style="width:750;height:750;"></gcanvas>
-        <text style="width:750;height:100;backgroundColor:yellow">canvas_demo 2</text>
+        <gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,0,0,0.1)"></gcanvas>
       </div>
     </cell>
     <cell>
@@ -50,7 +48,7 @@
         ctx.fill();
 
         var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-        ctx.drawImage(img, 100, 200, 210, 330);
+        ctx.drawImage(img, 100, 220, 210, 330);
       });
     }, 
     methods:{

@@ -1,6 +1,6 @@
 <template>
 	<div ref="test">
-		<gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,255,0,0.3)"></gcanvas>
+		<gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,0,0,0.1)"></gcanvas>
 	</div>
 </template>
 <script>
@@ -22,7 +22,8 @@
 				ctx.fillRect(0, 0, 100, 100);
 
 				var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-				ctx.drawImage(img, 100, 200, 210, 330);
+				ctx.drawImage(img, 200, 0);
+				ctx.drawImage(img, 200+210, 330, 210, 330);
 			});
 		}
 	};

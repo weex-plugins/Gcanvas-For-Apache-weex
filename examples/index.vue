@@ -13,6 +13,7 @@
           {name: root + '/singlecanvas', title: 'SingleGCanvas'},
           {name: root + '/multicanvas', title: 'MultiGCanvas'},
           {name: root + '/image', title: 'Image'},
+          {name: root + '/multicanvas_image', title: 'MultiGCanvasImage'},
           {name: root + '/transparent', title: 'Transparent'},
           {name: root + '/animation', title: 'Animation'},
           {name: root + '/list', title: 'ListRecycle'},
