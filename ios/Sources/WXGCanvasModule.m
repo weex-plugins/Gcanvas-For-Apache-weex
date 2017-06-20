@@ -109,7 +109,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
                                                object:nil];
 }
 
-- (void)render:(NSArray *)commands componentId:(NSString*)componentId
+- (void)render:(NSString *)commands componentId:(NSString*)componentId
 {
     GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
     

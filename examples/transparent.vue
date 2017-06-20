@@ -7,18 +7,18 @@
 <script>
 
 	// var gcanvas=require('weex-gcanvas'); //正式使用请用这个
-	var gcanvas=require('../js/src/gcanvas'); //调试使用
+	var GCanvas=require('../js/src/gcanvas'); //调试使用
 
 
 	module.exports = {
 
 		created: function () {
 			console.log('created gcanvas');
-			gcanvas.disable();
+			GCanvas.disable();
 		},
 		mounted: function () {
 			var ref = this.$refs.canvas_holder;
-			gcanvas.start(ref, function () {
+			GCanvas.start(ref, function (gcanvas) {
 				var ctx = gcanvas.getContext('2d');
 
 				ctx.fillStyle = 'red';
@@ -34,7 +34,6 @@
 				var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
 				ctx.drawImage(img, 100, 200, 210, 330);
 				ctx.drawImage(img, 0,0,105,165, 100, 200, 210, 330);
-				ctx.render();
 			});
 		}
 	};

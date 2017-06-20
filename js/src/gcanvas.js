@@ -181,6 +181,22 @@ GCanvas.start = function(el, succ, fail){
     });
 }
 
+//-----------------------------
+// GCanvas.getGCanvasById 
+//-----------------------------
+GCanvas.getGCanvasById = function(componentId){
+    return GCanvas.canvasMap.get(componentId);
+}
+
+
+
+
+
+
+
+//-----------------------------
+// Instance Method: getContext
+//-----------------------------
 GCanvas.prototype.getContext = function(contextID){
     GLog.d('gcanvas#getContext=====>>>');
 
@@ -196,8 +212,7 @@ GCanvas.prototype.getContext = function(contextID){
         }
         return context
     }
-
-
+    
     if (context){
         return context;//unsupport change type after create
     }
@@ -222,10 +237,9 @@ GCanvas.prototype.getContext = function(contextID){
     return context;
 }
 
-// GCanvas.intervalRender = function(){
-
-// }
-
+//-----------------------------
+// Instance Method: render
+//-----------------------------
 GCanvas.prototype.render = function(){
     if(GCanvasPlatform !== 0 && this.context)
     {
@@ -233,6 +247,9 @@ GCanvas.prototype.render = function(){
     }
 }
 
+//-----------------------------
+// Instance Method: stopRender
+//-----------------------------
 GCanvas.prototype.stopRender = function(){
     if(!this.context){
         return;
@@ -241,6 +258,15 @@ GCanvas.prototype.stopRender = function(){
     if(this.context.timer){
         clearInterval(this.context.timer);
         this.context.timer = null;
+    }
+}
+
+//-----------------------------
+// Instance Method: reset
+//-----------------------------
+GCanvas.prototype.reset = function(){
+    if(GCanvasPlatform !== 0){
+        GBridge.resetComponent(this.componentId);
     }
 }
 

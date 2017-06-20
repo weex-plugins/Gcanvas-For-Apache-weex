@@ -32,16 +32,19 @@ var GBridge = {
         if (!inWeex) {
             return;
         }
-        //GLog.d('bridge#callRender() commands is ' + commands);
-        if( platform == 1 ) //iOS
-        {
-            canvasModule.render([commands], componentId);
-        }
-        else    //Android
-        {
-            //TODO, componentId
-            canvasModule.render(commands, componentId);
-        }
+
+        canvasModule.render && canvasModule.render( commands, componentId );
+        
+        // //GLog.d('bridge#callRender() commands is ' + commands);
+        // if( platform == 1 ) //iOS
+        // {
+        //     canvasModule.render([commands], componentId);
+        // }
+        // else    //Android
+        // {
+        //     //TODO, componentId
+        //     canvasModule.render(commands, componentId);
+        // }
     },
 
     /**Android use**/

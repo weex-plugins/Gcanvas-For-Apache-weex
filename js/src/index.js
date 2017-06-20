@@ -27,8 +27,8 @@ function getProto (Weex) {
 }
 
 function init (Weex) {
-  const Component = Weex.Component
-  const extend = Weex.utils.extend
+  Component = Weex.Component
+  extend = Weex.utils.extend
 
   function GCanvas (data) {
     Component.call(this, data)
