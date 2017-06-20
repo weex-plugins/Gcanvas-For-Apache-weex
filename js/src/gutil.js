@@ -27,6 +27,18 @@ var GBridge = {
       return platform === 1;
     },
 
+    callRegisterReattachJSCallback: function(componentId, cb){
+      if(!inWeex){
+        return;
+      }
+
+      if(typeof cb !== 'function'){
+        return;
+      }
+
+      canvasModule.registerRetachFunction && canvasModule.registerRetachFunction(componentId, cb);
+    },
+
     /**执行render指令*/
     callRender: function (componentId, commands) {
         if (!inWeex) {
@@ -34,7 +46,7 @@ var GBridge = {
         }
 
         canvasModule.render && canvasModule.render( commands, componentId );
-        
+
         // //GLog.d('bridge#callRender() commands is ' + commands);
         // if( platform == 1 ) //iOS
         // {
@@ -48,14 +60,14 @@ var GBridge = {
     },
 
     /**Android use**/
-    callSetup:function(configObj, callback){
+    callSetup:function(configObj, componentId, callback){
         if (!inWeex) {
             return;
         }
 
         var config = configObj || {};
         //GLog.d('bridge#callRender() commands is ' + commands);
-        canvasModule.setup && canvasModule.setup(JSON.stringify(config), callback);
+        canvasModule.setup && canvasModule.setup(JSON.stringify(config), componentId , callback);
     },
 
     /**预加载图片*/
@@ -67,7 +79,7 @@ var GBridge = {
         canvasModule.preLoadImage(src, componentId, function (e) {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             e.url = src;
-            cb && cb(e);  
+            cb && cb(e);
         });
     },
 
@@ -91,22 +103,29 @@ var GBridge = {
     },
 
 
-    // /**
-    //  * 释放gcanvas引擎
-    //  * @param ref wx-canvas 引用
-    //  * @param configArray 配置参数
-    //  **/
-    // callDisable: function () {
-    //     if (!inWeex) {
-    //         return;
-    //     }
-    //     var params = {
-            
-    //     };
-    //     canvasModule.disable(params, function(e){
-    //         GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
-    //     });
-    // },
+    /**
+     * 释放gcanvas引擎
+     * @param ref wx-canvas 引用
+     * @param configArray 配置参数
+     **/
+    callDisable: function () {
+        if (!inWeex) {
+            return;
+        }
+        var params = {
+
+        };
+        canvasModule.disable && canvasModule.disable(params, function(e){
+            GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
+        });
+    },
+
+    callSetDevPixelRatio: function(componentId){
+        if(!inWeex){
+          return;
+        }
+        canvasModule.setDevicePixelRatio && canvasModule.setDevicePixelRatio(componentId);
+    },
 
     /**
      * 获取设备信息(android)
@@ -178,7 +197,7 @@ var GBridge = {
     setHiQuality: function (quality){
         GLog.d('bridge#setHiQuality(): quality: ' + quality);
         canvasModule.setHiQuality(quality);
-    }, 
+    },
 
 
     resetComponent: function(componentId){

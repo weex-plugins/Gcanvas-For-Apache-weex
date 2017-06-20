@@ -114,46 +114,19 @@ GCanvas.idCounter = 0;
 GCanvas.canvasMap = new GHashMap();
 
 //-----------------------------
-// GCanvas.setup 
-//-----------------------------
-GCanvas.setup = function(support){
-    GLog.d('setup#start=====>>>');
-    var config = [];
-    var mySupport = support || GSupport;
-
-    for(var attr in GSupport){
-      if(mySupport[attr] != undefined){
-         GSupport[attr] = mySupport[attr];
-      }
-    }
-
-    var config = {
-      'renderMode':GSupport.renderMode,
-      'hybridLayerType':GSupport.hybridLayerType,
-      'supportScroll':GSupport.supportScroll,
-      'sameLevel':GSupport. sameLevel,
-      'newCanvasMode':GSupport.newCanvasMode,
-      'clearColor': GSupport.clearColor
-    };
-
-    GBridge.callSetup(config, function(e){});
-}
-
-//-----------------------------
-// GCanvas.start 
+// GCanvas.start
 //-----------------------------
 GCanvas.start = function(el, succ, fail){
     GLog.d('gcanvas#start=====>>>');
 
     //get device
     GBridge.getDeviceInfo(function(e){//这里是异步操作
-
-        if (e.data && e.data.platform == "iOS"){
+        if (e.data && e.data.platform === "iOS"){
             GCanvasPlatform = 1;
-        }else if(e.data && e.data.platform == "Android"){
-            GCanvasPlatform = 2;
+        }else if(GBridge.isBrowser()){
+            GCanvasPlatform = 0;
         }else {
-             GCanvasPlatform = 0
+            GCanvasPlatform = 2;
         }
 
         GBridge.setup( {platform:GCanvasPlatform} );
@@ -161,8 +134,7 @@ GCanvas.start = function(el, succ, fail){
         if(GCanvasPlatform === 0){
             currentEl = el
             succ();
-        }
-        else {
+        }else {
             //bind canvas
             var config = [];
             config.push(GSupport.renderMode);
@@ -175,24 +147,12 @@ GCanvas.start = function(el, succ, fail){
             GBridge.callEnable(el.ref,config,function(e){
                 var canvas = new GCanvas(el.ref);
                 GCanvas.canvasMap.put(el.ref, canvas);
+
                 succ(canvas);
             });
         }
     });
 }
-
-//-----------------------------
-// GCanvas.getGCanvasById 
-//-----------------------------
-GCanvas.getGCanvasById = function(componentId){
-    return GCanvas.canvasMap.get(componentId);
-}
-
-
-
-
-
-
 
 //-----------------------------
 // Instance Method: getContext
@@ -212,7 +172,7 @@ GCanvas.prototype.getContext = function(contextID){
         }
         return context
     }
-    
+
     if (context){
         return context;//unsupport change type after create
     }
@@ -230,10 +190,11 @@ GCanvas.prototype.getContext = function(contextID){
 
     context.componentId = this.componentId;
     if (!context.timer) {
-       context.timer = setInterval(this.render.bind(this), 16);            
+       context.timer = setInterval(this.render.bind(this), 16);
     }
 
     this.context = context;
+    GBridge.callRegisterReattachJSCallback(this.componentId, context._clearImageTextures);
     return context;
 }
 
@@ -271,15 +232,18 @@ GCanvas.prototype.reset = function(){
 }
 
 //-----------------------------
-// GCanvas.setDevicePixelRatio 
+// Instance Method: setDevicePixelRatio
 //-----------------------------
-GCanvas.setDevicePixelRatio = function(){
-    GLog.d('gcanvas#disable=====>>>');
-    GBridge.callSetDevPixelRatio();
+GCanvas.prototype.setDevicePixelRatio = function(){
+    if(!this.context){
+        return;
+    }
+
+    GBridge.callSetDevPixelRatio(this.componentId);
 }
 
 //-----------------------------
-// GCanvas.disable 
+// GCanvas.disable
 //-----------------------------
 GCanvas.disable = function(){
     // GLog.d('gcanvas#disable=====>>>');
@@ -288,8 +252,33 @@ GCanvas.disable = function(){
     // }
 }
 
+GCanvas.prototype.setup = function(support){
+    if(!this.context){
+        return;
+    }
+    var config = [];
+    var mySupport = support || GSupport;
+
+    for(var attr in GSupport){
+      if(mySupport[attr] != undefined){
+         GSupport[attr] = mySupport[attr];
+      }
+    }
+
+    var config = {
+      'renderMode':GSupport.renderMode,
+      'hybridLayerType':GSupport.hybridLayerType,
+      'supportScroll':GSupport.supportScroll,
+      'sameLevel':GSupport. sameLevel,
+      'newCanvasMode':GSupport.newCanvasMode,
+      'clearColor': GSupport.clearColor
+    };
+
+    GBridge.callSetup(config, this.componentId, function(e){});
+}
+
 //-----------------------------
-// GCanvas.setHiQuality 
+// GCanvas.setHiQuality
 //-----------------------------
 GCanvas.setHiQuality = function(){
     GLog.d('gcanvas#setHiQuality=====>>>' + quality);
@@ -299,7 +288,7 @@ GCanvas.setHiQuality = function(){
 }
 
 //-----------------------------
-// GCanvas.setLogLevel 
+// GCanvas.setLogLevel
 //-----------------------------
 GCanvas.setLogLevel = function(level){
     GLog.d('gcanvas#setLogLevel=====>>> ' + level);
@@ -309,7 +298,7 @@ GCanvas.setLogLevel = function(level){
 }
 
 //-----------------------------
-// GCanvas.htmlPlugin 
+// GCanvas.htmlPlugin
 //-----------------------------
 GCanvas.htmlPlugin = htmlPlugin;
 
