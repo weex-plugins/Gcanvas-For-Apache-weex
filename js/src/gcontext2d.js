@@ -632,11 +632,10 @@ GContext2D.prototype.restore = function() {
 };
 
 
-GContext2D.prototype._concatDrawCmd = function(numArgs, image,
+GContext2D.prototype._concatDrawCmd = function(numArgs, imageInfo,
     sx, sy, sw, sh, // source (or destination if fewer args)
     dx, dy, dw, dh){// destination
-
-    var imageInfo = this._getImageTexture(image);
+    
     if(!imageInfo){
         return;
     }
@@ -694,15 +693,17 @@ GContext2D.prototype.drawImage = function(image, // image
                 return;
             }
 
-            that._saveImageTexture(image, e);
-            that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+            imageInfo = e;
+
+            that._saveImageTexture(image, imageInfo);
+            that._concatDrawCmd(numArgs, imageInfo, sx, sy, sw, sh, dx, dy, dw, dh);
             that.render("auto");
         }
         GBridge.preLoadImage(image, that.componentId, preloadImgCallback);
     }
     else
     {
-        this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        this._concatDrawCmd(numArgs, imageInfo, sx, sy, sw, sh, dx, dy, dw, dh);
     }
 };
 
