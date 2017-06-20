@@ -657,20 +657,44 @@ GContextWebGL.prototype.getProgramInfoLog = function(program){
     return ''; // TODO:need asyn deal
 };
 
-GContextWebGL.prototype.getProgramParameter = function(program){
-//	this._drawCommands = this._drawCommands.concat("getProgramParameter" + program.id + ";");
-    return true; // TODO:need asyn deal
+GContextWebGL.prototype.getProgramParameter = function(id,type){
+	var args = id + ',' + type;
+	var result = GBridge.exeSyncCmd('getProgramParameter',args);
+	
+	return result;
 };
 
-GContextWebGL.prototype.getShaderInfoLog = function(shader){
-    return ''; // TODO:need asyn deal
+GContextWebGL.prototype.getShaderInfoLog = function(id){
+    var args = id;
+	var result = GBridge.exeSyncCmd('getShaderInfoLog',args);
+	
+	return result;
 };
 
 GContextWebGL.prototype.getShaderParameter = function(shader, pname){
-//	this._drawCommands +=("getShaderParameter" + shader.id + "," + pname + ";");
-    return true; // TODO:need asyn deal
+	var args = shader + ',' + pname;
+	var result = GBridge.exeSyncCmd('getShaderParameter',args);
+	
+	return result;
 };
 
+GContextWebGL.prototype.getActiveUniform = function(id, index){
+	var args = id + ',' + index;
+	var result = GBridge.exeSyncCmd('getActiveUniform',args);
+	var tmp = result.split(',');
+	var info.type = tmp[0];
+	    info.name = tmp[1];
+	return info; 
+}
+
+GContextWebGL.prototype.getActiveAttrib = function(id, index){
+	var args = id + ',' + index;
+	var result = GBridge.exeSyncCmd('getActiveAttrib',args);
+	var tmp = result.split(',');
+	var info.type = tmp[0];
+	    info.name = tmp[1];
+	return info;    
+}
 
 GContextWebGL.prototype.scissor = function(x, y, w, h) {
     this._drawCommands += (this.scissorId + x + "," + y + ","
