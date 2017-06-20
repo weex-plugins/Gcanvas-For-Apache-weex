@@ -64,7 +64,7 @@ var GBridge = {
         canvasModule.preLoadImage(src, componentId, function (e) {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             e.url = src;
-            cb && cb(e);
+            cb && cb(e);  
         });
     },
 
@@ -88,22 +88,22 @@ var GBridge = {
     },
 
 
-    /**
-     * 释放gcanvas引擎
-     * @param ref wx-canvas 引用
-     * @param configArray 配置参数
-     **/
-    callDisable: function () {
-        if (!inWeex) {
-            return;
-        }
-        var params = {
+    // /**
+    //  * 释放gcanvas引擎
+    //  * @param ref wx-canvas 引用
+    //  * @param configArray 配置参数
+    //  **/
+    // callDisable: function () {
+    //     if (!inWeex) {
+    //         return;
+    //     }
+    //     var params = {
             
-        };
-        canvasModule.disable(params, function(e){
-            GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
-        });
-    },
+    //     };
+    //     canvasModule.disable(params, function(e){
+    //         GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
+    //     });
+    // },
 
     /**
      * 获取设备信息(android)

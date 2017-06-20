@@ -256,10 +256,10 @@ GCanvas.setDevicePixelRatio = function(){
 // GCanvas.disable 
 //-----------------------------
 GCanvas.disable = function(){
-    GLog.d('gcanvas#disable=====>>>');
-    if(GCanvasPlatform !== 0){
-        GBridge.callDisable();
-    }
+    // GLog.d('gcanvas#disable=====>>>');
+    // if(GCanvasPlatform !== 0){
+    //     GBridge.callDisable();
+    // }
 }
 
 //-----------------------------

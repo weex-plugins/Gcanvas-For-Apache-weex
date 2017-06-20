@@ -50,17 +50,9 @@ WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 
 WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
 WX_EXPORT_METHOD(@selector(enable:callback:));
-WX_EXPORT_METHOD(@selector(disable:callback:));
-
-//WX_EXPORT_METHOD(@selector(render:));
-//WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
-//WX_EXPORT_METHOD(@selector(setContextType:));
-
-//modify
 WX_EXPORT_METHOD(@selector(render:componentId:));
 WX_EXPORT_METHOD(@selector(preLoadImage:componentId:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:componentId:));
-
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 WX_EXPORT_METHOD(@selector(resetComponent:));
 
@@ -77,7 +69,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 }
 
 #pragma mark - Weex Export Method
-
 - (void)getDeviceInfo:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
     if(callback){
@@ -116,14 +107,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
                                              selector:@selector(onGCanvasResetNotify:)
                                                  name:KGCanvasResetNotificationName
                                                object:nil];
-}
-
-- (void)disable:(NSDictionary *)args callback:(WXModuleCallback)callback
-{
-    GCVLOG_METHOD(@"args=%@", args);
-    if(callback){
-        callback(@{@"result":@"success"});
-    }
 }
 
 - (void)render:(NSArray *)commands componentId:(NSString*)componentId

@@ -31,9 +31,9 @@ function GContext2D() {
     this._savedGlobalAlpha =[];
     this.timer = null;
     this.componentId = null;
-}
 
-var _hashmap = new GHashMap();
+    this._hashmap = new GHashMap();
+}
 
 function FillStylePattern(img, pattern) {
     this._style = pattern;
@@ -59,39 +59,6 @@ function FillStyleRadialGradient(x0, y0, r0, x1, y1, r1) {
     this._end_pos = { _x : x1, _y : y1, _r : r1 };
     this._stop_count = 0;
     this._stops = [0, 0, 0, 0, 0];
-}
-
-function maintainPicurlToTextureidMap(e) {
-    console.log("maintainPicurlToTextureidMap======");
-    if(!_hashmap){
-        return;
-    }
-
-
-    if(e){
-
-    }else{
-        GLog.d("GContext2D maintainPicurlToTextureidMap callback error! ");
-        return;
-    }
-
-    //GLog.d("GContext2D maintainPicurlToTextureidMap url: " + e.url + " >>> id: " + e.id);
-
-
-    if (e.url){
-        var image = new GCanvasImage();
-        console.log(JSON.stringify(image));
-        image.width = parseInt(e.width) || 0;
-        console.log("width ===================== ");
-        image.height = parseInt(e.height) || 0;
-        console.log("height ===================== ");
-        image.id = e.id;
-        console.log("id ===================== ");
-        image._id = e.id;
-        console.log("_id ===================== ");
-        GLog.d("GContext2D maintainPicurlToTextureidMap map " + e.url + " to " + e.id);
-        _hashmap.put(e.url, image);
-    }
 }
 
 FillStyleRadialGradient.prototype.addColorStop = function(pos, color) {
@@ -491,21 +458,15 @@ Object.defineProperty(GContext2D.prototype, "font", {
  * @private
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
-    // if (successCallback && typeof successCallback !== 'function') {
-    //     throw new Error(
-    //             'GContext2D.loadTexture failure: successCallback parameter not a function');
-    // }
-    // if (errorCallback && typeof errorCallback !== 'function') {
-    //     throw new Error(
-    //             'GContext2D.loadTexture failure: errorCallback parameter not a function');
-    // }
-
-    // GCanvas._toNative(successCallback, errorCallback, 'GCanvas',
-    //         'loadTexture', [ image.src, image._id ]);
-
+    
+    if (typeof image !== 'string') {
+        image = image.src;
+    }
+    
+    var that = this;
     GBridge.preLoadImage(image, this.componentId, function(e){
         if (e){
-            maintainPicurlToTextureidMap(e);
+            that._saveImageTexture(image, e);
             successCallback && successCallback(e);
         }else{
             GLog.d("GContext2D loadTexture errorCallback!");
@@ -531,8 +492,11 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
  * @private
  */
 GContext2D.prototype.unloadTexture = function(image) {
-    // GCanvas._toNative(null, null, 'GCanvas', 'unloadTexture',
-    //         [ image._id ]);
+    if (typeof image !== 'string') {
+        image = image.src;
+    }
+
+    this._removeImageTexture(image);
 };
 
 /**
@@ -672,7 +636,7 @@ GContext2D.prototype._concatDrawCmd = function(numArgs, image,
     sx, sy, sw, sh, // source (or destination if fewer args)
     dx, dy, dw, dh){// destination
     
-    var imageInfo = _hashmap.get(image);
+    var imageInfo = this._getImageTexture(image);
     if(!imageInfo){
         return;
     }
@@ -721,7 +685,7 @@ GContext2D.prototype.drawImage = function(image, // image
 
     var numArgs = arguments.length;
 
-    var imageInfo = _hashmap.get(image);
+    var imageInfo = this._getImageTexture(image);
     if( !imageInfo )
     {
         var that = this;
@@ -730,7 +694,7 @@ GContext2D.prototype.drawImage = function(image, // image
                 return;
             }
 
-            maintainPicurlToTextureidMap(e);
+            that._saveImageTexture(image, e);
             that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
         }
         GBridge.preLoadImage(image, that.componentId, preloadImgCallback);
@@ -740,6 +704,48 @@ GContext2D.prototype.drawImage = function(image, // image
         this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
     }
 };
+
+
+GContext2D.prototype._getImageTexture = function(image)
+{
+    if (typeof image !== 'string') 
+    {
+        image = image.src;
+    }
+
+    if( image )
+    {
+        return this._hashmap.get(image);
+    }
+    return null;
+}
+
+GContext2D.prototype._removeImageTexture = function(image)
+{
+    if (typeof image !== 'string') 
+    {
+        image = image.src;
+    }
+
+    this._hashmap.remove(image);
+}
+
+
+GContext2D.prototype._saveImageTexture = function(image, e)
+{
+    if( e && e.url )
+    {
+        var image = new GCanvasImage();
+        image.width = parseInt(e.width) || 0;
+        image.height = parseInt(e.height) || 0;
+        image.id = e.id;
+        image._id = e.id;
+        this._hashmap.put(e.url, image);
+        GLog.d("GContext2D _saveImageTexture: " + e.url + " to " + e.id);
+    }
+}
+
+
 
 /**
  * Informs the drawing context that drawing commands have completed for the
