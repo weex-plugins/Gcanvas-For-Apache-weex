@@ -43,9 +43,9 @@
 				ctx.fillRect(100, 100, 100, 100);
 				ctx.fillRect(25, 210, 700, 5);
 
-				// //circle
-				// ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-				// ctx.fill();				
+				//circle
+				ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+				ctx.fill();				
 			});
 
 			var ref2 = this.$refs.gcanvas2;
@@ -60,9 +60,9 @@
 				ctx.fillRect(100, 100, 100, 100);
 				ctx.fillRect(25, 210, 700, 5);
 
-				// //circle
-				// ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-				// ctx.fill();				
+				//circle
+				ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+				ctx.fill();				
 			});
 		
 		}
