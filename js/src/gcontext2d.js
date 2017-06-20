@@ -458,11 +458,11 @@ Object.defineProperty(GContext2D.prototype, "font", {
  * @private
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
-    
+
     if (typeof image !== 'string') {
         image = image.src;
     }
-    
+
     var that = this;
     GBridge.preLoadImage(image, this.componentId, function(e){
         if (e){
@@ -635,7 +635,7 @@ GContext2D.prototype.restore = function() {
 GContext2D.prototype._concatDrawCmd = function(numArgs, image,
     sx, sy, sw, sh, // source (or destination if fewer args)
     dx, dy, dw, dh){// destination
-    
+
     var imageInfo = this._getImageTexture(image);
     if(!imageInfo){
         return;
@@ -696,6 +696,7 @@ GContext2D.prototype.drawImage = function(image, // image
 
             that._saveImageTexture(image, e);
             that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+            that.render("auto");
         }
         GBridge.preLoadImage(image, that.componentId, preloadImgCallback);
     }
@@ -708,7 +709,7 @@ GContext2D.prototype.drawImage = function(image, // image
 
 GContext2D.prototype._getImageTexture = function(image)
 {
-    if (typeof image !== 'string') 
+    if (typeof image !== 'string')
     {
         image = image.src;
     }
@@ -722,7 +723,7 @@ GContext2D.prototype._getImageTexture = function(image)
 
 GContext2D.prototype._removeImageTexture = function(image)
 {
-    if (typeof image !== 'string') 
+    if (typeof image !== 'string')
     {
         image = image.src;
     }
@@ -746,6 +747,10 @@ GContext2D.prototype._saveImageTexture = function(image, e)
 }
 
 
+GContext2D.prototype._clearImageTextures = function(){
+  this._hashmap.clear();
+}
+
 
 /**
  * Informs the drawing context that drawing commands have completed for the
@@ -768,7 +773,7 @@ GContext2D.prototype._saveImageTexture = function(image, e)
  */
 
 GContext2D.prototype.render = function(flag) {
-    if (typeof flag === "undefined"){
+    if (this.timer && typeof flag === "undefined"){
         clearInterval(this.timer);
         this.timer = null;
     }
