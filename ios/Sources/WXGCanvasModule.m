@@ -193,7 +193,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         CGFloat width = CGImageGetWidth(cgimageRef);
         CGFloat height = CGImageGetHeight(cgimageRef);
         if(callback){
-            callback(@{@"width":@(width), @"height":@(height), @"id":@(imageCache.textureId)});
+            callback(@{@"width":@(width), @"height":@(height), @"id":@(imageCache.jsTextreId)});
         }
         
         if( !fromCache )
