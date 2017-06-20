@@ -743,7 +743,7 @@ GContext2D.prototype._saveImageTexture = function(image, e)
         image.id = e.id;
         image._id = e.id;
         this._hashmap.put(e.url, image);
-        GLog.d("GContext2D _saveImageTexture: " + e.url + " to " + e.id);
+        GLog.d("GContext2D _saveImageTexture() componentId: " + this.componentId + ", url: " + e.url + ", textureid: " + e.id);
     }
 }
 

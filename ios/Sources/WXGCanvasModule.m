@@ -54,7 +54,8 @@ WX_EXPORT_METHOD(@selector(render:componentId:));
 WX_EXPORT_METHOD(@selector(preLoadImage:componentId:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:componentId:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
-WX_EXPORT_METHOD(@selector(resetComponent:));
+WX_EXPORT_METHOD(@selector(resetComponent:));   //appear调用
+WX_EXPORT_METHOD(@selector(removeComponent:));  //disapper调用
 
 WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
@@ -121,6 +122,8 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     
     [self execCommandById:componentId];
     
+    
+    //暂存命令
     __weak typeof(self) weakSelf = self;
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     if( component )
@@ -145,6 +148,23 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         {
             [plugin removeCommands];
         }
+    }
+}
+
+- (void)removeComponent:(NSString*)componentId
+{
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    if (component)
+    {
+        [self.componentDict removeObjectForKey:componentId];
+        component = nil;
+    }
+    
+    GCanvasPlugin *plugin = self.pluginDict[componentId];
+    if( plugin )
+    {
+        [self.pluginDict removeObjectForKey:componentId];
+        plugin = nil;
     }
 }
 

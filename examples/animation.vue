@@ -1,6 +1,6 @@
 <template>
 	<div ref="test">
-		<gcanvas ref="canvas_holder" style="top: 0; width:750;height:750;position:absolute" ></gcanvas>
+		<gcanvas ref="canvas_holder" style="top: 0; width:750;height:750;position:absolute; background-color:rgba(255,255,0, 0.3)" ></gcanvas>
 	</div>
 </template>
 <script>
@@ -25,8 +25,8 @@
 					ctx.fillStyle = 'red';
 					ctx.fillRect(offsetX, 0, 100, 100);
 
-					offsetX = (offsetX + 10 ) % 750;
-				}, 100);
+					offsetX = (offsetX + 1 ) % 750;
+				}, 16);
 			});
 		}
 	};
