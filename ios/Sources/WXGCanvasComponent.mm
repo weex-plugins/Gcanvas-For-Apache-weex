@@ -121,11 +121,12 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 -(void)viewDidUnload
 {
     [super viewDidUnload];
-    if(!self.isUnLoad){
-        [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName object:nil];
-        self.isUnLoad = YES;
-    }
-
+//    [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName
+//                                                        object:nil
+//                                                      userInfo:@{@"componentId":self.componentId}];
+//    if(!self.isUnLoad){
+//        self.isUnLoad = YES;
+//    }
 }
 
 -(void)viewDidLoad

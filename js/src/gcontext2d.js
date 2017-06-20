@@ -503,7 +503,7 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
     // GCanvas._toNative(successCallback, errorCallback, 'GCanvas',
     //         'loadTexture', [ image.src, image._id ]);
 
-    GBridge.preLoadImage(image, function(e){
+    GBridge.preLoadImage(image, this.componentId, function(e){
         if (e){
             maintainPicurlToTextureidMap(e);
             successCallback && successCallback(e);
@@ -733,7 +733,7 @@ GContext2D.prototype.drawImage = function(image, // image
             maintainPicurlToTextureidMap(e);
             that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
         }
-        GBridge.preLoadImage(image, preloadImgCallback);
+        GBridge.preLoadImage(image, that.componentId, preloadImgCallback);
     }
     else
     {
