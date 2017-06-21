@@ -32,6 +32,7 @@ function GContextWebGL(){
     //this._apiContext.font = this._font;
 
     this._savedGlobalAlpha =[];
+    this.componentId = null;
 }
 
 
@@ -380,7 +381,7 @@ GContextWebGL.prototype.render = function() {
     GLog.d("GContextWebGL#render() called, commands is "+ commands);
     if (commands != null && commands != "") {
         //GCanvas._toNative(null, null, 'GCanvas', 'render', [ commands ]);
-        GBridge.callRender(commands)
+        GBridge.callRender(this.componentId, commands)
     }
 };
 
