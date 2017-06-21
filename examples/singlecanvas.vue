@@ -16,22 +16,21 @@
 		},
 		mounted: function () {
 			var ref = this.$refs.canvas_holder;
-			GCanvas.start(ref, function (gcanvas) {
-				var ctx = gcanvas.getContext('2d');
+			var gcanvas = GCanvas.start(ref);
+			
+			var ctx = gcanvas.getContext('2d');
+			//rect
+			ctx.fillStyle = 'red';
+			ctx.fillRect(0, 0, 100, 100);
 
-				//rect
-				ctx.fillStyle = 'red';
-				ctx.fillRect(0, 0, 100, 100);
+			//rect
+			ctx.fillStyle = 'black';
+			ctx.fillRect(100, 100, 100, 100);
+			ctx.fillRect(25, 210, 700, 5);
 
-				//rect
-				ctx.fillStyle = 'black';
-				ctx.fillRect(100, 100, 100, 100);
-				ctx.fillRect(25, 210, 700, 5);
-
-				//circle
-				ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-				ctx.fill();				
-			});
+			//circle
+			ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+			ctx.fill();
 		}
 	};
 </script>

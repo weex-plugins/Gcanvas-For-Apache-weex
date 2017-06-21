@@ -31,40 +31,42 @@
 		},
 		mounted: function () {
 
+			//GCanvas1
 			var ref1 = this.$refs.gcanvas1;
-			GCanvas.start(ref1, function (gcanvas1) {
-				var ctx = gcanvas1.getContext('2d');
-				//rect
-				ctx.fillStyle = 'red';
-				ctx.fillRect(0, 0, 100, 100);
+			var gcanvas1 = GCanvas.start(ref1);
+			
+			var ctx1 = gcanvas1.getContext('2d');
+			//rect
+			ctx1.fillStyle = 'red';
+			ctx1.fillRect(0, 0, 100, 100);
 
-				//rect
-				ctx.fillStyle = 'black';
-				ctx.fillRect(100, 100, 100, 100);
-				ctx.fillRect(25, 210, 700, 5);
+			//rect
+			ctx1.fillStyle = 'black';
+			ctx1.fillRect(100, 100, 100, 100);
+			ctx1.fillRect(25, 210, 700, 5);
 
-				//circle
-				ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-				ctx.fill();				
-			});
+			//circle
+			ctx1.arc(450, 200, 100, 0, Math.PI * 2, true);
+			ctx1.fill();				
 
+
+			//GCanvas2
 			var ref2 = this.$refs.gcanvas2;
-			GCanvas.start(ref2, function (gcanvas2) {
-				var ctx = gcanvas2.getContext('2d');
-				//rect
-				ctx.fillStyle = 'blue';
-				ctx.fillRect(0, 0, 100, 100);
+			var gcanvas2 = GCanvas.start(ref2)
 
-				//rect
-				ctx.fillStyle = 'green';
-				ctx.fillRect(100, 100, 100, 100);
-				ctx.fillRect(25, 210, 700, 5);
+			var ctx2 = gcanvas2.getContext('2d');
+			//rect
+			ctx2.fillStyle = 'blue';
+			ctx2.fillRect(0, 0, 100, 100);
 
-				//circle
-				ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-				ctx.fill();				
-			});
-		
+			//rect
+			ctx2.fillStyle = 'green';
+			ctx2.fillRect(100, 100, 100, 100);
+			ctx2.fillRect(25, 210, 700, 5);
+
+			//circle
+			ctx2.arc(450, 200, 100, 0, Math.PI * 2, true);
+			ctx2.fill();				
 		}
 	};
 </script>

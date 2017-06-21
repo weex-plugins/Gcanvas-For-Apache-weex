@@ -116,42 +116,41 @@ GCanvas.canvasMap = new GHashMap();
 //-----------------------------
 // GCanvas.start
 //-----------------------------
-GCanvas.start = function(el, succ, fail){
+GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');
 
-    //get device
-    GBridge.getDeviceInfo(function(e){//这里是异步操作
-        if (e.data && e.data.platform === "iOS"){
-            GCanvasPlatform = 1;
-        }else if(GBridge.isBrowser()){
-            GCanvasPlatform = 0;
-        }else {
-            GCanvasPlatform = 2;
-        }
+    if (typeof WXEnvironment === 'object' && /ios/i.test(WXEnvironment.platform)) {
+        GCanvasPlatform = 1;
+    } else if (typeof navigator === 'object' && /ios/i.test(navigator.userAgent)) {
+        GCanvasPlatform = 1;
+    } else {
+        GCanvasPlatform = 2;
+    }
 
-        GBridge.setup( {platform:GCanvasPlatform} );
+    GBridge.setup( {platform:GCanvasPlatform} );
 
-        if(GCanvasPlatform === 0){
-            currentEl = el
-            succ();
-        }else {
-            //bind canvas
-            var config = [];
-            config.push(GSupport.renderMode);
-            config.push(GSupport.hybridLayerType);
-            config.push(GSupport.supportScroll);
-            config.push(GSupport.newCanvasMode);
-            config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
-            config.push(GSupport.clearColor);
-            config.push(GSupport.sameLevel);
-            GBridge.callEnable(el.ref,config,function(e){
-                var canvas = new GCanvas(el.ref);
-                GCanvas.canvasMap.put(el.ref, canvas);
+    if(GCanvasPlatform === 0)
+    {
+        currentEl = el
+        return currentEl;
+    }
+    else 
+    {
+        //bind canvas
+        var config = [];
+        config.push(GSupport.renderMode);
+        config.push(GSupport.hybridLayerType);
+        config.push(GSupport.supportScroll);
+        config.push(GSupport.newCanvasMode);
+        config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
+        config.push(GSupport.clearColor);
+        config.push(GSupport.sameLevel);
+        GBridge.callEnable(el.ref,config,function(e){});
 
-                succ(canvas);
-            });
-        }
-    });
+        var canvas = new GCanvas(el.ref);
+        GCanvas.canvasMap.put(el.ref, canvas);
+        return canvas;
+    }
 }
 
 //-----------------------------
