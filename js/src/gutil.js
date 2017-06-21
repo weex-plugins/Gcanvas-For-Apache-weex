@@ -71,16 +71,29 @@ var GBridge = {
     },
 
     /**预加载图片*/
-    preLoadImage: function (src, componentId, cb) {
+    preLoadImage: function (src, cb) {
         if (!inWeex) {
             return;
         }
-        GLog.d('bridge#preLoadImage() componentId '+ componentId +' image url is ' + src);
-        canvasModule.preLoadImage(src, componentId, function (e) {
+
+        GLog.d('bridge#preLoadImage() image url is ' + src);
+        
+        //返回width和height
+        canvasModule.preLoadImage(src, function (e) {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             e.url = src;
-            cb && cb(e);
+            cb && cb(e);  
         });
+    },
+    
+    /**绑定纹理*/
+    bindImageTexture: function (componentId, src) {
+        if (!inWeex) {
+            return;
+        }
+
+        GLog.d('bridge#bindImageTexture() image url is ' + src);        
+        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId);
     },
 
     /**
@@ -103,29 +116,22 @@ var GBridge = {
     },
 
 
-    /**
-     * 释放gcanvas引擎
-     * @param ref wx-canvas 引用
-     * @param configArray 配置参数
-     **/
-    callDisable: function () {
-        if (!inWeex) {
-            return;
-        }
-        var params = {
-
-        };
-        canvasModule.disable && canvasModule.disable(params, function(e){
-            GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
-        });
-    },
-
-    callSetDevPixelRatio: function(componentId){
-        if(!inWeex){
-          return;
-        }
-        canvasModule.setDevicePixelRatio && canvasModule.setDevicePixelRatio(componentId);
-    },
+    // /**
+    //  * 释放gcanvas引擎
+    //  * @param ref wx-canvas 引用
+    //  * @param configArray 配置参数
+    //  **/
+    // callDisable: function () {
+    //     if (!inWeex) {
+    //         return;
+    //     }
+    //     var params = {
+            
+    //     };
+    //     canvasModule.disable(params, function(e){
+    //         GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
+    //     });
+    // },
 
     /**
      * 获取设备信息(android)
@@ -197,16 +203,12 @@ var GBridge = {
     setHiQuality: function (quality){
         GLog.d('bridge#setHiQuality(): quality: ' + quality);
         canvasModule.setHiQuality(quality);
-    },
+    }, 
 
 
     resetComponent: function(componentId){
         GLog.d('bridge#resetComponent(): componentId: ' + componentId);
         canvasModule.resetComponent && canvasModule.resetComponent(componentId);
-    },
-	exeSyncCmd: function (action,args){
-    	GLog.d('bridge#exeSyncCmd(): action: ' + action + ',args:' + args);
-    	return canvasModule.execGcanvaSyncCMD(action,args);
     }
 };
 

@@ -1,3 +1,6 @@
+var GBridge = require('./gutil').GBridge;
+var GHashMap = require("./ghashmap");
+
 // GCanvasImage
   function GCanvasImage() {
     /**
@@ -34,6 +37,7 @@
    * @private
    */
   GCanvasImage.idCounter = 0;
+  GCanvasImage.imageMap = new GHashMap();
 
   /**
    * Callback for when an image has successfully loaded a file path assigned
@@ -82,19 +86,13 @@
     get: function() {
       return this._src;
     },
-    set: function(value) {
-      this._src = value;
+    set: function(src) {
 
-      // var gcanvas = GCanvas._instance;
-      // context = gcanvas.getContext("2d");
-
-      var context = GCanvas._instance_context;
-
-      // Unloading
-      if (!this._src) {
-        context.unloadTexture(this);
-        return;
+      if (!src || src === this._src) {
+          return;
       }
+
+      this._src = src;
 
       // Loading
       this.complete = false;
@@ -102,29 +100,34 @@
       // callback wrappers
       var me = this;
 
-      function onerror(err) {
-
+      var data = GCanvasImage.imageMap.get(src);
+      if( data )
+      {
         me.complete = true;
-        if (typeof me.onerror === 'function') {
-          me.onerror(err);
-        }
+        me.width = data.width;
+        me.height = data.height;
+        me.onload && me.onload();
+        return;
       }
 
-      function onload(metrics) {
 
-        me.complete = true;
+      GBridge.preLoadImage([src, this.id], function (data) {
+          if (typeof data === 'string') {
+              try {
+                  data = JSON.parse(data);
+              } catch (err) {}
+          }
 
-        if (metrics[0] && metrics[1]) {
-          me.width = Math.floor(metrics[0]);
-          me.height = Math.floor(metrics[1]);
-        }
-
-        if (typeof me.onload === 'function') {
-          me.onload();
-        }
-      }
-
-      context.loadTexture(this, onload, onerror);
+          if( data.error ){
+            me.onerror && me.onerror();
+          }else{
+            me.complete = true;
+            me.width = data.width;
+            me.height = data.height;
+            me.onload && me.onload();
+            GCanvasImage.imageMap.put(src, data);
+          }
+      });
     }
   });
 
@@ -148,4 +151,4 @@
   });
 
 
-  module.exports=GCanvasImage;
+  module.exports = typeof Image === 'function' ? Image : GCanvasImage;

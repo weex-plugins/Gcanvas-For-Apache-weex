@@ -467,10 +467,10 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
     // GCanvas._toNative(successCallback, errorCallback, 'GCanvas',
     //         'loadTexture', [ image.src, image._id ]);
 
-    GBridge.preLoadImage(image, function(e){
-
+    GBridge.preLoadImage(image, function(e)
+    {
         if ( e && e.url ){
-             GLog.d("GContext2D loadTexture successCallback! e " + JSON.stringify(e));
+            GLog.d("GContext2D loadTexture successCallback! e " + JSON.stringify(e));
             GLog.d("GContext2D loadTexture successCallback! url " + e.url + " id " + e.id);
             successCallback && successCallback(e);
 
@@ -478,7 +478,6 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
             GLog.d("GContext2D loadTexture errorCallback!");
             errorCallback && errorCallback(e);
         }
-
     });
 
 };

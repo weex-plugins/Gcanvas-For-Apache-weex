@@ -51,7 +51,8 @@ WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
 WX_EXPORT_METHOD(@selector(enable:callback:));
 WX_EXPORT_METHOD(@selector(render:componentId:));
-WX_EXPORT_METHOD(@selector(preLoadImage:componentId:callback:));
+WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
+WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:));
 WX_EXPORT_METHOD(@selector(setContextType:componentId:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 WX_EXPORT_METHOD(@selector(resetComponent:));   //appear调用
@@ -169,7 +170,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 }
 
 //预加载image，便于后续渲染时可以同步执行
-- (void)preLoadImage:(NSString *)src componentId:(NSString*)componentId callback:(WXModuleCallback)callback
+- (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
 {
     GCVLOG_METHOD(@" PreLoadImage start...");
     if( ![GCVCommon sharedInstance].imageLoader )
@@ -177,9 +178,16 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         [GCVCommon sharedInstance].imageLoader = self;
     }
     
+    if (!data || data.count != 2)
+    {
+        return;
+    }
+    
+    NSString *src = data[0];
+    NSUInteger jsTextureId = [data[1] integerValue];
+    
     __weak typeof(self) weakSelf = self;
     [[GCVCommon sharedInstance] addPreLoadImage:src
-                                    componentId:componentId
                                      completion:^(GCVImageCache *imageCache, BOOL fromCache) {
         if (!imageCache)
         {
@@ -189,31 +197,52 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
             return;
         }
         
-        CGImageRef cgimageRef = imageCache.image.CGImage;
-        CGFloat width = CGImageGetWidth(cgimageRef);
-        CGFloat height = CGImageGetHeight(cgimageRef);
+        imageCache.jsTextreId = jsTextureId;
+                                         
         if(callback){
-            callback(@{@"width":@(width), @"height":@(height), @"id":@(imageCache.jsTextreId)});
-        }
-        
-        if( !fromCache )
-        {
-            GCanvasPlugin *plugin = weakSelf.pluginDict[componentId];
-            if( plugin )
-            {
-                [plugin addTextureId:imageCache.textureId
-                           withAppId:imageCache.jsTextreId
-                               width:width height:height];
-            }
+            callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
         }
                                          
-        WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-         if( component ){
-             [component.glkview setNeedsDisplay];
-         }
+        
+//        if( !fromCache )
+//        {
+//            GCanvasPlugin *plugin = weakSelf.pluginDict[componentId];
+//            if( plugin )
+//            {
+//                [plugin addTextureId:imageCache.textureId
+//                           withAppId:imageCache.jsTextreId
+//                               width:width height:height];
+//            }
+//        }
+//                                         
+//        WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+//         if( component ){
+//             [component.glkview setNeedsDisplay];
+//         }
     }];
 }
 
+- (void)bindImageTexture:(NSString*)src componentId:(NSString*)componentId
+{
+    GCVLOG_METHOD(@"bindImageTexture src: %% componentId:%@", src, componentId);
+    GCanvasPlugin *plugin = self.pluginDict[componentId];
+    if( plugin )
+    {
+        GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
+        if (imageCache ) {
+            NSUInteger texutreId = [plugin getTextureId:imageCache.jsTextreId];
+            if( texutreId == 0 )
+            {
+                GLuint textureId = [GCVCommon bindTexture:imageCache.image];
+                
+                [plugin addTextureId:textureId
+                           withAppId:imageCache.jsTextreId
+                               width:imageCache.width
+                              height:imageCache.height];
+            }
+        }
+    }
+}
 
 //设置Context类型
 - (void)setContextType:(NSUInteger)type componentId:(NSString*)componentId

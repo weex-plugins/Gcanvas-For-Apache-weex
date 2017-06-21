@@ -678,33 +678,10 @@ GContext2D.prototype.drawImage = function(image, // image
 
     GLog.d("[GContext2D.drawImage] start...");
 
-    if (typeof image !== 'string') {
-        image = image.src;
-    }
-
+    GBridge.bindImageTexture(this.componentId, image.src);
+    
     var numArgs = arguments.length;
-
-    var imageInfo = this._getImageTexture(image);
-    if( !imageInfo )
-    {
-        var that = this;
-        var preloadImgCallback = function(e){
-            if(!e){
-                return;
-            }
-
-            imageInfo = e;
-
-            that._saveImageTexture(image, imageInfo);
-            that._concatDrawCmd(numArgs, imageInfo, sx, sy, sw, sh, dx, dy, dw, dh);
-            that.render("auto");
-        }
-        GBridge.preLoadImage(image, that.componentId, preloadImgCallback);
-    }
-    else
-    {
-        this._concatDrawCmd(numArgs, imageInfo, sx, sy, sw, sh, dx, dy, dw, dh);
-    }
+    this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
 };
 
 
