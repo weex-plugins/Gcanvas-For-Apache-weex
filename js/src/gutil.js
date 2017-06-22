@@ -76,12 +76,12 @@ var GBridge = {
             return;
         }
 
-        GLog.d('bridge#preLoadImage() image url:' + image.src +', id :' + image.id);
-        
         //返回width和height
+        //image[src, id]
         canvasModule.preLoadImage(image, function (e) {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
-            e.url = src;
+            e.url = image[0];
+            e.id = image[1];
             cb && cb(e);  
         });
     },

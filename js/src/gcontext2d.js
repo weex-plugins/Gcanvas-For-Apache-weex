@@ -458,19 +458,24 @@ Object.defineProperty(GContext2D.prototype, "font", {
  * @private
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
+
+    var data = this._getImageTexture(image.src);
+    if( data )
+    {
+        successCallback && successCallback(data);
+        return;
+    }
+
     var that = this;
     GBridge.preLoadImage([image.src, image.id], function(e){
         if (e){
-            that._saveImageTexture(image, e);
+            that._saveImageTexture(image.src, e);
             successCallback && successCallback(e);
         }else{
             GLog.d("GContext2D loadTexture errorCallback!");
             errorCallback && errorCallback(e);
         }
-
     });
-
-
 };
 
 /**
@@ -487,11 +492,7 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
  * @private
  */
 GContext2D.prototype.unloadTexture = function(image) {
-    if (typeof image !== 'string') {
-        image = image.src;
-    }
-
-    this._removeImageTexture(image);
+    this._removeImageTexture(image.src);
 };
 
 /**
@@ -680,45 +681,28 @@ GContext2D.prototype.drawImage = function(image, // image
 };
 
 
-GContext2D.prototype._getImageTexture = function(image)
-{
-    if (typeof image !== 'string')
+GContext2D.prototype._getImageTexture = function(url){
+    if( url )
     {
-        image = image.src;
-    }
-
-    if( image )
-    {
-        return this._hashmap.get(image);
+        return this._hashmap.get(url);
     }
     return null;
 }
 
-GContext2D.prototype._removeImageTexture = function(image)
-{
-    if (typeof image !== 'string')
+GContext2D.prototype._removeImageTexture = function(url){
+    if( url )
     {
-        image = image.src;
+        this._hashmap.remove(url);
     }
-
-    this._hashmap.remove(image);
 }
 
 
-GContext2D.prototype._saveImageTexture = function(image, e)
-{
+GContext2D.prototype._saveImageTexture = function(url, e){
     if( e && e.url )
     {
-        var image = new GCanvasImage();
-        image.width = parseInt(e.width) || 0;
-        image.height = parseInt(e.height) || 0;
-        image.id = e.id;
-        image._id = e.id;
-        this._hashmap.put(e.url, image);
-        GLog.d("GContext2D _saveImageTexture() componentId: " + this.componentId + ", url: " + e.url + ", textureid: " + e.id);
+        this._hashmap.put(url, e);
     }
 }
-
 
 GContext2D.prototype._clearImageTextures = function(){
   this._hashmap.clear();
