@@ -458,13 +458,8 @@ Object.defineProperty(GContext2D.prototype, "font", {
  * @private
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
-
-    if (typeof image !== 'string') {
-        image = image.src;
-    }
-
     var that = this;
-    GBridge.preLoadImage(image, this.componentId, function(e){
+    GBridge.preLoadImage([image.src, image.id], function(e){
         if (e){
             that._saveImageTexture(image, e);
             successCallback && successCallback(e);

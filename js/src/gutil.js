@@ -71,21 +71,21 @@ var GBridge = {
     },
 
     /**预加载图片*/
-    preLoadImage: function (src, cb) {
+    preLoadImage: function (image, cb) {
         if (!inWeex) {
             return;
         }
 
-        GLog.d('bridge#preLoadImage() image url is ' + src);
+        GLog.d('bridge#preLoadImage() image url:' + image.src +', id :' + image.id);
         
         //返回width和height
-        canvasModule.preLoadImage(src, function (e) {
+        canvasModule.preLoadImage(image, function (e) {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             e.url = src;
             cb && cb(e);  
         });
     },
-    
+
     /**绑定纹理*/
     bindImageTexture: function (componentId, src) {
         if (!inWeex) {

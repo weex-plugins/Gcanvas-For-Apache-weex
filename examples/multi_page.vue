@@ -3,7 +3,7 @@
           dataRole="none"
           :height="navBarHeight"
           :title="title"
-          backgroundColor="#ff5898"
+          background-color="#ff5898"
           titleColor="white"
           leftItemTitle="More"
           leftItemColor="white"
@@ -11,16 +11,33 @@
           @naviBarLeftItemClick="naviBarLeftItemClick"
           @naviBarRightItemClick="naviBarRightItemClick">
     <panel title="push a new page">
-      <button type="primary" size="small" value="push" @click.native="push"></button>
+      	<button type="primary" size="small" value="push" @click.native="push"></button>
     </panel>
     <panel title="pop to the last page">
       <button type="success" size="small" value="pop" @click.native="pop"></button>
     </panel>
-    <div ref="test">
-      <gcanvas ref="canvas_holder" style="width:750;height:750;"></gcanvas>
-    </div>
+
+	<list @viewappear="viewappear" @viewdisappear="viewdisappear">
+    	<cell>
+	      <div ref="test" @appear="cellappear" @disappear="celldisappear">
+	        <gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,0,0,0.1)"></gcanvas>
+	      </div>
+    	</cell>
+	    <cell>
+	      <div class="holder" style="background-color:rgb(255,255,255)">
+	      </div>
+	    </cell>
+  </list>
+
   </navpage>
 </template>
+
+<style>
+  .holder{
+    height: 2000px;
+    background-color: #000000;
+  }
+</style>
 
 <script>
   var navigator = weex.requireModule('navigator');
@@ -29,6 +46,8 @@
   var GCanvas = require('../js/src/gcanvas');
   var Image = require('../js/src/gcanvasimage');
   var getBaseURL = require('./include/base-url.js').getBaseURL
+  var modal = weex.requireModule('modal')
+
   var gcanvas;
   module.exports = {
     data: function () {
@@ -65,20 +84,45 @@
       },
       push: function () {
         var params = {
-          'url':  this.baseURL + this.subPath + 'vue/hello.js?test=1',
+          'url':  this.baseURL + this.subPath + 'multi_page.js?test=1',
           'animated' : 'true',
         }
         navigator.push(params, function () {});
       },
       pop: function () {
         var params = {
-          'url':  this.baseURL + this.subPath + 'vue/hello.js?test=1',
+          'url':  this.baseURL + this.subPath + 'multi_page.js?test=1',
           'animated' : 'true',
         }
         navigator.pop(params, function () {});
       },
-      onappear: function (e) {
-        gcanvas.reset();
+      viewappear: function () {
+  		gcanvas.reset();
+      	modal.toast({
+          'message': 'view appear',
+          'duration': 0.3
+        })
+      },
+      viewdisappear: function() {
+      	gcanvas.stopRender();
+      	modal.toast({
+          'message': 'view disappear',
+          'duration': 0.3
+        })
+      },
+      cellappear: function () {
+      	gcanvas.startLoop();
+        modal.toast({
+          'message': 'gcanvas cell appear',
+          'duration': 0.3
+        })
+      },
+      celldisappear: function () {
+      	gcanvas.stopLoop();
+        modal.toast({
+          'message': 'gcanvas cell disappear',
+          'duration': 0.3
+        })
       },
     },
 
@@ -113,7 +157,7 @@
 			{
 				ctx.drawImage(img, 100, 200, 210, 330);
 			}
-		},1000);
+		}, 300);
 
 
     }

@@ -24,7 +24,6 @@
 
   var GCanvas=require('../js/src/gcanvas');
   var Image=require('../js/src/gcanvasimage');
-  var gcanvasInstance;
 
   module.exports = {
 
@@ -52,13 +51,13 @@
     methods:{
       viewappear: function () {
         modal.toast({
-          'message': 'appear',
+          'message': 'view appear',
           'duration': 1
         })
       },
       viewdisappear: function () {
         modal.toast({
-          'message': 'disappear',
+          'message': 'view disappear',
           'duration': 1
         })
       },

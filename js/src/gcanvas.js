@@ -188,12 +188,15 @@ GCanvas.prototype.getContext = function(contextID){
     GBridge.setContextType(this.componentId, context_type);
 
     context.componentId = this.componentId;
-    if (!context.timer) {
-       context.timer = setInterval(this.render.bind(this), 16);
-    }
+    // if (!context.timer) {
+    //    context.timer = setInterval(this.render.bind(this), 16);
+    // }
 
     this.context = context;
     GBridge.callRegisterReattachJSCallback(this.componentId, context._clearImageTextures);
+
+    this.startLoop();
+
     return context;
 }
 
@@ -220,6 +223,35 @@ GCanvas.prototype.stopRender = function(){
         this.context.timer = null;
     }
 }
+
+//-----------------------------
+// Instance Method: startLoop
+//-----------------------------
+GCanvas.prototype.startLoop = function(fps){
+    if(!this.context){
+        return;
+    }
+ 
+    fps = parseFloat(fps) || 16;
+    if(!this.context.timer){
+        this.context.timer = setInterval(this.render.bind(this),fps);
+    }
+}
+
+//-----------------------------
+// Instance Method: stopLoop
+//-----------------------------
+GCanvas.prototype.stopLoop = function(){
+    if(!this.context){
+        return;
+    }
+ 
+    if(this.context.timer){
+        clearInterval(this.context.timer);
+        this.context.timer = null;
+    }
+}
+
 
 //-----------------------------
 // Instance Method: reset
