@@ -27,9 +27,6 @@
 	var Image=require('../js/src/gcanvasimage');
 
 	module.exports = {
-		created: function () {
-			GCanvas.disable();
-		},
 		mounted: function () {
 
 			var ref1 = this.$refs.gcanvas1;

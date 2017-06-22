@@ -192,7 +192,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         if (!imageCache)
         {
             if(callback){
-                callback(@{});
+                callback(@{@"error":@"preload error!"});
             }
             return;
         }
@@ -202,7 +202,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         if(callback){
             callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
         }
-                                         
         
 //        if( !fromCache )
 //        {

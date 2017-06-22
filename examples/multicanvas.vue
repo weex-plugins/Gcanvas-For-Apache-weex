@@ -26,9 +26,6 @@
 	var GCanvas = require('../js/src/gcanvas'); //调试使用
 
 	module.exports = {
-		created: function () {
-			GCanvas.disable();
-		},
 		mounted: function () {
 
 			//GCanvas1
