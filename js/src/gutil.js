@@ -46,17 +46,6 @@ var GBridge = {
         }
 
         canvasModule.render && canvasModule.render( commands, componentId );
-
-        // //GLog.d('bridge#callRender() commands is ' + commands);
-        // if( platform == 1 ) //iOS
-        // {
-        //     canvasModule.render([commands], componentId);
-        // }
-        // else    //Android
-        // {
-        //     //TODO, componentId
-        //     canvasModule.render(commands, componentId);
-        // }
     },
 
     /**Android use**/
@@ -91,8 +80,7 @@ var GBridge = {
         if (!inWeex) {
             return;
         }
-
-        GLog.d('bridge#bindImageTexture() image url is ' + src);        
+        
         canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId);
     },
 

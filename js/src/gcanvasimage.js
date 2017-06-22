@@ -124,7 +124,13 @@ var GHashMap = require("./ghashmap");
             me.complete = true;
             me.width = data.width;
             me.height = data.height;
-            me.onload && me.onload();
+
+            //call onload method, next frame
+            if(me.onload){
+              setTimeout(function(){
+                me.onload();
+              }, 16);
+            }
             GCanvasImage.imageMap.put(src, data);
           }
       });
