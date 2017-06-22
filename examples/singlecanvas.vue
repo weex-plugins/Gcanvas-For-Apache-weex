@@ -9,15 +9,10 @@
 
 
 	module.exports = {
-
-		created: function () {
-			console.log('created gcanvas');
-			GCanvas.disable();
-		},
 		mounted: function () {
 			var ref = this.$refs.canvas_holder;
 			var gcanvas = GCanvas.start(ref);
-			
+
 			var ctx = gcanvas.getContext('2d');
 			//rect
 			ctx.fillStyle = 'red';

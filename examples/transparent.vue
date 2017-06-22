@@ -8,32 +8,29 @@
 
 	// var gcanvas=require('weex-gcanvas'); //正式使用请用这个
 	var GCanvas=require('../js/src/gcanvas'); //调试使用
+	var Image=require('../js/src/gcanvasimage');
 
 
 	module.exports = {
-
-		created: function () {
-			console.log('created gcanvas');
-			GCanvas.disable();
-		},
 		mounted: function () {
 			var ref = this.$refs.canvas_holder;
-			GCanvas.start(ref, function (gcanvas) {
-				var ctx = gcanvas.getContext('2d');
+			var gcanvas = GCanvas.start(ref);
+			var ctx = gcanvas.getContext('2d');
+			ctx.fillStyle = 'red';
+			ctx.fillRect(0, 0, 100, 100);
 
-				ctx.fillStyle = 'red';
-				ctx.fillRect(0, 0, 100, 100);
+			ctx.fillStyle = 'black';
+			ctx.fillRect(100, 100, 100, 100);
+			ctx.fillRect(25, 210, 700, 5);
 
-				ctx.fillStyle = 'black';
-				ctx.fillRect(100, 100, 100, 100);
-				ctx.fillRect(25, 210, 700, 5);
+			ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+			ctx.fill();
 
-				ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-				ctx.fill();
-
-				var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-				ctx.drawImage(img, 200+210, 330, 210, 330);
-			});
+			var image = new Image();
+			image.src = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
+			image.onload = function(){
+				ctx.drawImage(image, 200+210, 330, 210, 330);
+			}
 		}
 	};
 </script>

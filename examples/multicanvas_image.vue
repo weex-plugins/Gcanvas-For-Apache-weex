@@ -44,7 +44,7 @@
 			image.src = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
 			image.onload = function(){
 				ctx1.drawImage(image, 100, 10, 210, 330);
-				ctx2.drawImage(image2, 100, 10, 210, 330);
+				ctx2.drawImage(image, 100, 10, 210, 330);
 
 			}
 

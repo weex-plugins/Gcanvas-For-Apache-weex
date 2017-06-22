@@ -224,16 +224,16 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 - (void)bindImageTexture:(NSString*)src componentId:(NSString*)componentId
 {
-    GCVLOG_METHOD(@"bindImageTexture src: %% componentId:%@", src, componentId);
+    GCVLOG_METHOD(@"bindImageTexture src: %@, componentId:%@", src, componentId);
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     if( plugin )
     {
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         if (imageCache ) {
-            NSUInteger texutreId = [plugin getTextureId:imageCache.jsTextreId];
-            if( texutreId == 0 )
+            GLuint textureId	 = [plugin getTextureId:imageCache.jsTextreId];
+            if( textureId == 0 )
             {
-                GLuint textureId = [GCVCommon bindTexture:imageCache.image];
+                textureId = [GCVCommon bindTexture:imageCache.image];
                 
                 [plugin addTextureId:textureId
                            withAppId:imageCache.jsTextreId
