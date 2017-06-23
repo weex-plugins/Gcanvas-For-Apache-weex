@@ -28,12 +28,6 @@
 
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
 
-//@property (nonatomic, weak) WXGCanvasComponent *gcanvasComponent;
-//@property (nonatomic, strong) NSString* componentRel;
-//@property (nonatomic, strong) GCanvasPlugin* gcanvasPlugin;
-//@property (nonatomic, assign) CGFloat devicePixelRatio;
-//@property (nonatomic, assign) BOOL gcanvasInitalized;
-
 //modify
 @property (nonatomic, assign) CGFloat devicePixelRatio;
 @property (strong, nonatomic) NSMutableDictionary *pluginDict;
@@ -52,11 +46,11 @@ WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
 WX_EXPORT_METHOD(@selector(enable:callback:));
 WX_EXPORT_METHOD(@selector(render:componentId:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
-WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:));
+WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:componentId:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 WX_EXPORT_METHOD(@selector(resetComponent:));   //appear调用
-WX_EXPORT_METHOD(@selector(removeComponent:));  //disapper调用
+//WX_EXPORT_METHOD(@selector(removeComponent:));  //disapper调用
 
 WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
@@ -139,34 +133,34 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 - (void)resetComponent:(NSString*)componentId
 {
-    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-    if (component  && component.view.window)
-    {
-        component.gcanvasInitalized = NO;
-        
-        GCanvasPlugin *plugin = self.pluginDict[componentId];
-        if (plugin)
-        {
-            [plugin removeCommands];
-        }
-    }
-}
-
-- (void)removeComponent:(NSString*)componentId
-{
-    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-    if (component)
-    {
-        [self.componentDict removeObjectForKey:componentId];
-        component = nil;
-    }
     
-    GCanvasPlugin *plugin = self.pluginDict[componentId];
-    if( plugin )
-    {
-        [self.pluginDict removeObjectForKey:componentId];
-        plugin = nil;
-    }
+    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
+        
+        if (comp && comp.view.window ) {
+            
+            comp.gcanvasInitalized = NO;
+            
+            GCanvasPlugin *plugin = self.pluginDict[componentId];
+            if (plugin)
+            {
+                [plugin removeCommands];
+            }
+
+        }
+        
+    }];
+    
+//    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+//    if (component /*&& component.view.window*/)
+//    {
+//        component.gcanvasInitalized = NO;
+//        
+//        GCanvasPlugin *plugin = self.pluginDict[componentId];
+//        if (plugin)
+//        {
+//            [plugin removeCommands];
+//        }
+//    }
 }
 
 //预加载image，便于后续渲染时可以同步执行
@@ -186,7 +180,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     NSString *src = data[0];
     NSUInteger jsTextureId = [data[1] integerValue];
     
-    __weak typeof(self) weakSelf = self;
     [[GCVCommon sharedInstance] addPreLoadImage:src
                                      completion:^(GCVImageCache *imageCache, BOOL fromCache) {
         if (!imageCache)
@@ -202,42 +195,36 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         if(callback){
             callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
         }
-        
-//        if( !fromCache )
-//        {
-//            GCanvasPlugin *plugin = weakSelf.pluginDict[componentId];
-//            if( plugin )
-//            {
-//                [plugin addTextureId:imageCache.textureId
-//                           withAppId:imageCache.jsTextreId
-//                               width:width height:height];
-//            }
-//        }
-//                                         
-//        WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-//         if( component ){
-//             [component.glkview setNeedsDisplay];
-//         }
     }];
 }
 
-- (void)bindImageTexture:(NSString*)src componentId:(NSString*)componentId
+- (void)bindImageTexture:(NSString*)src componentId:(NSString*)componentId callback:(WXModuleCallback)callback
 {
-    GCVLOG_METHOD(@"bindImageTexture src: %@, componentId:%@", src, componentId);
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     if( plugin )
     {
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         if (imageCache ) {
-            GLuint textureId	 = [plugin getTextureId:imageCache.jsTextreId];
+            GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
             if( textureId == 0 )
             {
+                GCVLOG_METHOD(@"bindImageTexture src: %@, componentId:%@", src, componentId);
+
                 textureId = [GCVCommon bindTexture:imageCache.image];
-                
-                [plugin addTextureId:textureId
-                           withAppId:imageCache.jsTextreId
-                               width:imageCache.width
-                              height:imageCache.height];
+                if( textureId > 0 )
+                {
+                    [plugin addTextureId:textureId
+                               withAppId:imageCache.jsTextreId
+                                   width:imageCache.width
+                                  height:imageCache.height];
+                    imageCache.image = nil;
+
+                }
+            }
+            
+            if( callback )
+            {
+                (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
             }
         }
     }
@@ -295,8 +282,8 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 #pragma mark - Notification
 - (void)onGCanvasResetNotify:(NSNotification*)notification
 {
-    NSString *componentId = notification.userInfo[@"componentId"];
-    [self resetComponent:componentId];
+//    NSString *componentId = notification.userInfo[@"componentId"];
+//    [self resetComponent:componentId];
 }
 
 #pragma mark - Private
@@ -314,8 +301,10 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
         WXPerformBlockOnComponentThread(^{
             component = (WXGCanvasComponent *)[self.weexInstance componentForRef:componentId];
-            component.componentId = componentId;
-            self.componentDict[componentId] = component;
+            if( component )
+            {
+                self.componentDict[componentId] = component;
+            }
             
             dispatch_semaphore_signal(semaphore);
 

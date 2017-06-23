@@ -76,12 +76,12 @@ var GBridge = {
     },
 
     /**绑定纹理*/
-    bindImageTexture: function (componentId, src) {
+    bindImageTexture: function (componentId, src, callback) {
         if (!inWeex) {
             return;
         }
-        
-        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId);
+
+        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId, callback);
     },
 
     /**

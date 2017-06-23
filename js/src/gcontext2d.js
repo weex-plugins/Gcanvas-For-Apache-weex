@@ -674,10 +674,15 @@ GContext2D.prototype.drawImage = function(image, // image
 
     GLog.d("[GContext2D.drawImage] start...");
 
-    GBridge.bindImageTexture(this.componentId, image.src);
-    
+    var that = this;
     var numArgs = arguments.length;
-    this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+
+    GBridge.bindImageTexture(this.componentId, image.src, function(e){
+        if( !e.error )
+        {
+            that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        }
+    });
 };
 
 

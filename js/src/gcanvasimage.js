@@ -22,9 +22,9 @@ var GHashMap = require("./ghashmap");
      *
      * @type {number}
      */
-    this.id = (++GCanvasImage.idCounter);
+    // this.id = (++GCanvasImage.idCounter);
 
-    this._id = this.id; // public facing "id" but _id used to internally
+    // this._id = this.id; // public facing "id" but _id used to internally
     // track image
     this._src = ""; // image source path
     this._complete = true; // "is loading" identifier for complete property
@@ -103,6 +103,8 @@ var GHashMap = require("./ghashmap");
       var data = GCanvasImage.imageMap.get(src);
       if( data )
       {
+        me.id = data.id;
+        me._id = data.id;
         me.complete = true;
         me.width = data.width;
         me.height = data.height;
@@ -110,6 +112,8 @@ var GHashMap = require("./ghashmap");
         return;
       }
 
+      this.id = (++GCanvasImage.idCounter);
+      this._id = this.id; // public facing "id" but _id used to internally
 
       GBridge.preLoadImage([src, this.id], function (data) {
           if (typeof data === 'string') {
