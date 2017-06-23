@@ -115,23 +115,12 @@ var GBridge = {
         });
     },
 
-
-    // /**
-    //  * 释放gcanvas引擎
-    //  * @param ref wx-canvas 引用
-    //  * @param configArray 配置参数
-    //  **/
-    // callDisable: function () {
-    //     if (!inWeex) {
-    //         return;
-    //     }
-    //     var params = {
-            
-    //     };
-    //     canvasModule.disable(params, function(e){
-    //         GLog.d('bridge#callDisable() return val:' + JSON.stringify(e));
-    //     });
-    // },
+    callSetDevPixelRatio: function(componentId){
+        if(!inWeex){
+          return;
+        }
+        canvasModule.setDevicePixelRatio && canvasModule.setDevicePixelRatio(componentId);
+    },
 
     /**
      * 获取设备信息(android)
@@ -203,12 +192,16 @@ var GBridge = {
     setHiQuality: function (quality){
         GLog.d('bridge#setHiQuality(): quality: ' + quality);
         canvasModule.setHiQuality(quality);
-    }, 
+    },
 
 
     resetComponent: function(componentId){
         GLog.d('bridge#resetComponent(): componentId: ' + componentId);
         canvasModule.resetComponent && canvasModule.resetComponent(componentId);
+    },
+	exeSyncCmd: function (action,args){
+    	GLog.d('bridge#exeSyncCmd(): action: ' + action + ',args:' + args);
+    	return canvasModule.execGcanvaSyncCMD(action,args);
     }
 };
 
