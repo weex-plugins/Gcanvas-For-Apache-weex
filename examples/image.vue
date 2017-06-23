@@ -18,11 +18,12 @@
 			ctx.fillRect(0, 0, 100, 100);
 
 			var image = new Image();
-			image.src = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
 			image.onload = function(){
 				ctx.drawImage(image, 200, 0);
 				ctx.drawImage(image, 200+210, 330, 210, 330);
 			}
+			image.src = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
+
 		}
 	};
 </script>

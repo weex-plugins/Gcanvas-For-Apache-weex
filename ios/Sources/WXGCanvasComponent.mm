@@ -112,6 +112,8 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         
         self.componetFrame = self.frame;
         
+        self.componentId = ref;
+        
         GCVLOG_METHOD(@"frame=(%.2f, %.2f) * (%.2f, %.2f)", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
     }
     

@@ -46,17 +46,6 @@ var GBridge = {
         }
 
         canvasModule.render && canvasModule.render( commands, componentId );
-
-        // //GLog.d('bridge#callRender() commands is ' + commands);
-        // if( platform == 1 ) //iOS
-        // {
-        //     canvasModule.render([commands], componentId);
-        // }
-        // else    //Android
-        // {
-        //     //TODO, componentId
-        //     canvasModule.render(commands, componentId);
-        // }
     },
 
     /**Android use**/
@@ -87,13 +76,12 @@ var GBridge = {
     },
 
     /**绑定纹理*/
-    bindImageTexture: function (componentId, src) {
+    bindImageTexture: function (componentId, src, callback) {
         if (!inWeex) {
             return;
         }
 
-        GLog.d('bridge#bindImageTexture() image url is ' + src);        
-        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId);
+        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId, callback);
     },
 
     /**

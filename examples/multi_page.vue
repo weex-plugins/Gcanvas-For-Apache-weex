@@ -9,7 +9,8 @@
           leftItemColor="white"
           rightItemSrc="http://gtms02.alicdn.com/tps/i2/TB1ED7iMpXXXXXEXXXXWA_BHXXX-48-48.png"
           @naviBarLeftItemClick="naviBarLeftItemClick"
-          @naviBarRightItemClick="naviBarRightItemClick">
+          @naviBarRightItemClick="naviBarRightItemClick" 
+          @viewappear="viewappear" @viewdisappear="viewdisappear">
     <panel title="push a new page">
       	<button type="primary" size="small" value="push" @click.native="push"></button>
     </panel>
@@ -17,7 +18,7 @@
       <button type="success" size="small" value="pop" @click.native="pop"></button>
     </panel>
 
-	<list @viewappear="viewappear" @viewdisappear="viewdisappear">
+	<list >
     	<cell>
 	      <div ref="test" @appear="cellappear" @disappear="celldisappear">
 	        <gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,0,0,0.1)"></gcanvas>
@@ -47,6 +48,8 @@
   var Image = require('../js/src/gcanvasimage');
   var getBaseURL = require('./include/base-url.js').getBaseURL
   var modal = weex.requireModule('modal')
+  var event = weex.requireModule('event')
+
 
   var gcanvas;
   module.exports = {
@@ -87,38 +90,42 @@
           'url':  this.baseURL + this.subPath + 'multi_page.js?test=1',
           'animated' : 'true',
         }
-        navigator.push(params, function () {});
+        navigator.push(params, function () {
+
+        });
       },
       pop: function () {
         var params = {
           'url':  this.baseURL + this.subPath + 'multi_page.js?test=1',
           'animated' : 'true',
         }
-        navigator.pop(params, function () {});
+        navigator.pop(params, function () {
+        	gcanvas.stopLoop();
+        });
       },
       viewappear: function () {
-  		gcanvas.reset();
+  		// gcanvas.reset();
       	modal.toast({
           'message': 'view appear',
           'duration': 0.3
         })
       },
       viewdisappear: function() {
-      	gcanvas.stopRender();
+      	// gcanvas.stopLoop();
       	modal.toast({
           'message': 'view disappear',
           'duration': 0.3
         })
       },
       cellappear: function () {
-      	gcanvas.startLoop();
+      	// gcanvas.startLoop();
         modal.toast({
           'message': 'gcanvas cell appear',
           'duration': 0.3
         })
       },
       celldisappear: function () {
-      	gcanvas.stopLoop();
+      	// gcanvas.stopLoop();
         modal.toast({
           'message': 'gcanvas cell disappear',
           'duration': 0.3
