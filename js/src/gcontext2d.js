@@ -678,11 +678,13 @@ GContext2D.prototype.drawImage = function(image, // image
     var numArgs = arguments.length;
 
     GBridge.bindImageTexture(this.componentId, image.src, function(e){
-        if( !e.error )
-        {
-            that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-        }
+        // if( !e.error )
+        // {
+        //     that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        // }
     });
+    that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+
 };
 
 
