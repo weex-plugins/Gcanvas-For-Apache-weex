@@ -44,23 +44,6 @@
 				ctx2.drawImage(image, 100, 10, 210, 330);
 
 			}
-
-
-
-			// var ref1 = this.$refs.gcanvas1;
-			// GCanvas.start(ref1, function (gcanvas1) {
-			// 	var ctx = gcanvas1.getContext('2d');
-			// 	var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-			// 	ctx.drawImage(img, 100, 10, 210, 330);
-			// });
-
-			// var ref2 = this.$refs.gcanvas2;
-			// GCanvas.start(ref2, function (gcanvas2) {
-			// 	var ctx = gcanvas2.getContext('2d');
-			// 	var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-			// 	ctx.drawImage(img, 200, 10, 210, 330);		
-			// });
-		
 		}
 	};
 </script>
