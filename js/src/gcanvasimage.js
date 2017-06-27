@@ -126,8 +126,8 @@ var GHashMap = require("./ghashmap");
             me.onerror && me.onerror();
           }else{
             me.complete = true;
-            me.width = data.width;
-            me.height = data.height;
+            me.width = typeof data.width === 'number' ? data.width : 0;
+            me.height = typeof data.height === 'number' ? data.height : 0;
 
             //call onload method, next frame
             if(me.onload){
