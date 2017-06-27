@@ -133,35 +133,41 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 - (void)resetComponent:(NSString*)componentId
 {
-    
-    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
-        
-        if (comp && comp.view.window ) {
-            
-            comp.gcanvasInitalized = NO;
-            
-            GCanvasPlugin *plugin = self.pluginDict[componentId];
-            if (plugin)
-            {
-                [plugin removeCommands];
-            }
+    [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName
+                                                        object:nil
+                                                      userInfo:@{@"componentId":componentId}];
 
-        }
-        
-    }];
-    
-//    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-//    if (component /*&& component.view.window*/)
-//    {
-//        component.gcanvasInitalized = NO;
-//        
-//        GCanvasPlugin *plugin = self.pluginDict[componentId];
-//        if (plugin)
-//        {
-//            [plugin removeCommands];
-//        }
-//    }
 }
+
+//- (void)resetComponent:(NSString*)componentId
+//{
+//    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
+//        
+//        if (comp && comp.view.window ) {
+//            
+//            comp.gcanvasInitalized = NO;
+//            
+//            GCanvasPlugin *plugin = self.pluginDict[componentId];
+//            if (plugin)
+//            {
+//                [plugin removeCommands];
+//            }
+//        }
+//        
+//    }];
+//    
+////    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+////    if (component /*&& component.view.window*/)
+////    {
+////        component.gcanvasInitalized = NO;
+////        
+////        GCanvasPlugin *plugin = self.pluginDict[componentId];
+////        if (plugin)
+////        {
+////            [plugin removeCommands];
+////        }
+////    }
+//}
 
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
@@ -281,8 +287,22 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 #pragma mark - Notification
 - (void)onGCanvasResetNotify:(NSNotification*)notification
 {
-//    NSString *componentId = notification.userInfo[@"componentId"];
-//    [self resetComponent:componentId];
+    NSString *componentId = notification.userInfo[@"componentId"];
+    
+    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
+        
+        if (comp && comp.view.window ) {
+            
+            comp.gcanvasInitalized = NO;
+            
+            GCanvasPlugin *plugin = self.pluginDict[componentId];
+            if (plugin)
+            {
+                [plugin removeCommands];
+            }
+        }
+        
+    }];
 }
 
 #pragma mark - Private

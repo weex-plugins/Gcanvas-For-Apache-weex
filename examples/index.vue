@@ -17,11 +17,11 @@
           {name: root + '/transparent', title: 'Transparent'},
           {name: root + '/animation', title: 'Animation'},
           {name: root + '/list', title: 'ListRecycle'},
-          {name: root + '/multi_page', title: 'MultiPages'},
+          {name: root + '/multi_page2', title: 'MultiPages'},
 
           //{name: root + '/g2/example/index', title:'g2'},
           //{name: root + '/we/demo', title:'点图'},
-       	  //{name: root + '/hilo2d/index', title:'hilo2d'}
+       	  {name: root + '/hilo2d/hilo2d', title:'Hilo2d-Fish'}
         ]
       }
     },
