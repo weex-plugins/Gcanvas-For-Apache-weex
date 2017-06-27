@@ -666,10 +666,6 @@ GContext2D.prototype._concatDrawCmd = function(numArgs, imageInfo,
             + sx + "," + sy + "," + sw + "," + sh + ","
             + dx + "," + dy + "," + dw + "," + dh + ";");
     }
-
-    var commands = this._drawCommands;
-    this._drawCommands = "";
-    GBridge.callRender(this.componentId, commands);
 };
 
 GContext2D.prototype.drawImage = function(image, // image
