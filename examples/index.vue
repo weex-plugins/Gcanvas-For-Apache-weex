@@ -16,6 +16,7 @@
           {name: root + '/multicanvas_image', title: 'MultiGCanvasImage'},
           {name: root + '/transparent', title: 'Transparent'},
           {name: root + '/animation', title: 'Animation'},
+          {name: root + '/multiimage_animation', title: 'MultiImageAnimation'},
           {name: root + '/list', title: 'ListRecycle'},
           {name: root + '/multi_page', title: 'MultiPages'},
           {name: root + '/multi_page_multi_canvas', title: 'MultiPages-MultiGCanvas'},

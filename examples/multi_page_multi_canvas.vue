@@ -113,9 +113,12 @@
       img.onload = function()
   		{
         setInterval(function(){
+
+          ctx1.clearRect(0, 0, 750, 750);
           ctx1.fillStyle = 'red';
           ctx1.fillRect(0, 0, 100, 100);
 
+          ctx2.clearRect(0, 0, 750, 750);
           ctx2.fillStyle = 'blue';
           ctx2.fillRect(0, 0, 100, 100);
 

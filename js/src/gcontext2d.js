@@ -34,6 +34,8 @@ function GContext2D() {
 
     this._imageMap = new GHashMap();
     this._textureMap = new GHashMap();
+    this._firstBindFlag = true;
+
 }
 
 function FillStylePattern(img, pattern) {
@@ -683,20 +685,33 @@ GContext2D.prototype.drawImage = function(image, // image
         return;
     }  
 
-    GBridge.bindImageTexture(this.componentId, image.src, function(e){
-        if( !e.error )
-        {
-            if(image.width === 0 && e.width > 0){
-              image.width = e.width;
-            }
+    var bindTextureFunc = function()
+    {   
+        GBridge.bindImageTexture(that.componentId, image.src, function(e){
+            if( !e.error )
+            {
+                if(image.width === 0 && e.width > 0){
+                  image.width = e.width;
+                }
 
-            if(image.height === 0 && e.height > 0){
-              image.height = e.height;
+                if(image.height === 0 && e.height > 0){
+                  image.height = e.height;
+                }
+                that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+                that._saveImageTexture(image.src, image);
             }
-            that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-            that._saveImageTexture(image.src, image);
-        }
-    });
+        });
+    }
+
+    if( this._firstBindFlag )
+    {
+        setTimeout(bindTextureFunc, 16);  //首次bind延迟16毫秒解决iOS的glGenTexture返回错误问题
+        this._firstBindFlag = false;
+    }
+    else
+    {
+        bindTextureFunc();
+    }
 };
 
 
