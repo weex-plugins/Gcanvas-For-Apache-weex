@@ -3,24 +3,31 @@
       <panel title="push a new page">
         	<button type="primary" size="small" value="push" @click.native="push"></button>
       </panel>
-  	<list >
-      	<cell>
-  	      <div ref="test" @appear="cellappear" @disappear="celldisappear" >
-  	        <gcanvas ref="canvas_holder" style="width:750;height:750;background-color:rgba(0,0,0,0.1)"></gcanvas>
-  	      </div>
-      	</cell>
-  	    <cell>
-  	      <div class="holder" style="background-color:rgb(255,255,255)">
-  	      </div>
-  	    </cell>
-    </list>
+      <div ref="test" @appear="cellappear" @disappear="celldisappear" >
+        <gcanvas class="gcanvas1" ref="gcanvas1" style="width:750;height:500;background-color:rgba(255,0,0,0.1)"></gcanvas>
+        <gcanvas class="gcanvas2" ref="gcanvas2" style="width:750;height:500;background-color:rgba(0,255,0,0.1)"></gcanvas>
+      </div>
   </div>
 </template>
 
 <style>
   .holder{
-    height: 1000px;
+    height: 2000px;
     background-color: #000000;
+  }
+  .gcanvas1 {
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 500;
+  },
+  .gcanvas2 {
+    position: absolute; 
+    top: 550; 
+    left: 0; 
+    right: 0; 
+    bottom: 1050;
   }
 </style>
 
@@ -58,7 +65,7 @@
     },
     methods: {
       push: function() {
-        var url = './multi_page.js';
+        var url = './multi_page_multi_canvas.js';
         event.openURL(url);
       },
       viewappear: function () {
@@ -92,36 +99,35 @@
 
     mounted: function () {
       var i =1;
-      var ref = this.$refs.canvas_holder;
-      gcanvas = GCanvas.start(ref);
-      var ctx = gcanvas.getContext('2d');
+      var ref1 = this.$refs.gcanvas1;
+      gcanvas1 = GCanvas.start(ref1);
+      var ctx1 = gcanvas1.getContext('2d');
 
-      var imageLoaded = false;
+      var ref2 = this.$refs.gcanvas2;
+      gcanvas2 = GCanvas.start(ref2);
+      var ctx2 = gcanvas2.getContext('2d');
+
       var img = new Image();
   		img.src = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-  		img.onload = function()
+  		var imageLoaded = false;
+      img.onload = function()
   		{
-  			imageLoaded = true;
+        setInterval(function(){
+          ctx1.fillStyle = 'red';
+          ctx1.fillRect(0, 0, 100, 100);
+
+          ctx2.fillStyle = 'blue';
+          ctx2.fillRect(0, 0, 100, 100);
+
+          ctx1.drawImage(img, 200, 0);
+          ctx1.drawImage(img, 200+230, 20, 210, 330);
+
+          ctx2.drawImage(img, 200, 0);
+          ctx2.drawImage(img, 200+230, 20, 210, 330);
+        }, 16)
   		}
 
-  		timer.setInterval(function(){
-  			i = i+10;
-  			ctx.clearRect(0, 0, 750, 750);
-  			ctx.fillStyle = 'red';
-  			ctx.fillRect(i%300, 0, 100, 100);
-
-  			ctx.fillStyle = 'black';
-  			ctx.fillRect(100, 100, 100, 100);
-  			ctx.fillRect(25, 210, 700, 5);
-
-  			ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-  			ctx.fill();
-
-  			if( imageLoaded )
-  			{
-  				ctx.drawImage(img, 100, 200, 210, 330);
-  			}
-  		}, 300);
+      
     }
   }
 </script>

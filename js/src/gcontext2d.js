@@ -32,7 +32,8 @@ function GContext2D() {
     this.timer = null;
     this.componentId = null;
 
-    this._hashmap = new GHashMap();
+    this._imageMap = new GHashMap();
+    this._textureMap = new GHashMap();
 }
 
 function FillStylePattern(img, pattern) {
@@ -458,8 +459,7 @@ Object.defineProperty(GContext2D.prototype, "font", {
  * @private
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
-
-    var data = this._getImageTexture(image.src);
+    var data = this._imageMap.get(image.src);
     if( data )
     {
         successCallback && successCallback(data);
@@ -469,7 +469,7 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
     var that = this;
     GBridge.preLoadImage([image.src, image.id], function(e){
         if (e){
-            that._saveImageTexture(image.src, e);
+            that._imageMap.put(image.src, e);
             successCallback && successCallback(e);
         }else{
             GLog.d("GContext2D loadTexture errorCallback!");
@@ -492,7 +492,7 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
  * @private
  */
 GContext2D.prototype.unloadTexture = function(image) {
-    this._removeImageTexture(image.src);
+    this._imageMap.remove(image.src);
 };
 
 /**
@@ -681,10 +681,15 @@ GContext2D.prototype.drawImage = function(image, // image
     var that = this;
     var numArgs = arguments.length;
 
+    var imageCache = this._getImageTexture(image.src);
+    if (imageCache) {
+        this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        return;
+    }  
+
     GBridge.bindImageTexture(this.componentId, image.src, function(e){
         if( !e.error )
         {
-            //GLog.d("[GContext2D.drawImage] bind callback..." + JSON.stringify(e));
             if(image.width === 0 && e.width > 0){
               image.width = e.width;
             }
@@ -692,17 +697,17 @@ GContext2D.prototype.drawImage = function(image, // image
             if(image.height === 0 && e.height > 0){
               image.height = e.height;
             }
+            that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+            that._saveImageTexture(image.src, image);
         }
     });
-    that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-
 };
 
 
 GContext2D.prototype._getImageTexture = function(url){
     if( url )
     {
-        return this._hashmap.get(url);
+        return this._textureMap.get(url);
     }
     return null;
 }
@@ -710,20 +715,20 @@ GContext2D.prototype._getImageTexture = function(url){
 GContext2D.prototype._removeImageTexture = function(url){
     if( url )
     {
-        this._hashmap.remove(url);
+        this._textureMap.remove(url);
     }
 }
 
 
 GContext2D.prototype._saveImageTexture = function(url, e){
-    if( e && e.url )
+    if( e && e.src )
     {
-        this._hashmap.put(url, e);
+        this._textureMap.put(url, e);
     }
 }
 
 GContext2D.prototype._clearImageTextures = function(){
-  this._hashmap.clear();
+  this._textureMap.clear();
 }
 
 

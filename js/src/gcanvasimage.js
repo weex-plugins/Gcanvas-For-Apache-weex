@@ -129,12 +129,7 @@ var GHashMap = require("./ghashmap");
             me.width = typeof data.width === 'number' ? data.width : 0;
             me.height = typeof data.height === 'number' ? data.height : 0;
 
-            //call onload method, next frame
-            if(me.onload){
-              setTimeout(function(){
-                me.onload();
-              }, 16);
-            }
+            me.onload && me.onload();
             GCanvasImage.imageMap.put(src, data);
           }
       });
