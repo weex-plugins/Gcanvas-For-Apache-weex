@@ -49,8 +49,7 @@ WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:callback:));
 WX_EXPORT_METHOD(@selector(setContextType:componentId:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
-WX_EXPORT_METHOD(@selector(resetComponent:));   //appear调用
-//WX_EXPORT_METHOD(@selector(removeComponent:));  //disapper调用
+WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其他gcavans reset
 
 WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
@@ -138,36 +137,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
                                                       userInfo:@{@"componentId":componentId}];
 
 }
-
-//- (void)resetComponent:(NSString*)componentId
-//{
-//    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
-//        
-//        if (comp && comp.view.window ) {
-//            
-//            comp.gcanvasInitalized = NO;
-//            
-//            GCanvasPlugin *plugin = self.pluginDict[componentId];
-//            if (plugin)
-//            {
-//                [plugin removeCommands];
-//            }
-//        }
-//        
-//    }];
-//    
-////    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-////    if (component /*&& component.view.window*/)
-////    {
-////        component.gcanvasInitalized = NO;
-////        
-////        GCanvasPlugin *plugin = self.pluginDict[componentId];
-////        if (plugin)
-////        {
-////            [plugin removeCommands];
-////        }
-////    }
-//}
 
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
