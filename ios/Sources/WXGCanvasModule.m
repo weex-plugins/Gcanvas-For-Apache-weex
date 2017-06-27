@@ -204,12 +204,11 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     if( plugin )
     {
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
-        if (imageCache ) {
+        if (imageCache )
+        {
             GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
             if( textureId == 0 )
             {
-                GCVLOG_METHOD(@"bindImageTexture src: %@, componentId:%@", src, componentId);
-
                 textureId = [GCVCommon bindTexture:imageCache.image];
                 if( textureId > 0 )
                 {
@@ -217,9 +216,9 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
                                withAppId:imageCache.jsTextreId
                                    width:imageCache.width
                                   height:imageCache.height];
-                    imageCache.image = nil;
-
                 }
+                
+                GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
             }
             
             if( callback )

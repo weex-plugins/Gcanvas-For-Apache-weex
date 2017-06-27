@@ -631,7 +631,7 @@ GContext2D.prototype.restore = function() {
 GContext2D.prototype._concatDrawCmd = function(numArgs, imageInfo,
     sx, sy, sw, sh, // source (or destination if fewer args)
     dx, dy, dw, dh){// destination
-    
+
     if(!imageInfo){
         return;
     }
@@ -692,10 +692,10 @@ GContext2D.prototype.drawImage = function(image, // image
             if(image.height === 0 && e.height > 0){
               image.height = e.height;
             }
-
-            that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
         }
     });
+    that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+
 };
 
 
