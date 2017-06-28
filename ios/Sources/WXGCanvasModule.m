@@ -321,7 +321,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     {
         if ([component isKindOfClass:[WXGCanvasComponent class]])
         {
-            GCVLOG_METHOD(@" call glkView display");
             if(!component.glkview.delegate)
             {
                 component.glkview.delegate = self;
@@ -347,9 +346,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 #pragma mark - GLKViewDelegate
 - (void)glkView:(GLKView*)view drawInRect:(CGRect)rect
 {
-    GCVLOG_METHOD(@"rect=(%.2f, %.2f) * (%.2f, %.2f)", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
-    
-    
     WXGCanvasComponent *componet = [self gcanvasComponentByGLKView:view];
     if(!componet.glkview.context)
     {

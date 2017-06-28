@@ -109,27 +109,12 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         }
         
         self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);
-        
         self.componetFrame = self.frame;
-        
         self.componentId = ref;
-        
-        GCVLOG_METHOD(@"frame=(%.2f, %.2f) * (%.2f, %.2f)", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
     }
     
     return self;
 }
-
-//-(void)viewDidUnload
-//{
-//    [super viewDidUnload];
-//    [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasResetNotificationName
-//                                                        object:nil
-//                                                      userInfo:@{@"componentId":self.componentId}];
-////    if(!self.isUnLoad){
-////        self.isUnLoad = YES;
-////    }
-//}
 
 -(void)viewDidLoad
 {
