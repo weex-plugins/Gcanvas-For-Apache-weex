@@ -1,6 +1,4 @@
-#source 'https://github.com/CocoaPods/Specs.git'
-ali_source 'alibaba-specs'
-ali_source 'alibaba-specs-mirror'
+source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 #inhibit_all_warnings!
 
@@ -8,7 +6,6 @@ def common
 	pod 'WeexSDK'
 	pod 'WeexPluginLoader'
     pod 'GCanvas'
-    #pod 'GCanvas',	:path=>'../../../gitlab/groups/gcanvas_open/gcanvas'
     pod 'SDWebImage', '3.7.5'
 end
 
