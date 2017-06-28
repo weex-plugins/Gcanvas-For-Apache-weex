@@ -25,7 +25,7 @@ libGCanvas.start(function(){
 var GImage = require('./gcanvasimage.js');
 var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
-//var GContextWebGL = require('./gwebgl');
+var GContextWebGL = require('./gwebgl');
 var GContext2D = require('./gcontext2d');
 var GHashMap = require('./ghashmap');
 var htmlPlugin = require("./index");

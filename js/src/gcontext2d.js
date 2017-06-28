@@ -662,7 +662,7 @@ GContext2D.prototype._concatDrawCmd = function(numArgs, imageInfo,
         var dx = parseFloat(dx) || 0;
         var dy = parseFloat(dy) || 0;
         var dw = parseInt(dw) || imageInfo.width;
-        var dy = parseInt(dy) || imageInfo.height;
+        var dh = parseInt(dh) || imageInfo.height;
 
         this._drawCommands += ("d" + imageInfo.id + ","
             + sx + "," + sy + "," + sw + "," + sh + ","
