@@ -1,20 +1,20 @@
 <template>
-    <div id="test">
-        <text onclick="onClick" ontouchstart="onTouch" id="canvas_demo1" style="width:750;height:100;background-color:#e0e0e0">fps:{{fps}},  fishNum:{{fishNum}}</text>
-        <gcanvas id="canvas_holder" style="width:750;height:1200;background-color:#ffffff" ontouchstart="onTouch" ontouchmove="onTouch" ontouchend="onTouch" onclick="onClick"></gcanvas>
-        <!--text id="canvas_demo1" style="width:750;height:100;backgroundColor:#e0e0e0">hilo_demo 上边界</text-->
-    </div>
+	<div ref="test">
+	  	<text ref="title" onclick="onClick" ontouchstart="onTouch" style="width:750;height:100;background-color:#e0e0e0">fps:{{fps}},  fishNum:{{fishNum}}</text>
+		<gcanvas ref="canvas_holder" style="width:750;height:1000;background-color:rgba(0,0,0,0.1)"></gcanvas>
+	</div>
 </template>
+
 <script>
-    var Hilo = require('@ali/hilo-weex');
-    // var Hilo = require('/Users/yuankong/code/hilo-weex/index.js');
+	
+	var Hilo = require('@ali/hilo-weex');
     var Image = Hilo.Image;
     var CanvasElement = Hilo.CanvasElement;
+    var modal = weex.requireModule('modal')
 
-    const modal = weex.requireModule('modal')
+	module.exports = {
 
-    module.exports = {
-        data: {
+		data: {
             fps: 0,
             fishNum:0
         },
@@ -23,7 +23,7 @@
             Hilo.resetGCanvas();
         },
 
-        ready: function () {
+        mounted: function () {
             var that = this;
             var img = new Image();
             img.onload = function () {
@@ -31,7 +31,8 @@
             };
             img.src = 'http://img.alicdn.com/tps/TB12IsqKVXXXXalXpXXXXXXXXXX-174-1512.png';
         },
-        methods: {
+
+        methods:{
             onClick: function (evt) {
                 console.log('click')
                 modal.toast({
@@ -44,7 +45,7 @@
                 this.ele.fire(evt);
             },
             xxx: function (img) {
-                var ele = this.ele = new CanvasElement(this.$el('canvas_holder'));
+                var ele = this.ele = new CanvasElement(this.$refs.canvas_holder);
 
                 var fn = function () {
                     // modal.toast({
@@ -115,46 +116,23 @@
 
                 };
 
-            //gcanvas.setLogLevel("debug");
-            
-            var x_start = 0;
-            var y_start = 0;
-            for (var i = 0; i < 20; i += 1) {
-                //for (var i = 0; i < 1; i += 1) {
+	            var x_start = 0;
+	            var y_start = 0;
+	            for (var i = 0; i < 20; i += 1) {
+	                //for (var i = 0; i < 1; i += 1) {
+	                createFish(x_start,         y_start, i*5);
+	                createFish(x_start+150,     y_start, i*5 + 1);
+	                createFish(x_start+150*2,   y_start, i*5 + 2);
+	                createFish(x_start+150*3,   y_start, i*5 + 3);
+	                createFish(x_start+150*4,   y_start, i*5 + 4);
 
-                //for (var i = 0; i < 5; i += 1) {
-                createFish(x_start,         y_start, i*5);
-                createFish(x_start+150,     y_start, i*5 + 1);
-                createFish(x_start+150*2,   y_start, i*5 + 2);
-                createFish(x_start+150*3,   y_start, i*5 + 3);
-                createFish(x_start+150*4,   y_start, i*5 + 4);
+	                y_start = y_start + 50;
+	            }  
 
-                y_start = y_start + 50;
-            }  
-            
-
-
-            /*
-            var x_start = 0;
-            var y_start = 0;
-            for (var i = 1; i <= 10; i += 1) {
-                //五排鱼
-                createFish(x_start,             y_start, (i * 10) );
-                createFish(x_start + 150,       y_start, (i * 10) + 1);
-                createFish(x_start + 150 * 2,   y_start, (i * 10) + 2);
-                createFish(x_start + 150 * 3,   y_start, (i * 10) + 3);
-                createFish(x_start + 150 * 4,   y_start, (i * 10) + 4);
-                y_start = y_start + 100;
-                x_start = 0;
-
+                // setTimeout(function () {
+                //     stage.renderer.context.drawImage(img, 0, 0);
+                // }, 100);
             }
-            */
-
-
-
-            }
-
         }
-
-    }
+	};
 </script>

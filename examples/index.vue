@@ -23,7 +23,7 @@
 
           //{name: root + '/g2/example/index', title:'g2'},
           //{name: root + '/we/demo', title:'点图'},
-       	  {name: root + '/hilo2d/hilo2d', title:'Hilo2d-Fish'}
+       	  {name: root + '/hilo2d_100fish', title:'Hilo2d-100Fish'}
         ]
       }
     },
