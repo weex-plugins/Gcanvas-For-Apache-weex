@@ -33,6 +33,8 @@
 @property (strong, nonatomic) NSMutableDictionary *pluginDict;
 @property (strong, nonatomic) NSMutableDictionary *componentDict;
 
+@property (strong, nonatomic) NSMutableArray *bindCacheArray;   //cache bindTexture
+
 @end
 
 
@@ -141,6 +143,11 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
 {
+    if( ![data isKindOfClass:NSArray.class] )
+    {
+        return;
+    }
+    
     GCVLOG_METHOD(@" PreLoadImage start...");
     if( ![GCVCommon sharedInstance].imageLoader )
     {
@@ -178,6 +185,20 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     if( plugin )
     {
+        if (!plugin.gcanvasInited)
+        {
+            //gcanvas not ready, cache bindTexture
+            if( !self.bindCacheArray )
+            {
+                self.bindCacheArray = NSMutableArray.array;
+            }
+            
+            [self.bindCacheArray addObject:@{@"src":src,
+                                             @"componentId":componentId,
+                                             @"callback":callback}];
+            return;
+        }
+        
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         if (imageCache )
         {
@@ -406,6 +427,33 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         [plugin setFrame:gcanvasFrame];
 
         componet.gcanvasInitalized = YES;
+        
+        //bindTexture after GCanvas Init
+        if (self.bindCacheArray.count > 0)
+        {
+            NSMutableArray *removeIndexArray = NSMutableArray.array;
+            [self.bindCacheArray enumerateObjectsUsingBlock:^(NSDictionary *dict, NSUInteger idx, BOOL * _Nonnull stop) {
+                
+                NSString *src = dict[@"src"];
+                NSString *componentId = dict[@"componentId"];
+                WXModuleCallback callback = dict[@"callback"];
+                
+                if( src && componentId && callback )
+                {
+                    if( componentId == componet.componentId )
+                    {
+                        [self bindImageTexture:src componentId:componentId callback:callback];
+                        
+                        [removeIndexArray addObject:@(idx)];
+                    }
+                }
+            }];
+            
+            [removeIndexArray enumerateObjectsUsingBlock:^(id removeIdx, NSUInteger idx, BOOL * _Nonnull stop) {
+                [self.bindCacheArray removeObjectAtIndex:[removeIdx integerValue]];
+            }];
+            
+        }
     }
     
     [plugin execCommands];

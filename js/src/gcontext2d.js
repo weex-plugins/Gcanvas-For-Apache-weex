@@ -683,10 +683,16 @@ GContext2D.prototype.drawImage = function(image, // image
     if (imageCache) {
         this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
         return;
-    }  
+    }
 
-    var bindTextureFunc = function()
-    {   
+    if( GBridge.isIOS() )
+    {
+        GBridge.bindImageTexture(that.componentId, image.src, function(){});
+        that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        that._saveImageTexture(image.src, image);
+    }
+    else
+    {
         GBridge.bindImageTexture(that.componentId, image.src, function(e){
             if( !e.error )
             {
@@ -701,16 +707,6 @@ GContext2D.prototype.drawImage = function(image, // image
                 that._saveImageTexture(image.src, image);
             }
         });
-    }
-
-    if( this._firstBindFlag )
-    {
-        setTimeout(bindTextureFunc, 16);  //首次bind延迟16毫秒解决iOS的glGenTexture返回错误问题
-        this._firstBindFlag = false;
-    }
-    else
-    {
-        bindTextureFunc();
     }
 };
 

@@ -118,20 +118,15 @@
 
 	            var x_start = 0;
 	            var y_start = 0;
+                var gap = 75;
+                var gapNum = 750 / gap;
 	            for (var i = 0; i < 20; i += 1) {
-	                //for (var i = 0; i < 1; i += 1) {
-	                createFish(x_start,         y_start, i*5);
-	                createFish(x_start+150,     y_start, i*5 + 1);
-	                createFish(x_start+150*2,   y_start, i*5 + 2);
-	                createFish(x_start+150*3,   y_start, i*5 + 3);
-	                createFish(x_start+150*4,   y_start, i*5 + 4);
+	                for (var j = 0; j < gapNum; j += 1) {
+    	                createFish(x_start + gap * j,  y_start, i*5 + j);
+                    }
 
 	                y_start = y_start + 50;
-	            }  
-
-                // setTimeout(function () {
-                //     stage.renderer.context.drawImage(img, 0, 0);
-                // }, 100);
+	            } 
             }
         }
 	};
