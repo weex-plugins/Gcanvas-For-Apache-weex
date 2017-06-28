@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		888BBBA417A275F0DF5ED4CC /* libPods-WeexGcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 466821971E0A575693AA400F /* libPods-WeexGcanvas.a */; };
 		C431395C1E954ACB008B80D0 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C43139561E954ACB008B80D0 /* Info.plist */; };
 		C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */; };
 		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.mm in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.mm */; };
@@ -34,7 +33,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				888BBBA417A275F0DF5ED4CC /* libPods-WeexGcanvas.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

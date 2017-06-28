@@ -147,7 +147,6 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-        glkview.layer.borderWidth = 0.5f;
         glkview.backgroundColor = [UIColor clearColor];
         
         self.glkview = glkview;

@@ -245,53 +245,23 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 #pragma mark - SYNC Method
 - (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
 {
-    
-    __block NSString * result = @"";
-    
-////    UIImage *snapshotImage = [self.gcanvasComponent.glkview snapshot];
-////    dispatch_async(dispatch_get_main_queue(), ^{
-////        NSData *imageData = UIImagePNGRepresentation(snapshotImage);
-////        result = [imageData base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
-//////        UIImageWriteToSavedPhotosAlbum(myImage, self, @selector(image:didFinishSavingWithError:contextInfo:), NULL);
-////    });
-//    
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        result = [self.gcanvasPlugin execGcanvaSyncCMD:typeStr args:args];
-//    });
-    return result;
+    return @"";
 }
-
-////回调方法
-//- (void)image: (UIImage *) image didFinishSavingWithError: (NSError *) error contextInfo: (void *) contextInfo
-//{
-//    NSString *msg = nil ;
-//    if(error != NULL){
-//        msg = @"保存图片失败" ;
-//    }else{
-//        msg = @"保存图片成功" ;
-//    }
-//    NSLog(msg);
-//}
-
 
 #pragma mark - Notification
 - (void)onGCanvasResetNotify:(NSNotification*)notification
 {
     NSString *componentId = notification.userInfo[@"componentId"];
-    
     [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
         
         if (comp && comp.view.window ) {
-            
             comp.gcanvasInitalized = NO;
-            
             GCanvasPlugin *plugin = self.pluginDict[componentId];
             if (plugin)
             {
                 [plugin removeCommands];
             }
         }
-        
     }];
 }
 
@@ -320,20 +290,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
         });
         
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-        
-//        //component
-//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-//            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-//            dispatch_async(dispatch_get_main_queue(), ^{
-//                WXPerformBlockOnComponentThread(^{
-//                    component = (WXGCanvasComponent *)[self.weexInstance componentForRef:componentId];
-//                    component.componentId = componentId;
-//                    self.componentDict[componentId] = component;
-//                    dispatch_semaphore_signal(semaphore);
-//                });
-//            });
-//            dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-//        });
     }
     return component;
 }
@@ -452,7 +408,6 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
             [removeIndexArray enumerateObjectsUsingBlock:^(id removeIdx, NSUInteger idx, BOOL * _Nonnull stop) {
                 [self.bindCacheArray removeObjectAtIndex:[removeIdx integerValue]];
             }];
-            
         }
     }
     
@@ -470,6 +425,3 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     }];
 }
 @end
-
-
-
