@@ -278,15 +278,14 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     {
         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
+        __weak typeof(self) weakSelf = self;
         WXPerformBlockOnComponentThread(^{
-            component = (WXGCanvasComponent *)[self.weexInstance componentForRef:componentId];
+            component = (WXGCanvasComponent *)[weakSelf.weexInstance componentForRef:componentId];
             if( component )
             {
-                self.componentDict[componentId] = component;
+                weakSelf.componentDict[componentId] = component;
             }
-            
             dispatch_semaphore_signal(semaphore);
-
         });
         
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);

@@ -124,6 +124,12 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
     }
 }
 
+-(void)viewDidUnload
+{
+    [super viewDidUnload];
+    [EAGLContext setCurrentContext:nil];
+}
+
 - (UIView *)loadView
 {
     if(!self.glkview){
