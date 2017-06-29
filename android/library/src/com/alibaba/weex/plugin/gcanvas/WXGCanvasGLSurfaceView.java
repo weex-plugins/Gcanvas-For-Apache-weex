@@ -18,8 +18,11 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
 
     protected WXCanvasLifecycleListener mWXLifecycleListener;
 
-    public WXGCanvasGLSurfaceView(GCanvas canvas, Context context) {
+    private WXGcanvasComponent mComponent;
+
+    public WXGCanvasGLSurfaceView(WXGcanvasComponent component, GCanvas canvas, Context context) {
         super(canvas, context);
+        this.mComponent = component;
     }
 
     @Override
@@ -47,6 +50,7 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     }
 
     @Override
+
     protected void onLayout(boolean changed, int left, int top, int right,
                             int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -63,7 +67,7 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
         super.onAttachedToWindow();
         Log.i("CANVAS", "onAttachedToWindow======");
         if (null != mWXLifecycleListener) {
-            mWXLifecycleListener.onGCanvasViewAttachToWindow();
+            mWXLifecycleListener.onGCanvasViewAttachToWindow(mComponent, this);
         }
     }
 
@@ -72,7 +76,7 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
         super.onDetachedFromWindow();
         Log.i("CANVAS", "onDetachedFromWindow======");
         if (null != mWXLifecycleListener) {
-            mWXLifecycleListener.onGCanvasViewDetachedFromWindow();
+            mWXLifecycleListener.onGCanvasViewDetachedFromWindow(mComponent, this);
         }
     }
 
@@ -89,9 +93,9 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     }
 
     public interface WXCanvasLifecycleListener extends GCanvasView.CanvasLifecycleListener {
-        void onGCanvasViewAttachToWindow();
+        void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView);
 
-        void onGCanvasViewDetachedFromWindow();
+        void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView);
     }
 }
 

@@ -208,12 +208,15 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Display;
 
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasHelper;
+import com.taobao.gcanvas.GCanvasMessage;
 import com.taobao.gcanvas.GCanvasResult;
+import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GLog;
 import com.taobao.weex.WXSDKManager;
 import com.taobao.weex.annotation.JSMethod;
@@ -227,51 +230,58 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @WeexModule(name = "gcanvas")
 public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
-    private Object mRef;
-
-//    String enableCache;
 
     private Handler mUIHandler = new Handler(Looper.getMainLooper());
-
-
-    private int sIdCounter = 0;
-    private Map<String, GCanvasImageCache> sPicToTextureMap = new HashMap<>();
-
 
     private static String TAG = "GcanvasModule";
 
     private static final String CMD_RENDER = "render";
     private static final String CMD_ENABLE = "enable";
-    private static final String CMD_DISABLE = "disable";
-    static final String CMD_PRE_LOAD_IMAGE = "preLoadImage";
+    private static final String CMD_BIND_TEXTURE = "bindTexture";
     private static final String CMD_SET_CONTEXT_TYPE = "setContextType";
     private static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
     private static final String CMD_SET_DEVICE_PIXEL = "setDevicePixelRatio";
 
-    private CopyOnWriteArrayList<CommandCache> commandCaches = new CopyOnWriteArrayList<>();
-    private CopyOnWriteArrayList<String> cacheRenderCmds = new CopyOnWriteArrayList<>();
+    private HashMap<String, GComponentDelegate> mComponentMappings = new HashMap<>(1);
 
-    private CommandCacheRunner runner;
+    private final Object mLock = new Object();
 
-    private WXGcanvasComponent mWXGCanvasComp = null;
+    private AtomicBoolean mIsDestroyed = new AtomicBoolean(false);
 
-    public GcanvasModule() {
-        sIdCounter = 0;
-        sPicToTextureMap.clear();
-        runner = new CommandCacheRunner(this);
+//    private ArrayList<String> mLoadingUrls = new ArrayList<>();
+
+    private HashMap<String, Integer> mImageIdCache = new HashMap<>();
+
+    @JSMethod
+    public void bindImageTexture(String src, String refId, JSCallback callback) {
+        if (TextUtils.isEmpty(src) || TextUtils.isEmpty(refId)) {
+            return;
+        }
+        this.execGCanvasCMD(refId, CMD_BIND_TEXTURE, src, callback);
     }
 
     @JSMethod
-    public void setup(String args, JSCallback callback) {
-        if (TextUtils.isEmpty(args)) {
+    public void setup(String args, String refId, JSCallback callback) {
+
+        if (TextUtils.isEmpty(args) || TextUtils.isEmpty(refId)) {
             return;
         }
+
+        GComponentDelegate mWXGCanvasCompMapping = mComponentMappings.get(refId);
+
+        if (null == mWXGCanvasCompMapping) {
+            return;
+        }
+
+        WXGcanvasComponent mWXGCanvasComp = mWXGCanvasCompMapping.gcanvasComponent;
 
         if (null == mWXGCanvasComp) {
             return;
@@ -306,31 +316,68 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         }
     }
 
-
     @JSMethod
-    public void disable(String args, JSCallback callBack) {
-//        if (null != fastCanvas) {
-//            destroy();
-//        }
+    public void registerRetachFunction(String refId, JSCallback callback) {
+        GComponentDelegate mWXGCanvasCompMapping = mComponentMappings.get(refId);
+
+        if (null != mWXGCanvasCompMapping && null != mWXGCanvasCompMapping.gcanvasComponent) {
+            mWXGCanvasCompMapping.gcanvasComponent.setReattachJSCallback(callback);
+        }
     }
 
 
     @JSMethod
-    public void preLoadImage(String args, JSCallback callBack) {
-
+    public void preLoadImage(String args, final JSCallback callBack) {
         GLog.d(TAG, "preLoadImage() args: " + args);
         if (!TextUtils.isEmpty(args)) {
-            this.execGcanvasCMD(CMD_PRE_LOAD_IMAGE, args, callBack);
+            try {
+                JSONArray dataArray = new JSONArray(args);
+                final String url = dataArray.getString(0);
+                final int id = dataArray.getInt(1);
+                mImageIdCache.put(url, id);
+
+//                if (mLoadingUrls.contains(url) && null != callBack) {
+                HashMap<String, Object> resultMap = new HashMap<>();
+                resultMap.put("id", id);
+                resultMap.put("url", url);
+                callBack.invoke(resultMap);
+//                    return;
+//                }
+
+
+//                mLoadingUrls.add(url);
+//
+//                Phenix.instance().preload(TAG, mLoadingUrls).completeListener(new IPhenixListener<PrefetchEvent>() {
+//                    @Override
+//                    public boolean onHappen(PrefetchEvent prefetchEvent) {
+//                        mLoadingUrls.remove(url);
+//                        if (null != callBack) {
+//                            HashMap<String, Object> resultMap = new HashMap<>();
+////                            if (null != prefetchEvent.listOfFailed && prefetchEvent.listOfFailed.contains(url)) {
+////                                resultMap.put("error", "failed to preload image");
+////                                callBack.invoke(resultMap);
+////                            } else if (null != prefetchEvent.listOfSucceeded && prefetchEvent.listOfSucceeded.contains(url)) {
+//                            resultMap.put("id", id);
+//                            resultMap.put("url", url);
+//                            callBack.invoke(resultMap);
+////                            }
+//                        }
+//
+//                        return true;
+//                    }
+//                }).fetch();
+            } catch (Throwable e) {
+                GLog.e(TAG, e.getMessage(), e);
+            }
         }
 
     }
 
     @JSMethod
-    public void setHiQuality(String args) {
-
+    public void setHiQuality(String args, String refId) {
         GLog.d(TAG, "setHiQuality() args: " + args);
         if (!TextUtils.isEmpty(args)) {
-            this.execGcanvasCMD(CMD_SET_HIGH_QUALITY, args, null);
+            this.execGCanvasCMD(refId, CMD_SET_HIGH_QUALITY, args, null);
         }
     }
 
@@ -344,58 +391,51 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     @JSMethod
     public void enable(String args, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
+            String refId;
             JSONObject jo;
             try {
                 jo = new JSONObject(args);
-                mRef = (jo.get("componentId"));
-                WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), (String) mRef);
+                refId = jo.getString("componentId");
+                WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), refId);
 
-                if (myComponent instanceof WXGcanvasComponent) {
-                    mWXGCanvasComp = (WXGcanvasComponent) myComponent;
-                    mWXGCanvasComp.setWXSurfaceViewLifeListener(this);
+                synchronized (mLock) {
+                    if (myComponent instanceof WXGcanvasComponent) {
+                        WXGcanvasComponent mWXGCanvasComp = (WXGcanvasComponent) myComponent;
+                        GComponentDelegate componentMapping = new GComponentDelegate(this, mWXGCanvasComp);
+                        mComponentMappings.put(refId, componentMapping);
+                        this.execGCanvasCMD(refId, CMD_ENABLE, args, callBack);
+                    }
+                    mLock.notifyAll();
                 }
-            } catch (Throwable e) {
-                return;
-            }
 
-            this.execGcanvasCMD(CMD_ENABLE, args, callBack);
+            } catch (Throwable e) {
+            }
         }
     }
 
 
     @JSMethod(uiThread = false)
-    public void render(String cmd, JSCallback callBack) {
-        if (!TextUtils.isEmpty(cmd)) {
-
-            //替换图片渲染命令
-
-            if (null == mWXGCanvasComp || !mWXGCanvasComp.isGCanvasViewPrepared()) {
-                return;
+    public void render(String cmd, String refId, JSCallback callBack) {
+        if (!TextUtils.isEmpty(cmd) && !TextUtils.isEmpty(refId)) {
+            GComponentDelegate delegate = mComponentMappings.get(refId);
+            if ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
+                try {
+                    long waitTime = 0;
+                    long waitGap = 16;
+                    long maxWaitTime = 160;
+                    synchronized (mLock) {
+                        while (waitTime <= maxWaitTime && (null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
+                            mLock.wait(waitGap);
+                            delegate = mComponentMappings.get(refId);
+                            waitTime += waitGap;
+                        }
+                    }
+                } catch (Throwable throwable) {
+                    GLog.e(TAG, "error when render " + refId, throwable);
+                }
             }
-
-
-            if (!mWXGCanvasComp.getCurrentState().isReady()) {
-                cacheRenderCmds.addIfAbsent(cmd);
-                mUIHandler.removeCallbacks(runner);
-                mUIHandler.postDelayed(runner, 16);
-                return;
-            }
-
-            /*
-            原始
-            ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,100,250,210,330,undefined,undefined,undefined,undefined;"]
-            替换后
-            ["d0,0,0,210,330,100,250,210,330;"]
-
-            原始
-            ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,0,0,105,165,100,250,210,330;"]
-            替换后
-            ["d0,0,0,105,165,100,250,210,330;"]
-            */
-
-            try {
-                mWXGCanvasComp.getGCanvas().executeRender(CMD_RENDER, cmd, null);
-            } catch (Throwable e) {
+            if (null != delegate) {
+                delegate.render(cmd);
             }
         }
     }
@@ -418,15 +458,15 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     }
 
     @JSMethod
-    public void setContextType(String args, JSCallback callBack) {
+    public void setContextType(String args, String refId, JSCallback callBack) {
         if (!TextUtils.isEmpty(args)) {
-            this.execGcanvasCMD(CMD_SET_CONTEXT_TYPE, args, callBack);
+            this.execGCanvasCMD(refId, CMD_SET_CONTEXT_TYPE, args, callBack);
         }
     }
 
 
     @JSMethod
-    public void setDevicePixelRatio() {
+    public void setDevicePixelRatio(String refId) {
         Context ctx = (mWXSDKInstance.getContext());
         if (ctx == null) {
             GLog.e(TAG, "setDevicePixelRatio error ctx == null");
@@ -441,225 +481,98 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
 
         try {
-            execGcanvasCMD(CMD_SET_DEVICE_PIXEL, String.valueOf(devicePixelRatio), null);
+            execGCanvasCMD(refId, CMD_SET_DEVICE_PIXEL, String.valueOf(devicePixelRatio), null);
         } catch (Exception e) {
             GLog.e(TAG, "setDevicePixelRatio Exception: " + e);
         }
     }
 
-    void checkGCanvasView() {
-
-        if (mWXGCanvasComp != null && mWXGCanvasComp.isGCanvasViewPrepared()) {
-            return;
-        }
-
-        if (null != mWXGCanvasComp) {
-            mWXGCanvasComp.prepareGCanvasView();
-            setDevicePixelRatio();
-        }
-    }
-
-
-    private void executeCmdImpl(String cmd, String args, JSCallback callback) {
-//        GUtil.preInitActivity = (Activity) mWXSDKInstance.getContext();
-//        if (GUtil.preInitActivity != null) {
-//            GLog.d(TAG, "InitActivity  ok GCanvas");
-//        }
-
-//        if (mWXGCanvasComp == null) {
-//            Log.i(TAG, "fast canvas is null:" + cmd);
-//            initFastGCanvas();
-//        }
-
-        if (null == mWXGCanvasComp || null == mWXGCanvasComp.getGCanvas()) {
-            return;
-        }
-
-        checkGCanvasView();
-
-        GCanvas fastCanvas = mWXGCanvasComp.getGCanvas();
-
-        if (cmd.equals(CMD_PRE_LOAD_IMAGE)) {
-            // GLog.d(TAG, "cmd match preLoadImage: " + args);
-
-            String picUrl = args;
-
-            GCanvasImageCache cache = sPicToTextureMap.get(picUrl);
-            if (null != cache && cache.textureId != -1) {
-                GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + cache);
-                HashMap<String, Object> hm = new HashMap<>();
-                hm.put("url", cache.url);
-                hm.put("id", cache.textureId);
-                hm.put("width", cache.width);
-                hm.put("height", cache.height);
-
-                if (callback != null) {
-                    callback.invoke(hm);
-                }
-            } else if (cache == null) {
-                try {
-                    GLog.d(TAG, "cmd match preLoadImage cache miss! id = " + sIdCounter + ",  url:" + picUrl);
-                    JSONArray ja = new JSONArray();
-                    ja.put(picUrl);
-                    ja.put(sIdCounter);
-
-                    HashMap<String, Object> hm = new HashMap<>();
-                    hm.put("url", picUrl);
-                    hm.put("id", sIdCounter);
-
-
-                    GCanvasImageCache canvasImageCache = new GCanvasImageCache();
-                    canvasImageCache.url = picUrl;
-                    sPicToTextureMap.put(picUrl, canvasImageCache);
-
-                    //GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
-                    //GLog.d(TAG, "cmd match preLoadImage, sIdCounter: " + sIdCounter);
-
-                    sIdCounter++;
-
-
-                    mWXGCanvasComp.getGCanvas().executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
-                } catch (Exception e) {
-                    GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
-                }
-            }
-        } else if (cmd.equals(CMD_SET_CONTEXT_TYPE)) {
-            GLog.d(TAG, "cmd match setContextType, args: " + args);
-
-            try {
-                JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_CONTEXT_TYPE, "[" + args + "]");
-                fastCanvas.executeForWeex(CMD_SET_CONTEXT_TYPE, ja, null);
-            } catch (Exception e) {
-                GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
-            }
-        } else if (cmd.equals(CMD_SET_HIGH_QUALITY)) {
-            GLog.d(TAG, "cmd match setHighQuality");
-
-            try {
-
-                JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_HIGH_QUALITY, "[" + args + "]");
-                fastCanvas.executeForWeex(CMD_SET_HIGH_QUALITY, ja, null);
-            } catch (Exception e) {
-                GLog.e(TAG, "cmd match setHighQuality Exception: " + e);
-            }
-        } else if (cmd.equals(CMD_ENABLE)) {
-
-            GLog.d(TAG, "cmd match enable, args: " + args);
-
-            try {
-                JSONObject jo = new JSONObject(args);
-
-                JSONArray ja = GCanvasHelper.argsToJsonArrary("enable", jo.get("config").toString());
-
-                fastCanvas.executeForWeex(CMD_ENABLE, ja, null);
-
-            } catch (Exception e) {
-                GLog.e(TAG, "match enable Exception: " + e);
-                return;
-            }
-
-            if (null != callback) {
-                callback.invoke(new HashMap<String, Object>());
-            }
-        } else if (cmd.equals(CMD_SET_DEVICE_PIXEL)) {
-            try {
-                fastCanvas.executeForWeex(CMD_SET_DEVICE_PIXEL, GCanvasHelper.argsToJsonArrary(CMD_SET_DEVICE_PIXEL, "[" + args + "]"), null);
-            } catch (Throwable e) {
-            }
-        }
-    }
 
     @JSMethod(uiThread = false)
-    public String execGcanvaSyncCMD(String action, String args) {
-        if (null == mWXGCanvasComp || mWXGCanvasComp.getGCanvas() == null) {
+    public String execGcanvaSyncCMD(String refId, String action, String args) {
+        GComponentDelegate mapping = mComponentMappings.get(refId);
+        if (null == mapping) {
             return "";
         }
-        return mWXGCanvasComp.getGCanvas().executeSyncCmd(action, args);
+        return mapping.executeSyncCmd(action, args);
     }
 
-    private synchronized void executeRenderCmd() {
-        if (!commandCaches.isEmpty()) {
-            for (CommandCache cache : commandCaches) {
-                if (mWXGCanvasComp != null && mWXGCanvasComp.getCurrentState().isReady()) {
-                    executeCmdImpl(cache.cmd, cache.args, cache.callback);
-                }
-            }
-            commandCaches.clear();
 
-            for (String renderCmd : cacheRenderCmds) {
-//                WXGcanvasComponent component = getCanvasComponent();
-                if (mWXGCanvasComp != null && mWXGCanvasComp.getGCanvas() != null && mWXGCanvasComp.getCurrentState().isReady()) {
-                    try {
-                        mWXGCanvasComp.getGCanvas().executeRender(CMD_RENDER, renderCmd, null);
-                    } catch (Throwable e) {
-                    }
-                }
-            }
-            cacheRenderCmds.clear();
-        }
-    }
-
-    public void execGcanvasCMD(final String cmd,
-                               final String args, final JSCallback callback) {
-        WXGcanvasComponent component = mWXGCanvasComp;
-        if (null == component || component.getCurrentState().isDestroyed()) {
+    private void execGCanvasCMD(final String refId,
+                                final String cmd,
+                                final String args,
+                                final JSCallback callback) {
+        GComponentDelegate delegate = mComponentMappings.get(refId);
+        if (null == delegate || delegate.isDestroyed()) {
             GLog.i(TAG, "abandon cmd:" + cmd);
             return;
         }
-
-        if (!component.getCurrentState().isReady()) {
-            GLog.i(TAG, "add cmd to queue:" + cmd + "args");
-            commandCaches.add(new CommandCache(cmd, args, callback));
-            mUIHandler.removeCallbacks(runner);
-            mUIHandler.postDelayed(runner, 16);
+        if (delegate.addCmdCacheIfNotReady(cmd, args, callback)) {
             return;
         }
 
-        executeRenderCmd();
+        delegate.executeCacheCmd();
 
-//        GLog.d(TAG, "*****************************************");
-//
-//        GLog.d(TAG, "execGcanvas cmd: " + cmd);
-//        GLog.d(TAG, "execGcanvas args: " + args);
-//        GLog.d( TAG, "execGcanvas callback: " + callback);
-
-        executeCmdImpl(cmd, args, callback);
+        delegate.executeCmdImpl(cmd, args, callback);
     }
 
 
     @Override
     public void destroy() {
-        GLog.i(TAG, "canvas module destroy!!!");
-        mWXGCanvasComp.setWXSurfaceViewLifeListener(null);
-        mWXGCanvasComp = null;
+        Log.i(TAG, "canvas module destroy!!!");
+
+        for (Map.Entry<String, GComponentDelegate> entry : mComponentMappings.entrySet()) {
+            entry.getValue().destroy();
+        }
+
+        mComponentMappings.clear();
         mUIHandler.removeCallbacksAndMessages(null);
-        commandCaches.clear();
-        cacheRenderCmds.clear();
-        mRef = null;
-        sIdCounter = 0;
-        sPicToTextureMap.clear();
+        mIsDestroyed.set(true);
+        synchronized (mLock) {
+            mLock.notifyAll();
+        }
     }
 
     @Override
-    public void onGCanvasViewDestroy() {
+    public void onGCanvasViewDestroy(GCanvasView canvasView) {
         GLog.i(TAG, "onGCanvasViewDestroy");
     }
 
     @Override
-    public void onGCanvasViewCreated() {
+    public void onGCanvasViewCreated(GCanvasView canvasView) {
         GLog.d(TAG, "onGCanvasViewCreated");
     }
 
     @Override
-    public void onGCanvasViewAttachToWindow() {
+    public void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView) {
+//        if (mIsDestroyed.get()) {
+//            return;
+//        }
+//
+//        GComponentDelegate delegate = mComponentMappings.get(component.getRef());
+//
+//        if (null == delegate) {
+//            return;
+//        }
+//
+//        if (delegate.isDestroyed()) {
+//            return;
+//        }
+//
+//        if (component.isGCanvasViewPrepared()) {
+//            try {
+//                delegate.render(delegate.lastCmd);
+//            } catch (Throwable e) {
+//            }
+//        }
     }
 
     @Override
-    public void onGCanvasViewDetachedFromWindow() {
+    public void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView) {
         GLog.d(TAG, "onGCanvasViewDetachedFromWindow");
         mUIHandler.removeCallbacksAndMessages(null);
         // 清除texture map, 保障在重新attach图片重新加载
-        sPicToTextureMap.clear();
+
     }
 
     static class CommandCache {
@@ -674,17 +587,347 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         }
     }
 
+    static class GComponentDelegate {
+
+        GcanvasModule canvasModule;
+
+        int sIdCounter = 0;
+        volatile WXGcanvasComponent gcanvasComponent;
+        CopyOnWriteArrayList<CommandCache> commandCaches = new CopyOnWriteArrayList<>();
+        Map<String, GCanvasImageCache> sPicToTextureMap = new HashMap<>();
+        CommandCacheRunner cacheRunner;
+        HashMap<String, ArrayList<JSCallback>> mBindCallbacks = new HashMap<>();
+        AtomicBoolean isEnabled = new AtomicBoolean(false);
+
+        GComponentDelegate(GcanvasModule module, WXGcanvasComponent component) {
+            this.canvasModule = module;
+            this.gcanvasComponent = component;
+            this.cacheRunner = new CommandCacheRunner(this);
+            this.gcanvasComponent.setWXSurfaceViewLifeListener(module);
+        }
+
+        boolean addCmdCacheIfNotReady(String cmd, String args, JSCallback callback) {
+            if (!gcanvasComponent.getCurrentState().isReady()) {
+                GLog.i(TAG, "add cmd to queue:" + cmd + ", args:" + args);
+                commandCaches.add(new CommandCache(cmd, args, callback));
+                canvasModule.mUIHandler.removeCallbacks(cacheRunner);
+                canvasModule.mUIHandler.postDelayed(cacheRunner, 16);
+                return true;
+            }
+            return false;
+        }
+
+        void destroy() {
+            gcanvasComponent.setWXSurfaceViewLifeListener(null);
+            gcanvasComponent = null;
+            canvasModule.mUIHandler.removeCallbacks(cacheRunner);
+            commandCaches.clear();
+            sIdCounter = 0;
+            sPicToTextureMap.clear();
+            synchronized (this) {
+                mBindCallbacks.clear();
+            }
+        }
+
+        synchronized void doUrlCallbacks(String url, Object resultData) {
+            ArrayList<JSCallback> callbacks = mBindCallbacks.get(url);
+            if (null != callbacks) {
+                for (JSCallback callback : callbacks) {
+                    callback.invoke(resultData);
+                }
+                callbacks.clear();
+            }
+            mBindCallbacks.remove(url);
+        }
+
+        synchronized void addUrlCallback(String url, JSCallback callback) {
+            ArrayList<JSCallback> callbacks = mBindCallbacks.get(url);
+            if (null != callbacks) {
+                callbacks.add(callback);
+            } else {
+                callbacks = new ArrayList<>();
+                callbacks.add(callback);
+                mBindCallbacks.put(url, callbacks);
+            }
+        }
+
+        void checkGCanvasView() {
+            if (gcanvasComponent != null && gcanvasComponent.isGCanvasViewPrepared()) {
+                return;
+            }
+
+            if (null != gcanvasComponent) {
+                gcanvasComponent.prepareGCanvasView();
+                canvasModule.setDevicePixelRatio(gcanvasComponent.getRef());
+            }
+        }
+
+        boolean isDestroyed() {
+            //Log.i(TAG, "isDestroyed ===> component = " + gcanvasComponent + ", canvas = " + gcanvasComponent.getGCanvas() + ", state destroyed = " + gcanvasComponent.getCurrentState().isDestroyed());
+            return null == gcanvasComponent || gcanvasComponent.getCurrentState().isDestroyed();
+        }
+
+        String executeSyncCmd(String cmd, String args) {
+            if (gcanvasComponent == null || isDestroyed()) {
+                GLog.i(TAG, "abandon sync cmd:" + cmd);
+                return "";
+            }
+
+//            if (!gcanvasComponent.getCurrentState().isReady()) {
+//                cacheRenderCmds.addIfAbsent(cmd);
+//                return "";
+//            }
+
+
+            while (!gcanvasComponent.getCurrentState().isReady() && !gcanvasComponent.getCurrentState().isDestroyed() && !isEnabled.get()) {
+                synchronized (this) {
+                    try {
+                        wait(16);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+            }
+
+
+            return gcanvasComponent.getGCanvas().executeSyncCmd(cmd, args);
+        }
+
+        void render(String cmd) {
+            if (gcanvasComponent == null) {
+                GLog.i(TAG, "gcomponent is null. abandon render cmd:" + cmd);
+                return;
+            }
+
+
+            while (!gcanvasComponent.getCurrentState().isReady() && !gcanvasComponent.getCurrentState().isDestroyed() && !isEnabled.get()) {
+                synchronized (this) {
+                    try {
+                        wait(16);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+            }
+
+
+            if (gcanvasComponent.getCurrentState().isDestroyed()) {
+                GLog.i(TAG, "destroyed! abandon cmd = " + cmd);
+                return;
+            }
+
+//            if (!gcanvasComponent.getCurrentState().isReady()) {
+//                GLog.i(TAG, "add render cmd to queue:" + cmd);
+//                cacheRenderCmds.addIfAbsent(cmd);
+//                canvasModule.mUIHandler.removeCallbacks(cacheRunner);
+//                canvasModule.mUIHandler.postDelayed(cacheRunner, 16);
+//                return;
+//            }
+
+            /*
+            原始
+            ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,100,250,210,330,undefined,undefined,undefined,undefined;"]
+            替换后
+            ["d0,0,0,210,330,100,250,210,330;"]
+
+            原始
+            ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,0,0,105,165,100,250,210,330;"]
+            替换后
+            ["d0,0,0,105,165,100,250,210,330;"]
+            */
+
+
+            try {
+                GLog.i(TAG, "execute render. id = " + gcanvasComponent.getRef() + ", cmd = " + cmd + ", isReady ==> " + (gcanvasComponent.getCurrentState().isReady()));
+                gcanvasComponent.getGCanvas().executeRender(CMD_RENDER, cmd, null);
+            } catch (Throwable e) {
+            }
+        }
+
+        private void executeCacheCmd() {
+            if (!commandCaches.isEmpty()) {
+                CommandCache[] caches = new CommandCache[commandCaches.size()];
+                commandCaches.toArray(caches);
+                commandCaches.clear();
+                for (CommandCache cache : caches) {
+                    if (gcanvasComponent != null && gcanvasComponent.getCurrentState().isReady()) {
+                        executeCmdImpl(cache.cmd, cache.args, cache.callback);
+                    }
+                }
+
+//                for (String renderCmd : cacheRenderCmds) {
+//                    GLog.i(TAG, "find render cmd:" + renderCmd);
+//                    if (gcanvasComponent != null && gcanvasComponent.getGCanvas() != null && gcanvasComponent.getCurrentState().isReady()) {
+//                        try {
+//                            GLog.i(TAG, "execute render cmd:" + renderCmd);
+//                            gcanvasComponent.getGCanvas().executeRender(CMD_RENDER, renderCmd, null);
+//                        } catch (Throwable e) {
+//                        }
+//                    }
+//                }
+//                cacheRenderCmds.clear();
+            }
+        }
+
+        private void executeCmdImpl(String cmd, String args, JSCallback callback) {
+            if (null == gcanvasComponent || null == gcanvasComponent.getGCanvas()) {
+                return;
+            }
+
+            checkGCanvasView();
+
+            GCanvas fastCanvas = gcanvasComponent.getGCanvas();
+
+            if (cmd.equals(CMD_BIND_TEXTURE)) {
+
+                final String url = args;
+
+                GCanvasImageCache textureCache = sPicToTextureMap.get(url);
+                int jsCacheId = canvasModule.mImageIdCache.get(url);
+                if (null == textureCache) {
+                    JSONArray ja = new JSONArray();
+                    textureCache = new GCanvasImageCache();
+                    sPicToTextureMap.put(url, textureCache);
+                    try {
+                        ja.put(url);
+                        ja.put(jsCacheId);
+                        addUrlCallback(url, callback);
+                        gcanvasComponent.getGCanvas().executeForWeex(CMD_BIND_TEXTURE, ja, new GCanvasResultCallback(url, jsCacheId, this));
+                    } catch (Throwable e) {
+                        GLog.e(TAG, e.getMessage(), e);
+                    }
+                } else if (!textureCache.isBindingCompleted.get()) {
+                    addUrlCallback(url, callback);
+                } else {
+                    if (null != callback) {
+                        HashMap<String, Object> hm = new HashMap<>();
+                        hm.put("url", url);
+                        hm.put("id", textureCache.jsCacheId);
+                        hm.put("width", textureCache.width);
+                        hm.put("height", textureCache.height);
+
+                        callback.invoke(hm);
+                    }
+                }
+
+                // GLog.d(TAG, "cmd match preLoadImage: " + args);
+
+//                String picUrl = args;
+//
+//                GCanvasImageCache cache = sPicToTextureMap.get(picUrl);
+//                if (null != cache && cache.textureId != -1) {
+//                    GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + cache);
+//                    HashMap<String, Object> hm = new HashMap<>();
+//                    hm.put("url", cache.url);
+//                    hm.put("id", cache.textureId);
+//                    hm.put("width", cache.width);
+//                    hm.put("height", cache.height);
+//
+//                    if (callback != null) {
+//                        callback.invoke(hm);
+//                    }
+//                } else if (cache == null) {
+//                    try {
+//                        GLog.d(TAG, "cmd match preLoadImage cache miss! id = " + sIdCounter + ",  url:" + picUrl);
+//                        JSONArray ja = new JSONArray();
+//                        ja.put(picUrl);
+//                        ja.put(sIdCounter);
+//
+//                        HashMap<String, Object> hm = new HashMap<>();
+//                        hm.put("url", picUrl);
+//                        hm.put("id", sIdCounter);
+//
+//                        GCanvasImageCache canvasImageCache = new GCanvasImageCache();
+//                        canvasImageCache.url = picUrl;
+//                        sPicToTextureMap.put(picUrl, canvasImageCache);
+//
+//                        //GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
+//                        //GLog.d(TAG, "cmd match preLoadImage, sIdCounter: " + sIdCounter);
+//
+//                        sIdCounter++;
+//
+//                        gcanvasComponent.getGCanvas().executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
+//                    } catch (Exception e) {
+//                        GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
+//                    }
+//                }
+            } else if (cmd.equals(CMD_SET_CONTEXT_TYPE)) {
+                GLog.d(TAG, "cmd match setContextType, args: " + args);
+
+                try {
+                    JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_CONTEXT_TYPE, "[" + args + "]");
+                    fastCanvas.executeForWeex(CMD_SET_CONTEXT_TYPE, ja, null);
+                } catch (Exception e) {
+                    GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
+                }
+            } else if (cmd.equals(CMD_SET_HIGH_QUALITY)) {
+                GLog.d(TAG, "cmd match setHighQuality");
+
+                try {
+
+                    JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_HIGH_QUALITY, "[" + args + "]");
+                    fastCanvas.executeForWeex(CMD_SET_HIGH_QUALITY, ja, null);
+                } catch (Exception e) {
+                    GLog.e(TAG, "cmd match setHighQuality Exception: " + e);
+                }
+            } else if (cmd.equals(CMD_ENABLE)) {
+
+                GLog.d(TAG, "cmd match enable, args: " + args);
+
+                try {
+                    JSONObject jo = new JSONObject(args);
+
+                    JSONArray ja = GCanvasHelper.argsToJsonArrary("enable", jo.get("config").toString());
+
+                    fastCanvas.executeForWeex(CMD_ENABLE, ja, new EnableResult(this));
+
+                } catch (Exception e) {
+                    GLog.e(TAG, "match enable Exception: " + e);
+                    return;
+                }
+
+                if (null != callback) {
+                    callback.invoke(new HashMap<String, Object>());
+                }
+            } else if (cmd.equals(CMD_SET_DEVICE_PIXEL)) {
+                try {
+                    fastCanvas.executeForWeex(CMD_SET_DEVICE_PIXEL, GCanvasHelper.argsToJsonArrary(CMD_SET_DEVICE_PIXEL, "[" + args + "]"), null);
+                } catch (Throwable e) {
+                }
+            }
+        }
+    }
+
+    static class EnableResult extends GCanvasResult {
+        private GComponentDelegate mGCanvasDelegate;
+
+        public EnableResult(GComponentDelegate mGCanvasDelegate) {
+            this.mGCanvasDelegate = mGCanvasDelegate;
+        }
+
+        @Override
+        protected void onResult(ResultCode resultCode, Object resultMessage) {
+            GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
+            if (ResultCode.OK.equals(resultCode)) {
+                this.mGCanvasDelegate.isEnabled.set(true);
+            }
+        }
+    }
+
     static class GCanvasImageCache {
         public String url;
-        public int textureId = -1;
-        public String width;
-        public String height;
+        public int width;
+        public int height;
+        public int jsCacheId;
+        public int textureId;
+        public AtomicBoolean isBindingCompleted = new AtomicBoolean(false);
 
         @Override
         public String toString() {
             return "GCanvasImageCache{" +
                     "url='" + url + '\'' +
-                    ", textureId=" + textureId +
                     ", width='" + width + '\'' +
                     ", height='" + height + '\'' +
                     '}';
@@ -692,80 +935,70 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     }
 
     static class CommandCacheRunner implements Runnable {
-        private WeakReference<GcanvasModule> outRef;
+        private WeakReference<GComponentDelegate> mDelegateRef;
 
-        public CommandCacheRunner(GcanvasModule module) {
-            this.outRef = new WeakReference<>(module);
+        public CommandCacheRunner(GComponentDelegate delegate) {
+            this.mDelegateRef = new WeakReference<>(delegate);
         }
 
         @Override
         public void run() {
-            GcanvasModule module = outRef.get();
-            if (null == module) {
-                return;
-            }
-            WXGcanvasComponent component = module.mWXGCanvasComp;
-
-            if (component == null || component.getGCanvas() == null) {
+            GComponentDelegate delegate = mDelegateRef.get();
+            if (null == delegate || delegate.canvasModule == null || delegate.gcanvasComponent == null || delegate.gcanvasComponent.getGCanvas() == null) {
                 return;
             }
 
-            if (component.getCurrentState().isReady()) {
-                module.executeRenderCmd();
+            if (delegate.gcanvasComponent.getCurrentState().isReady()) {
+                delegate.executeCacheCmd();
             } else {
-                module.mUIHandler.postDelayed(this, 16);
+                delegate.canvasModule.mUIHandler.postDelayed(this, 16);
             }
         }
     }
 
-}
+    static class GCanvasResultCallback extends GCanvasResult {
 
-class WeexGcanvasPluginResult extends GCanvasResult {
+        private GComponentDelegate delegate;
+        private String mUrl;
+        private int mId;
 
-    String cmdType;
-    HashMap<String, Object> hm;
-    JSCallback callback;
-    Map<String, GcanvasModule.GCanvasImageCache> textureMap;
+        public GCanvasResultCallback(String url, int id, GComponentDelegate componentDelegate) {
+            this.delegate = componentDelegate;
+            this.mUrl = url;
+            this.mId = id;
+        }
 
-
-    public WeexGcanvasPluginResult(Map<String, GcanvasModule.GCanvasImageCache> textureMap, String cmdType, HashMap<String, Object> hm, JSCallback cb) {
-        this.cmdType = cmdType;
-        this.hm = hm;
-        this.callback = cb;
-        this.textureMap = textureMap;
-    }
-
-    @Override
-    protected void onResult(ResultCode resultCode, Object resultMessage) {
-        GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
-        String url = (String) hm.get("url");
-        if (ResultCode.OK.equals(resultCode) && cmdType.equals(GcanvasModule.CMD_PRE_LOAD_IMAGE)) {
-
-            String width;
-            String height;
-            GcanvasModule.GCanvasImageCache cache = textureMap.get(url);
-            if (null == cache) {
+        @Override
+        protected void onResult(ResultCode resultCode, Object resultMessage) {
+            GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
+            if (delegate.isDestroyed() || delegate.canvasModule.mIsDestroyed.get()) {
                 return;
             }
-            cache.url = url;
-            cache.textureId = (Integer) hm.get("id");
-            try {
-                width = ((JSONArray) resultMessage).getString(0);
-                height = ((JSONArray) resultMessage).getString(1);
-                hm.put("width", width);
-                hm.put("height", height);
-                cache.width = width;
-                cache.height = height;
-            } catch (Exception e) {
-                GLog.e("WeexGcanvasPluginResult", "onResult() Exception: ", e);
+
+            HashMap<String, Object> resultData = new HashMap<>();
+
+            if (ResultCode.OK.equals(resultCode) && resultMessage instanceof GCanvasMessage) {
+                GCanvasMessage canvasMessage = (GCanvasMessage) resultMessage;
+                GCanvasImageCache cache = delegate.sPicToTextureMap.get(mUrl);
+                if (null == cache) {
+                    cache = new GCanvasImageCache();
+                    delegate.sPicToTextureMap.put(mUrl, cache);
+                }
+                cache.url = mUrl;
+                cache.jsCacheId = mId;
+                cache.textureId = canvasMessage.textureID;
+                cache.width = canvasMessage.width;
+                cache.height = canvasMessage.height;
+                cache.isBindingCompleted.set(true);
+                resultData.put("src", mUrl);
+                resultData.put("width", canvasMessage.width);
+                resultData.put("height", canvasMessage.height);
+                resultData.put("id", mId);
+            } else if (ResultCode.ERROR.equals(resultCode)) {
+                resultData.put("error", resultMessage);
             }
 
-            if (callback != null) {
-                callback.invoke(hm);
-            }
-        } else {
-            textureMap.remove(url);
-            GLog.e("WeexGcanvasPluginResult", "onResult load image error. remove url => "+ url);
+            delegate.doUrlCallbacks(mUrl, resultData);
         }
     }
 }
