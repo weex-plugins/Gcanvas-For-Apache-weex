@@ -3,7 +3,6 @@ package com.alibaba.weex.plugin.gcanvas;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
@@ -13,7 +12,7 @@ import com.taobao.weex.ui.view.gesture.WXGesture;
 import com.taobao.weex.ui.view.gesture.WXGestureObservable;
 
 
-public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObservable {
+public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObservable, GCanvasView.CanvasLifecycleListener {
     private WXGesture wxGesture;
 
     protected WXCanvasLifecycleListener mWXLifecycleListener;
@@ -46,7 +45,7 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
 
     public void setWXLifecycleListener(WXCanvasLifecycleListener listener) {
         this.mWXLifecycleListener = listener;
-        setOnCanvasLifecycleListener(listener);
+        setOnCanvasLifecycleListener(this);
     }
 
     @Override
@@ -65,7 +64,6 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        Log.i("CANVAS", "onAttachedToWindow======");
         if (null != mWXLifecycleListener) {
             mWXLifecycleListener.onGCanvasViewAttachToWindow(mComponent, this);
         }
@@ -74,7 +72,6 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        Log.i("CANVAS", "onDetachedFromWindow======");
         if (null != mWXLifecycleListener) {
             mWXLifecycleListener.onGCanvasViewDetachedFromWindow(mComponent, this);
         }
@@ -83,19 +80,38 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
     @Override
     public void onResume() {
         super.onResume();
-        Log.i("CANVAS", "onResume======");
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        Log.i("CANVAS", "onPause======");
     }
 
-    public interface WXCanvasLifecycleListener extends GCanvasView.CanvasLifecycleListener {
+    @Override
+    public void onGCanvasViewDestroy(GCanvasView canvasView) {
+        if (null != mWXLifecycleListener) {
+            mWXLifecycleListener.onGCanvasViewDestroy(mComponent, this);
+        }
+    }
+
+    @Override
+    public void onGCanvasViewCreated(GCanvasView canvasView) {
+        if (null != mWXLifecycleListener) {
+            mWXLifecycleListener.onGCanvasViewCreated(mComponent, this);
+        }
+    }
+
+//    extends GCanvasView.CanvasLifecycleListener
+
+    public interface WXCanvasLifecycleListener {
+
         void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView);
 
         void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView);
+
+        void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView);
+
+        void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView);
     }
 }
 

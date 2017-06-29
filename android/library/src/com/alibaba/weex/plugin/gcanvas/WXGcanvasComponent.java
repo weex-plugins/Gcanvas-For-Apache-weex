@@ -198,19 +198,19 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
 
         @Override
-        public void onGCanvasViewDestroy(GCanvasView canvasView) {
-            if (null != mDelegateListener) {
-                mDelegateListener.onGCanvasViewDestroy(canvasView);
-            }
+        public void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView) {
             mState.destroy();
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewDestroy(component, canvasView);
+            }
         }
 
         @Override
-        public void onGCanvasViewCreated(GCanvasView canvasView) {
-            if (null != mDelegateListener) {
-                mDelegateListener.onGCanvasViewCreated(canvasView);
-            }
+        public void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView) {
             mState.ready();
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewCreated(component, canvasView);
+            }
         }
 
         @Override
@@ -256,7 +256,7 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
         @Override
         public void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-            if(mState.isReady()){
+            if (mState.isReady()) {
                 mState.clear();
                 mIsDetached = true;
                 if (null != mDelegateListener) {

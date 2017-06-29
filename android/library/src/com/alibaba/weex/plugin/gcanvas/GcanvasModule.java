@@ -256,8 +256,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
     private AtomicBoolean mIsDestroyed = new AtomicBoolean(false);
 
-//    private ArrayList<String> mLoadingUrls = new ArrayList<>();
-
     private HashMap<String, Integer> mImageIdCache = new HashMap<>();
 
     @JSMethod
@@ -336,36 +334,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 final int id = dataArray.getInt(1);
                 mImageIdCache.put(url, id);
 
-//                if (mLoadingUrls.contains(url) && null != callBack) {
                 HashMap<String, Object> resultMap = new HashMap<>();
                 resultMap.put("id", id);
                 resultMap.put("url", url);
                 callBack.invoke(resultMap);
-//                    return;
-//                }
 
-
-//                mLoadingUrls.add(url);
-//
-//                Phenix.instance().preload(TAG, mLoadingUrls).completeListener(new IPhenixListener<PrefetchEvent>() {
-//                    @Override
-//                    public boolean onHappen(PrefetchEvent prefetchEvent) {
-//                        mLoadingUrls.remove(url);
-//                        if (null != callBack) {
-//                            HashMap<String, Object> resultMap = new HashMap<>();
-////                            if (null != prefetchEvent.listOfFailed && prefetchEvent.listOfFailed.contains(url)) {
-////                                resultMap.put("error", "failed to preload image");
-////                                callBack.invoke(resultMap);
-////                            } else if (null != prefetchEvent.listOfSucceeded && prefetchEvent.listOfSucceeded.contains(url)) {
-//                            resultMap.put("id", id);
-//                            resultMap.put("url", url);
-//                            callBack.invoke(resultMap);
-////                            }
-//                        }
-//
-//                        return true;
-//                    }
-//                }).fetch();
             } catch (Throwable e) {
                 GLog.e(TAG, e.getMessage(), e);
             }
@@ -420,14 +393,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             GComponentDelegate delegate = mComponentMappings.get(refId);
             if ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
                 try {
-                    long waitTime = 0;
                     long waitGap = 16;
-                    long maxWaitTime = 160;
                     synchronized (mLock) {
-                        while (waitTime <= maxWaitTime && (null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
+                        while ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get() && !delegate.isDestroyed()) {
                             mLock.wait(waitGap);
                             delegate = mComponentMappings.get(refId);
-                            waitTime += waitGap;
                         }
                     }
                 } catch (Throwable throwable) {
@@ -534,12 +504,12 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     }
 
     @Override
-    public void onGCanvasViewDestroy(GCanvasView canvasView) {
+    public void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView) {
         GLog.i(TAG, "onGCanvasViewDestroy");
     }
 
     @Override
-    public void onGCanvasViewCreated(GCanvasView canvasView) {
+    public void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView) {
         GLog.d(TAG, "onGCanvasViewCreated");
     }
 
@@ -718,14 +688,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 return;
             }
 
-//            if (!gcanvasComponent.getCurrentState().isReady()) {
-//                GLog.i(TAG, "add render cmd to queue:" + cmd);
-//                cacheRenderCmds.addIfAbsent(cmd);
-//                canvasModule.mUIHandler.removeCallbacks(cacheRunner);
-//                canvasModule.mUIHandler.postDelayed(cacheRunner, 16);
-//                return;
-//            }
-
             /*
             原始
             ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,100,250,210,330,undefined,undefined,undefined,undefined;"]
@@ -756,18 +718,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                         executeCmdImpl(cache.cmd, cache.args, cache.callback);
                     }
                 }
-
-//                for (String renderCmd : cacheRenderCmds) {
-//                    GLog.i(TAG, "find render cmd:" + renderCmd);
-//                    if (gcanvasComponent != null && gcanvasComponent.getGCanvas() != null && gcanvasComponent.getCurrentState().isReady()) {
-//                        try {
-//                            GLog.i(TAG, "execute render cmd:" + renderCmd);
-//                            gcanvasComponent.getGCanvas().executeRender(CMD_RENDER, renderCmd, null);
-//                        } catch (Throwable e) {
-//                        }
-//                    }
-//                }
-//                cacheRenderCmds.clear();
             }
         }
 
@@ -811,48 +761,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                         callback.invoke(hm);
                     }
                 }
-
-                // GLog.d(TAG, "cmd match preLoadImage: " + args);
-
-//                String picUrl = args;
-//
-//                GCanvasImageCache cache = sPicToTextureMap.get(picUrl);
-//                if (null != cache && cache.textureId != -1) {
-//                    GLog.d(TAG, "cmd match preLoadImage, image is cached, texture id: " + cache);
-//                    HashMap<String, Object> hm = new HashMap<>();
-//                    hm.put("url", cache.url);
-//                    hm.put("id", cache.textureId);
-//                    hm.put("width", cache.width);
-//                    hm.put("height", cache.height);
-//
-//                    if (callback != null) {
-//                        callback.invoke(hm);
-//                    }
-//                } else if (cache == null) {
-//                    try {
-//                        GLog.d(TAG, "cmd match preLoadImage cache miss! id = " + sIdCounter + ",  url:" + picUrl);
-//                        JSONArray ja = new JSONArray();
-//                        ja.put(picUrl);
-//                        ja.put(sIdCounter);
-//
-//                        HashMap<String, Object> hm = new HashMap<>();
-//                        hm.put("url", picUrl);
-//                        hm.put("id", sIdCounter);
-//
-//                        GCanvasImageCache canvasImageCache = new GCanvasImageCache();
-//                        canvasImageCache.url = picUrl;
-//                        sPicToTextureMap.put(picUrl, canvasImageCache);
-//
-//                        //GLog.d(TAG, "cmd match preLoadImage, picUrl: " + picUrl);
-//                        //GLog.d(TAG, "cmd match preLoadImage, sIdCounter: " + sIdCounter);
-//
-//                        sIdCounter++;
-//
-//                        gcanvasComponent.getGCanvas().executeForWeex("loadTexture", ja, new WeexGcanvasPluginResult(sPicToTextureMap, CMD_PRE_LOAD_IMAGE, hm, callback));
-//                    } catch (Exception e) {
-//                        GLog.e(TAG, "cmd match preLoadImage, Exception: " + e.toString());
-//                    }
-//                }
             } else if (cmd.equals(CMD_SET_CONTEXT_TYPE)) {
                 GLog.d(TAG, "cmd match setContextType, args: " + args);
 
