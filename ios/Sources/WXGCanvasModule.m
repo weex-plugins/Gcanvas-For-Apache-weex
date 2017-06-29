@@ -401,8 +401,12 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
                 }
             }];
             
-            [removeIndexArray enumerateObjectsUsingBlock:^(id removeIdx, NSUInteger idx, BOOL * _Nonnull stop) {
-                [self.bindCacheArray removeObjectAtIndex:[removeIdx integerValue]];
+            [removeIndexArray enumerateObjectsUsingBlock:^(id removeIdx, NSUInteger idx, BOOL * _Nonnull stop){
+                NSUInteger index = [removeIdx integerValue];
+                if( index < self.bindCacheArray.count )
+                {
+                    [self.bindCacheArray removeObjectAtIndex:index];
+                }
             }];
         }
     }
