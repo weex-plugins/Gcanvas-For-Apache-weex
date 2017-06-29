@@ -256,7 +256,7 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
         @Override
         public void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-            if (mState.isReady()) {
+            if (mState.mReadyCount > 0 && ((System.currentTimeMillis() - mState.mFirstReadyTime) > 80)) {
                 mState.clear();
                 mIsDetached = true;
                 if (null != mDelegateListener) {
