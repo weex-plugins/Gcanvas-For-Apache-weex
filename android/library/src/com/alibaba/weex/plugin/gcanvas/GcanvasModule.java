@@ -395,9 +395,12 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 try {
                     long waitGap = 16;
                     synchronized (mLock) {
-                        while ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get() && !delegate.isDestroyed()) {
+                        while ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
                             mLock.wait(waitGap);
                             delegate = mComponentMappings.get(refId);
+                            if (null != delegate && delegate.isDestroyed()) {
+                                break;
+                            }
                         }
                     }
                 } catch (Throwable throwable) {
