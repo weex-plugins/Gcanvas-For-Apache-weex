@@ -1,0 +1,43 @@
+<template>
+    <div ontouchend="onTouch" ontouchmove="onTouch" ontouchstart="onTouch" style="width: 720;height: 1280;position:relative;">
+        <gcanvas id="canvas_holder" style="position:absolute;top:0;left:0;width:720;height:1280;backgroundColor:#ffffff"></gcanvas>
+    </div>
+</template>
+<script>
+    var Hilo = require('@ali/hilo-weex');
+    var CanvasElement = Hilo.CanvasElement;
+    var game = require('./game');
+
+    var modal = require('@weex-module/modal');
+
+
+    module.exports = {
+        created: function () {
+            Hilo.resetGCanvas();
+        },
+        ready: function () {
+            var that = this;
+            var ele = this.ele = new CanvasElement(this.$el('canvas_holder'));
+            ele.style = {};
+            game.init(ele, function () {
+                modal.toast({
+                    message: 'ready..',
+                    duration: 1
+                })
+            });
+            modal.toast({
+                message: 'init',
+                duration: 1
+            })
+        },
+        methods: {
+            onTouch: function (evt) {
+                // modal.toast({
+                //     message: 'onTouch',
+                //     duration: 1
+                // })
+                this.ele.fire(evt);
+            }
+        }
+    }
+</script>

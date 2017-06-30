@@ -19,8 +19,9 @@
 #import "WXGCanvasModule.h"
 #import "WXGCanvasComponent.h"
 
+#define KGCanvasResetNotificationName @"kGCanvasReset"
+
 #ifndef WeexGcanvas_h
 #define WeexGcanvas_h
-
 
 #endif /* WeexGcanvas_h */

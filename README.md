@@ -57,6 +57,6 @@ weex-gcanvas是一个weex插件，可以通过weexpack快速集成，可以丰�
 - 手动集成
   在相应工程的package.json文件的dependencies中添加
   ```
-  weex-gcanvas:0.3.8'
+  weex-gcanvas:^0.4.1'
   ``` 
   

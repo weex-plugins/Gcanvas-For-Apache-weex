@@ -1,5 +1,7 @@
 var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
+var GHashMap = require("./ghashmap");
+var GCanvasImage = require("./gcanvasimage");
 
 function GContext2D() {
     this._drawCommands = "";
@@ -27,10 +29,14 @@ function GContext2D() {
 //    this._apiContext.font = this._font;
 
     this._savedGlobalAlpha =[];
-    this.timer =null;
+    this.timer = null;
+    this.componentId = null;
+
+    this._imageMap = new GHashMap();
+    this._textureMap = new GHashMap();
+    this._firstBindFlag = true;
+
 }
-
-
 
 function FillStylePattern(img, pattern) {
     this._style = pattern;
@@ -455,31 +461,23 @@ Object.defineProperty(GContext2D.prototype, "font", {
  * @private
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
-    // if (successCallback && typeof successCallback !== 'function') {
-    //     throw new Error(
-    //             'GContext2D.loadTexture failure: successCallback parameter not a function');
-    // }
-    // if (errorCallback && typeof errorCallback !== 'function') {
-    //     throw new Error(
-    //             'GContext2D.loadTexture failure: errorCallback parameter not a function');
-    // }
+    var data = this._imageMap.get(image.src);
+    if( data )
+    {
+        successCallback && successCallback(data);
+        return;
+    }
 
-    // GCanvas._toNative(successCallback, errorCallback, 'GCanvas',
-    //         'loadTexture', [ image.src, image._id ]);
-
-    GBridge.preLoadImage(image, function(e){
-
-        if ( e && e.url ){
-            GLog.d("GContext2D loadTexture successCallback! url " + e.url + " id " + e.id);
+    var that = this;
+    GBridge.preLoadImage([image.src, image.id], function(e){
+        if (e){
+            that._imageMap.put(image.src, e);
             successCallback && successCallback(e);
-        
         }else{
             GLog.d("GContext2D loadTexture errorCallback!");
             errorCallback && errorCallback(e);
         }
-
     });
-
 };
 
 /**
@@ -496,8 +494,7 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
  * @private
  */
 GContext2D.prototype.unloadTexture = function(image) {
-    // GCanvas._toNative(null, null, 'GCanvas', 'unloadTexture',
-    //         [ image._id ]);
+    this._imageMap.remove(image.src);
 };
 
 /**
@@ -633,24 +630,114 @@ GContext2D.prototype.restore = function() {
 };
 
 
-GContext2D.prototype.drawImage = function(image, // image
-sx, sy, sw, sh, // source (or destination if fewer args)
-dx, dy, dw, dh) { // destination
+GContext2D.prototype._concatDrawCmd = function(numArgs, imageInfo,
+    sx, sy, sw, sh, // source (or destination if fewer args)
+    dx, dy, dw, dh){// destination
 
-    GLog.d("[GContext2D.drawImage] start...");
-
-    if (typeof image !== 'string') {
-        image = image.src;
+    if(!imageInfo){
+        return;
     }
-    
-    GBridge.preLoadImage(image);
 
+    if(numArgs === 3){
+        var x = parseFloat(sx) || 0;
+        var y = parseFloat(sy) || 0;
+
+        this._drawCommands += ("d" + imageInfo.id + ",0,0,"
+            + imageInfo.width + "," + imageInfo.height + ","
+            + x + "," + y + "," + imageInfo.width + "," + imageInfo.height + ";");
+    }else if(numArgs === 5){
+        var x = parseFloat(sx) || 0;
+        var y = parseFloat(sy) || 0;
+        var width = parseInt(sw) || imageInfo.width;
+        var height = parseInt(sh) || imageInfo.height;
+
+        this._drawCommands += ("d" + imageInfo.id + ",0,0,"
+            + imageInfo.width + "," + imageInfo.height + ","
+            + x + "," + y + "," + width + "," + height + ";");
+    }else if(numArgs === 9){
+        var sx = parseFloat(sx) || 0;
+        var sy = parseFloat(sy) || 0;
+        var sw = parseInt(sw) || imageInfo.width;
+        var sh = parseInt(sh) || imageInfo.height;
+        var dx = parseFloat(dx) || 0;
+        var dy = parseFloat(dy) || 0;
+        var dw = parseInt(dw) || imageInfo.width;
+        var dh = parseInt(dh) || imageInfo.height;
+
+        this._drawCommands += ("d" + imageInfo.id + ","
+            + sx + "," + sy + "," + sw + "," + sh + ","
+            + dx + "," + dy + "," + dw + "," + dh + ";");
+    }
+};
+
+GContext2D.prototype.drawImage = function(image, // image
+    sx, sy, sw, sh, // source (or destination if fewer args)
+    dx, dy, dw, dh) { // destination
+
+    //GLog.d("[GContext2D.drawImage] start...");
+
+    var that = this;
     var numArgs = arguments.length;
 
-    this._drawCommands += ("d" + numArgs + "," + image + "," 
-            + sx + "," + sy + "," + sw + "," + sh + "," 
-            + dx + "," + dy + "," + dw + "," + dh + ";");
+    var imageCache = this._getImageTexture(image.src);
+    if (imageCache) {
+        this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        return;
+    }
+
+    if( GBridge.isIOS() )
+    {
+        GBridge.bindImageTexture(that.componentId, image.src, function(){});
+        that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        that._saveImageTexture(image.src, image);
+    }
+    else
+    {
+        GBridge.bindImageTexture(that.componentId, image.src, function(e){
+            if( !e.error )
+            {
+                if(image.width === 0 && e.width > 0){
+                  image.width = e.width;
+                }
+
+                if(image.height === 0 && e.height > 0){
+                  image.height = e.height;
+                }
+                that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+                that._saveImageTexture(image.src, image);
+            }
+        });
+    }
 };
+
+
+GContext2D.prototype._getImageTexture = function(url){
+    if( url )
+    {
+        return this._textureMap.get(url);
+    }
+    return null;
+}
+
+GContext2D.prototype._removeImageTexture = function(url){
+    if( url )
+    {
+        this._textureMap.remove(url);
+    }
+}
+
+
+GContext2D.prototype._saveImageTexture = function(url, e){
+    if( e && e.src )
+    {
+        this._textureMap.put(url, e);
+    }
+}
+
+GContext2D.prototype._clearImageTextures = function(){
+  this._textureMap.clear();
+}
+
 
 /**
  * Informs the drawing context that drawing commands have completed for the
@@ -673,15 +760,15 @@ dx, dy, dw, dh) { // destination
  */
 
 GContext2D.prototype.render = function(flag) {
-    if (typeof flag === "undefined"){
+    if (this.timer && typeof flag === "undefined"){
         clearInterval(this.timer);
         this.timer = null;
     }
+
     var commands = this._drawCommands;
     this._drawCommands = "";
-    if (commands != null && commands != "") {
-        //GLog.d("GContext2D#render() called, commands is "+ commands);
-        GBridge.callRender(commands)
+    if (commands !== null && commands !== "") {
+        GBridge.callRender(this.componentId, commands);
     }
 };
 
@@ -914,7 +1001,7 @@ function GarrToBase64(buffer) {
     for (var i = 0; i < len; i++) {
         binary += String.fromCharCode( bytes[ i ] )
     }
-    return window.btoa( binary );
+    return btoa( binary );
 }
 
 function _GcharDecode (nChr) {
