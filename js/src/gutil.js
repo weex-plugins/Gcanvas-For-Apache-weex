@@ -8,13 +8,6 @@ var debug = true;
 var platform;
 var canvasModule;
 
-/*
-WX_EXPORT_METHOD(@selector(render:componentId:));
-WX_EXPORT_METHOD(@selector(preLoadImage:componentId:callback:));
-WX_EXPORT_METHOD(@selector(setContextType:componentId:));
-WX_EXPORT_METHOD(@selector(setLogLevel:componentId:));
-WX_EXPORT_METHOD(@selector(resetComponent:));
-*/
 canvasModule = (typeof weex!=='undefined'&&weex.requireModule) ? ( weex.requireModule('gcanvas') ) : (__weex_require__('@weex-module/gcanvas') );
 
 var GBridge = {
@@ -187,7 +180,8 @@ var GBridge = {
         GLog.d('bridge#resetComponent(): componentId: ' + componentId);
         canvasModule.resetComponent && canvasModule.resetComponent(componentId);
     },
-	exeSyncCmd: function (action,args){
+
+    exeSyncCmd: function (action, args){
     	GLog.d('bridge#exeSyncCmd(): action: ' + action + ',args:' + args);
     	return canvasModule.execGcanvaSyncCMD(action,args);
     }

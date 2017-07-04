@@ -232,7 +232,7 @@ GCanvas.prototype.startLoop = function(fps){
         return;
     }
  
-    fps = parseFloat(fps) || 16;
+    fps = parseInt(fps) || 16;
     if(!this.context.timer){
         this.context.timer = setInterval(this.render.bind(this),fps);
     }
