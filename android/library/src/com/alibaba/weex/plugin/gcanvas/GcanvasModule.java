@@ -205,6 +205,7 @@ package com.alibaba.weex.plugin.gcanvas;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -218,6 +219,10 @@ import com.taobao.gcanvas.GCanvasMessage;
 import com.taobao.gcanvas.GCanvasResult;
 import com.taobao.gcanvas.GCanvasView;
 import com.taobao.gcanvas.GLog;
+import com.taobao.phenix.intf.Phenix;
+import com.taobao.phenix.intf.event.FailPhenixEvent;
+import com.taobao.phenix.intf.event.IPhenixListener;
+import com.taobao.phenix.intf.event.SuccPhenixEvent;
 import com.taobao.weex.WXSDKManager;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
@@ -256,7 +261,9 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
     private AtomicBoolean mIsDestroyed = new AtomicBoolean(false);
 
-    private HashMap<String, Integer> mImageIdCache = new HashMap<>();
+    private HashMap<String, ImageInfo> mImageIdCache = new HashMap<>();
+
+    private HashMap<String, ArrayList<JSCallback>> mCallbacks = new HashMap<>();
 
     @JSMethod
     public void bindImageTexture(String src, String refId, JSCallback callback) {
@@ -332,13 +339,88 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 JSONArray dataArray = new JSONArray(args);
                 final String url = dataArray.getString(0);
                 final int id = dataArray.getInt(1);
-                mImageIdCache.put(url, id);
+                ImageInfo imgInfo = mImageIdCache.get(url);
+                final HashMap<String, Object> resultMap = new HashMap<>();
+                if (null == imgInfo) {
+                    imgInfo = new ImageInfo();
+                    imgInfo.isLoading.set(true);
+                    imgInfo.id = id;
+                    mImageIdCache.put(url, imgInfo);
+                    ArrayList<JSCallback> callbacks = mCallbacks.get(url);
+                    if (null == callbacks) {
+                        callbacks = new ArrayList<>();
+                        mCallbacks.put(url, callbacks);
+                    }
+                    callbacks.add(callBack);
+                    Phenix.instance().load(url).succListener(new IPhenixListener<SuccPhenixEvent>() {
+                        @Override
+                        public boolean onHappen(SuccPhenixEvent succPhenixEvent) {
+                            Bitmap bitmap = succPhenixEvent.getDrawable().getBitmap();
+                            if (null != bitmap) {
+                                ImageInfo imageInfo = mImageIdCache.get(url);
+                                imageInfo.width = bitmap.getWidth();
+                                imageInfo.height = bitmap.getHeight();
+                                resultMap.put("id", id);
+                                resultMap.put("url", url);
+                                resultMap.put("width", imageInfo.width);
+                                resultMap.put("height", imageInfo.height);
+                                try {
+                                    ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
+                                    if (null != callbackList) {
+                                        for (JSCallback callback : callbackList) {
+                                            callback.invoke(resultMap);
+                                        }
+                                    }
+                                } catch (Throwable throwable) {
+                                    callBack.invoke(resultMap);
+                                }
+                            } else {
+                                resultMap.put("error", "bitmap load failed");
+                                try {
+                                    ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
+                                    if (null != callbackList) {
+                                        for (JSCallback callback : callbackList) {
+                                            callback.invoke(resultMap);
+                                        }
+                                    }
+                                } catch (Throwable throwable) {
+                                    callBack.invoke(resultMap);
+                                }
+                            }
+                            return true;
+                        }
+                    }).failListener(new IPhenixListener<FailPhenixEvent>() {
+                        @Override
+                        public boolean onHappen(FailPhenixEvent failPhenixEvent) {
+                            resultMap.put("error", "bitmap load failed");
+                            try {
+                                ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
+                                if (null != callbackList) {
+                                    for (JSCallback callback : callbackList) {
+                                        callback.invoke(resultMap);
+                                    }
+                                }
+                            } catch (Throwable throwable) {
+                                callBack.invoke(resultMap);
+                            }
+                            return true;
+                        }
+                    }).fetch();
+                } else if (imgInfo.isLoading.get()) {
+                    ArrayList<JSCallback> callbacks = mCallbacks.get(url);
+                    if (null == callbacks) {
+                        callbacks = new ArrayList<>();
+                        mCallbacks.put(url, callbacks);
+                    }
 
-                HashMap<String, Object> resultMap = new HashMap<>();
-                resultMap.put("id", id);
-                resultMap.put("url", url);
-                callBack.invoke(resultMap);
-
+                    callbacks.add(callBack);
+                } else {
+                    resultMap.put("id", id);
+                    resultMap.put("url", url);
+                    resultMap.put("width", imgInfo.width);
+                    resultMap.put("height", imgInfo.height);
+                    callBack.invoke(resultMap);
+                }
             } catch (Throwable e) {
                 GLog.e(TAG, e.getMessage(), e);
             }
@@ -738,16 +820,16 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 final String url = args;
 
                 GCanvasImageCache textureCache = sPicToTextureMap.get(url);
-                int jsCacheId = canvasModule.mImageIdCache.get(url);
+                ImageInfo imgInfo = canvasModule.mImageIdCache.get(url);
                 if (null == textureCache) {
                     JSONArray ja = new JSONArray();
                     textureCache = new GCanvasImageCache();
                     sPicToTextureMap.put(url, textureCache);
                     try {
                         ja.put(url);
-                        ja.put(jsCacheId);
+                        ja.put(imgInfo.id);
                         addUrlCallback(url, callback);
-                        gcanvasComponent.getGCanvas().executeForWeex(CMD_BIND_TEXTURE, ja, new GCanvasResultCallback(url, jsCacheId, this));
+                        gcanvasComponent.getGCanvas().executeForWeex(CMD_BIND_TEXTURE, ja, new GCanvasResultCallback(url, imgInfo.id, this));
                     } catch (Throwable e) {
                         GLog.e(TAG, e.getMessage(), e);
                     }
@@ -825,6 +907,13 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 this.mGCanvasDelegate.isEnabled.set(true);
             }
         }
+    }
+
+    static class ImageInfo {
+        public int width;
+        public int height;
+        public int id;
+        public AtomicBoolean isLoading = new AtomicBoolean(false);
     }
 
     static class GCanvasImageCache {

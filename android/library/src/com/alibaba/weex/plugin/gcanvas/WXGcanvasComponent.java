@@ -150,7 +150,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         mSurfaceView.setWXLifecycleListener(mLifeListener);
         mContainer.addView(mSurfaceView,
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
         return mContainer;
     }
 
