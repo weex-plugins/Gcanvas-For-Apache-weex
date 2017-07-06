@@ -536,9 +536,8 @@ function GWebGLShaderPrecisionFormat(){
 
 //todo
 function GarrToBase64(buffer) {
-    var binary = ''
-    //var bytes = new Uint8Array( buffer );
-    var bytes = new Array(buffer);
+    var binary = '';
+    var bytes = new Uint8Array( buffer );
     var len = bytes.byteLength;
     for (var i = 0; i < len; i++) {
         binary += String.fromCharCode( bytes[ i ] )
@@ -552,8 +551,8 @@ function GarrToBase64(buffer) {
 GContextWebGL.prototype.render = function() {
     var commands = this._drawCommands;
     this._drawCommands = "";
-    GLog.d("GContextWebGL#render() called, commands is "+ commands);
     if (commands != null && commands != "") {
+        GLog.d("GContextWebGL#render() called, commands is "+ commands);
         //GCanvas._toNative(null, null, 'GCanvas', 'render', [ commands ]);
         GBridge.callRender(this.componentId, commands)
     }
@@ -580,12 +579,10 @@ GContextWebGL.prototype.bindBuffer = function(target, buffer){
     this._drawCommands += (this.bindBufferId + target + "," + ((null == buffer)?-1:buffer.id) + ";");
 };
 
-GContextWebGL.prototype.FRAMEBUFFER = 0;
 GContextWebGL.prototype.bindFramebuffer = function(target, buf){
     this._drawCommands += (this.bindFramebufferId + target + "," + ((null == buf)?-1:buf.id) + ";");
 };
 
-GContextWebGL.prototype.RENDERBUFFER = 0;
 GContextWebGL.prototype.bindRenderbuffer = function(target, buf){
     this._drawCommands += (this.bindRenderbufferId + target + "," + ((null == buf)?-1:buf.id) + ";");
 };
@@ -614,17 +611,15 @@ GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, d
 
 //todo
 GContextWebGL.prototype.bufferData = function(target, param, usage){
-    //GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
+    GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
     this._drawCommands += (this.bufferDataId + target + "," + GarrToBase64(param.buffer) + "," + usage + ";");
-
-    //GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
+    GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
 
     //if (this._drawCommands.length > 10240)
     //    this.render();
     // TODO: param is " number or ArrayBuffer"
 };
 
-GContextWebGL.prototype.FRAMEBUFFER_COMPLETE = 0;
 GContextWebGL.prototype.checkFramebufferStatus_ = function(target){
     return this.FRAMEBUFFER_COMPLETE;// TODO:
 };

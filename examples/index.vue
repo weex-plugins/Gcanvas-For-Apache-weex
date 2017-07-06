@@ -25,7 +25,10 @@
           //{name: root + '/we/demo', title:'点图'},
        	  {name: root + '/hilo2d/hilo2d_fish', title:'Hilo2d-Fish'},
           {name: root + '/hilo2d/hilo2d_event', title:'Hilo2d-Event'},
-          {name: root + '/hilo2d/flappy_bird/flappy', title:'Hilo2d-FlappyBird'}
+          {name: root + '/hilo2d/flappy_bird/flappy', title:'Hilo2d-FlappyBird'},
+
+
+          {name: root + '/webgl/webgl_demo_01', title:'WebGL_DEMO_01'}
 
         ]
       }

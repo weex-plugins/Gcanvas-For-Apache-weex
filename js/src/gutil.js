@@ -181,7 +181,7 @@ var GBridge = {
         canvasModule.resetComponent && canvasModule.resetComponent(componentId);
     },
 
-    exeSyncCmd: function (action, args){
+    exeSyncCmd: function (componentId, action, args){
     	GLog.d('bridge#exeSyncCmd(): action: ' + action + ',args:' + args);
     	return canvasModule.execGcanvaSyncCMD(action,args);
     }
