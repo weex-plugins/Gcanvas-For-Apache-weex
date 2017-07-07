@@ -26,6 +26,11 @@
 
 			gl = gcanvas.getContext('webgl');
              
+
+            gl.viewport(0, 0, 750, 750);
+            // gl.viewport(0, 0, canvas.width, canvas.height);
+
+
             var vertexShader = gl.createShader(gl.VERTEX_SHADER);
             gl.shaderSource(vertexShader, vertexShaderStr);
             gl.compileShader(vertexShader);
@@ -72,7 +77,7 @@
                 1.0,  -1.0, 1.0
             ]);
  
-            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);  //出错了
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
              
             gl.useProgram(gl.program);
             var vertexPosition = gl.getAttribLocation(gl.program, "position");

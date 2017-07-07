@@ -143,9 +143,18 @@
                     0, 0, 1, 0,
                     0, 0, 0, 1
                 ]);
- 
-                gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "proj"), false, perspectiveMatrix);
-                gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "mv"), false, modelViewMatrix);
+                
+                var location = gl.getUniformLocation(gl.program, "proj");
+                gl.uniformMatrix4fv(location, false, perspectiveMatrix);
+                console.log("location:"+location+", perspectiveMatrix:"+perspectiveMatrix);
+
+                location = gl.getUniformLocation(gl.program, "mv");
+                gl.uniformMatrix4fv(location, false, modelViewMatrix);
+                console.log("location:"+location+", modelViewMatrix:"+modelViewMatrix);
+
+
+                // gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "proj"), false, perspectiveMatrix);
+                // gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "mv"), false, modelViewMatrix);
  
                 gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
             }
