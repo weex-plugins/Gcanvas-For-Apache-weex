@@ -45,7 +45,7 @@ WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 @synthesize weexInstance;
 
 WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
-WX_EXPORT_METHOD(@selector(enable:callback:));
+WX_EXPORT_METHOD(@selector(enable2:callback:));
 WX_EXPORT_METHOD(@selector(render:componentId:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:callback:));
@@ -53,6 +53,7 @@ WX_EXPORT_METHOD(@selector(setContextType:componentId:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其他gcavans reset
 
+WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 
 
@@ -73,7 +74,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     }
 }
 
-- (void)enable:(NSDictionary *)args callback:(WXModuleCallback)callback
+- (void)enable2:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
     if (!args || !args[@"componentId"])
     {
@@ -104,6 +105,43 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
                                              selector:@selector(onGCanvasResetNotify:)
                                                  name:KGCanvasResetNotificationName
                                                object:nil];
+}
+
+- (NSString*)enable:(NSDictionary *)args
+{
+    if (!args || !args[@"componentId"])
+    {
+        return @"";
+    }
+    
+    NSString *componentId = args[@"componentId"];
+    
+    GCVLOG_METHOD(@"enable:callback:, componentId=%@", componentId);
+    
+    //plugin
+    GCanvasPlugin *plugin = [[GCanvasPlugin alloc] initWithComponentId:componentId];
+    
+    if( !self.pluginDict )
+    {
+        self.pluginDict = NSMutableDictionary.dictionary;
+    }
+    self.pluginDict[componentId] = plugin;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(onGCanvasResetNotify:)
+                                                 name:KGCanvasResetNotificationName
+                                               object:nil];
+
+    NSArray *config = args[@"config"];
+    if( config && config.count > 4 && [config[4] integerValue] == 1 )
+    {
+        GCVLOG_METHOD(@"all parameter:%@", [plugin getAllParameter]);
+        return [plugin getAllParameter];
+    }
+    else
+    {
+        return @"";
+    }
 }
 
 - (void)render:(NSString *)commands componentId:(NSString*)componentId

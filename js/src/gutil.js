@@ -90,10 +90,13 @@ var GBridge = {
             componentId: ref,
             config:configArray
         };
-        canvasModule.enable(params, function (e) {
-            GLog.d('bridge#callEnable() return val:' + JSON.stringify(e));
-            callback && callback(e);
-        });
+
+        return canvasModule.enable && canvasModule.enable(params);
+
+        // canvasModule.enable(params, function (e) {
+        //     GLog.d('bridge#callEnable() return val:' + JSON.stringify(e));
+        //     callback && callback(e);
+        // });
     },
 
     callSetDevPixelRatio: function(componentId){
