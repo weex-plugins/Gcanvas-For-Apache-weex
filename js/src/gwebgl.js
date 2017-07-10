@@ -1,5 +1,6 @@
 var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
+var GCanvas = require("./gcanvas");
 
 function GContextWebGL(){
     GInitWebGLFuncId(this);
@@ -34,7 +35,16 @@ function GContextWebGL(){
 
     this._savedGlobalAlpha =[];
     this.componentId = null;
+
+    GInitGlParams();
 }
+
+
+function GInitGlParams() {
+    //TODO GlParams
+    // var u8ar = Gbase64ToArr(param);
+    // GCanvas._glParams = new Int32Array(u8ar.buffer);
+  }
 
 
 //////////////////////////////////////////////////////////////////////////

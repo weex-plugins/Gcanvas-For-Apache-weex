@@ -25,7 +25,8 @@
 			gcanvas = GCanvas.start(ref);
 
 			gl = gcanvas.getContext('webgl');
-             
+            
+            gl.getParameter(gl.BLEND) 
 
             gl.viewport(0, 0, 750, 750);
             // gl.viewport(0, 0, canvas.width, canvas.height);
