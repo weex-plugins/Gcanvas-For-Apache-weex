@@ -42,13 +42,13 @@ function GContextWebGL(params){
 
 function GInitWebGLParams(params) 
 {
-    if( !params || params.length == 0 )
-        return;
+    // if( !params || params.length == 0 )
+    //     return;
 
-    var u8ar = Gbase64ToArr(params);
-    GCanvas._glParams = new Int32Array(u8ar.buffer);
+    // var u8ar = Gbase64ToArr(params);
+    // GCanvas._glParams = new Int32Array(u8ar.buffer);
 
-    console.log("GInitWebGLParams:"+GCanvas._glParams);
+    // console.log("GInitWebGLParams:"+GCanvas._glParams);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -548,54 +548,29 @@ function GWebGLShaderPrecisionFormat(){
 }
 
 
-//todo
-function GarrToBase64(buffer) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode( bytes[ i ] )
-    }
-    return btoa( binary );
+
+function GarrToBase64(array) 
+{
+    var str = array.join();
+    GLog.d("GarrToBase64(), before: "+ str);
+    GLog.d("GarrToBase64(), after : "+ btoa(str));
+    return btoa(str);
 }
 
-
-function _GcharDecode (nChr) {
-  return nChr > 64 && nChr < 91 ?
-      nChr - 65
-    : nChr > 96 && nChr < 123 ?
-      nChr - 71
-    : nChr > 47 && nChr < 58 ?
-      nChr + 4
-    : nChr === 43 ?
-      62
-    : nChr === 47 ?
-      63
-    :
-      0;
+function Gbase64ToArr(base64)
+{
+    GLog.d("base64:" + base64);
+    var binary_string = atob(base64);
+    GLog.d("binary_string:" + binary_string);
+    var array = binary_string.slice();
+    return array;
+    // var len = binary_string.length;
+    // var bytes = new Uint8Array( len );
+    // for (var i = 0; i < len; i++)        {
+    //     bytes[i] = binary_string.charCodeAt(i);
+    // }
+    // return bytes.buffer;
 }
-
-function Gbase64ToArr (sBase64, nBlocksSize) {
-    if( sBase64 == undefined || sBase64.length == 0 ) return null;
-  var
-    sB64Enc = sBase64.replace(/[^A-Za-z0-9\+\/]/g, ""), nInLen = sB64Enc.length,
-    nOutLen = nBlocksSize ? Math.ceil((nInLen * 3 + 1 >> 2) / nBlocksSize) * nBlocksSize : nInLen * 3 + 1 >> 2, taBytes = new Uint8Array(nOutLen);
-
-  for (var nMod3, nMod4, nUint24 = 0, nOutIdx = 0, nInIdx = 0; nInIdx < nInLen; nInIdx++) {
-    nMod4 = nInIdx & 3;
-    nUint24 |= _GcharDecode(sB64Enc.charCodeAt(nInIdx)) << 18 - 6 * nMod4;
-    if (nMod4 === 3 || nInLen - nInIdx === 1) {
-      for (nMod3 = 0; nMod3 < 3 && nOutIdx < nOutLen; nMod3++, nOutIdx++) {
-        taBytes[nOutIdx] = nUint24 >>> (16 >>> nMod3 & 24) & 255;
-      }
-      nUint24 = 0;
-
-    }
-  }
-
-  return taBytes;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -660,16 +635,10 @@ GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, d
     this._drawCommands += (this.blendFuncSeparateId + srcRGB + "," + dstRGB + "," + srcAlpha + "," + dstAlpha  + ";");
 };
 
-
-//todo
-GContextWebGL.prototype.bufferData = function(target, param, usage){
+GContextWebGL.prototype.bufferData = function(target, float32Array, usage){
     GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
-    this._drawCommands += (this.bufferDataId + target + "," + GarrToBase64(param.buffer) + "," + usage + ";");
+    this._drawCommands += (this.bufferDataId + target + "," + GarrToBase64(float32Array) + "," + usage + ";");
     GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
-
-    //if (this._drawCommands.length > 10240)
-    //    this.render();
-    // TODO: param is " number or ArrayBuffer"
 };
 
 GContextWebGL.prototype.checkFramebufferStatus_ = function(target){
@@ -1103,7 +1072,7 @@ GContextWebGL.prototype.uniformXXv = function(id, value, type, cmd){
 
     value = trans2ArrayType(type, value);
     this._drawCommands += (cmd + id + ","
-    + GarrToBase64(value.buffer) + ";");
+    + GarrToBase64(value) + ";");
 };
 
 GContextWebGL.prototype.uniform1f = function(location, value){
@@ -1180,17 +1149,7 @@ GContextWebGL.prototype.uniformMatrixXfv = function(location, transpose, value, 
     if (value.length == 0)
         return;
     this._drawCommands += (apiId + location.id + "," + (transpose?1:0));
-    // if (0 == GUtil.encode_type){
-        this._drawCommands += ",";
-        this._drawCommands += (GarrToBase64(value.buffer));
-    // }
-    // else {
-        // for (var i = 0; i < value.length; i++) {
-        //     this._drawCommands += ",";
-        //     this._drawCommands += value[i].toFixed(3);
-        // }
-    // }
-    this._drawCommands += (";");
+    this._drawCommands += "," + GarrToBase64(value) + (";");
 };
 
 
