@@ -315,7 +315,6 @@
 				775BEE791C1E8ECC008D1629 /* Resources */,
 				685399B3421CD1410375A2AD /* [CP] Embed Pods Frameworks */,
 				C715566148067A7FFAB7797D /* [CP] Copy Pods Resources */,
-				55F9926EE9A332B0D6D1A4FA /* [CP] Copy Framework Resources */,
 			);
 			buildRules = (
 			);
@@ -433,21 +432,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		55F9926EE9A332B0D6D1A4FA /* [CP] Copy Framework Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Framework Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "bash -l -c \"ruby \\\"${SRCROOT}/Pods/Target Support Files/Pods-WeexDemo/copy-framework-resources.rb\\\"\"";
-			showEnvVarsInLog = 0;
-		};
 		685399B3421CD1410375A2AD /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
