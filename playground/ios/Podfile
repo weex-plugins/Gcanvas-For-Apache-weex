@@ -13,8 +13,8 @@ def common
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
     pod 'WeexPluginLoader'
-    #pod 'GCanvas'
-    pod 'GCanvas',  :path=>'../../../../gitlab/groups/gcanvas_open/gcanvas'
+    pod 'GCanvas'
+    #pod 'GCanvas',  :path=>'../../../../gitlab/groups/gcanvas_open/gcanvas'
 end
 
 target 'WeexDemo' do
