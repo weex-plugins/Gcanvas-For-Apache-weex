@@ -5,14 +5,16 @@ platform :ios, '8.0'
 inhibit_all_warnings!
 
 def common
-    pod 'WeexSDK'
+    #pod 'WeexSDK'
+    pod 'WeexSDK',  '0.13.0'
     pod 'WXDevtool', '0.9.5'
     pod 'SDWebImage', '3.7.5'
     pod 'SocketRocket', '0.4.2'
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
     pod 'WeexPluginLoader'
-    pod 'GCanvas'
+    #pod 'GCanvas'
+    pod 'GCanvas',  :path=>'../../../../gitlab/groups/gcanvas_open/gcanvas'
 end
 
 target 'WeexDemo' do
