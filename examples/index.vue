@@ -29,7 +29,10 @@
           {name: root + '/hilo2d/flappy_bird/flappy', title:'Hilo2d-FlappyBird'},
 
           //webgl
-          {name: root + '/webgl/webgl_demo_01', title:'WebGL-Demo-01'}
+          {name: root + '/webgl/webgl_demo_01', title:'WebGL-Demo-01'},
+          {name: root + '/webgl/webgl_demo_02', title:'WebGL-Demo-02'},
+          {name: root + '/webgl/webgl_demo_03', title:'WebGL-Demo-03'}
+
         ]
       }
     },

@@ -635,9 +635,10 @@ GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, d
     this._drawCommands += (this.blendFuncSeparateId + srcRGB + "," + dstRGB + "," + srcAlpha + "," + dstAlpha  + ";");
 };
 
-GContextWebGL.prototype.bufferData = function(target, float32Array, usage){
+GContextWebGL.prototype.bufferData = function(target, array, usage){
     GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
-    this._drawCommands += (this.bufferDataId + target + "," + GarrToBase64(float32Array) + "," + usage + ";");
+    GLog.d("[bufferData] array.length=" + array.length);
+    this._drawCommands += (this.bufferDataId + target + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + "," + usage + ";");
     GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
 };
 

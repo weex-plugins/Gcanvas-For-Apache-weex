@@ -26,10 +26,7 @@
 
 			gl = gcanvas.getContext('webgl');
             
-
             gl.viewport(0, 0, 750, 750);
-            // gl.viewport(0, 0, canvas.width, canvas.height);
-
 
             var vertexShader = gl.createShader(gl.VERTEX_SHADER);
             gl.shaderSource(vertexShader, vertexShaderStr);
