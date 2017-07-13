@@ -31,8 +31,8 @@
           //webgl
           {name: root + '/webgl/webgl_demo_01', title:'WebGL-Demo-01'},
           {name: root + '/webgl/webgl_demo_02', title:'WebGL-Demo-02'},
-          {name: root + '/webgl/webgl_demo_03', title:'WebGL-Demo-03'}
-
+          {name: root + '/webgl/webgl_demo_03', title:'WebGL-Demo-03'},
+          {name: root + '/webgl/webgl_demo_04', title:'WebGL-Demo-04'}
         ]
       }
     },
