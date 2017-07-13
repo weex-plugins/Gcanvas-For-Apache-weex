@@ -550,8 +550,26 @@ function GWebGLShaderPrecisionFormat(){
 
 
 function GarrToBase64(array) 
-{
-    var str = array.join();
+{   
+    var str = '';
+    if( array.join === 'function' )
+    {
+        str = array.join();
+    }
+    else
+    {
+        for (var i = 0; i < array.length; i++) 
+        {
+            if( i < array.length - 1 )
+            {
+                str = str + array[i] + ',';
+            }
+            else
+            {
+                str = str + array[i];
+            }
+        }
+    }
     GLog.d("GarrToBase64(), before: "+ str);
     GLog.d("GarrToBase64(), after : "+ btoa(str));
     return btoa(str);
