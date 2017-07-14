@@ -518,7 +518,7 @@ function GShader() {
 GShader.idCounter = 0;
 
 function GTexture() {
-    this.id = (GTexture.idCounter++);
+    this.id = (++GTexture.idCounter);
 }
 GTexture.idCounter = 0;
 
@@ -570,16 +570,16 @@ function GarrToBase64(array)
             }
         }
     }
-    GLog.d("GarrToBase64(), before: "+ str);
-    GLog.d("GarrToBase64(), after : "+ btoa(str));
+    // GLog.d("GarrToBase64(), before: "+ str);
+    // GLog.d("GarrToBase64(), after : "+ btoa(str));
     return btoa(str);
 }
 
 function Gbase64ToArr(base64)
 {
-    GLog.d("base64:" + base64);
+    // GLog.d("base64:" + base64);
     var binary_string = atob(base64);
-    GLog.d("binary_string:" + binary_string);
+    // GLog.d("binary_string:" + binary_string);
     var array = binary_string.slice();
     return array;
     // var len = binary_string.length;
@@ -597,7 +597,7 @@ GContextWebGL.prototype.render = function() {
     var commands = this._drawCommands;
     this._drawCommands = "";
     if (commands != null && commands != "") {
-        GLog.d("GContextWebGL#render() called, commands is "+ commands);
+        // GLog.d("GContextWebGL#render() called, commands is "+ commands);
         //GCanvas._toNative(null, null, 'GCanvas', 'render', [ commands ]);
         GBridge.callRender(this.componentId, commands)
     }
@@ -654,10 +654,10 @@ GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, d
 };
 
 GContextWebGL.prototype.bufferData = function(target, array, usage){
-    GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
-    GLog.d("[bufferData] array.length=" + array.length);
+    // GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
+    // GLog.d("[bufferData] array.length=" + array.length);
     this._drawCommands += (this.bufferDataId + target + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + "," + usage + ";");
-    GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
+    // GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
 };
 
 GContextWebGL.prototype.checkFramebufferStatus_ = function(target){
