@@ -1,6 +1,6 @@
 {
     "name": "weex-gcanvas",
-    "version": "0.4.2",
+    "version": "0.4.3",
     "main":"gcanvas.js",
     "platform": [
         "ios",
