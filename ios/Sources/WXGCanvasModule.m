@@ -365,8 +365,8 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     if (!componet.gcanvasInitalized)
     {
         //设置gcanvas像素比率
-        self.devicePixelRatio = componet.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / componet.componetFrame.size.width ;
-        [plugin setDevicePixelRatio:self.devicePixelRatio];
+        self.devicePixelRatio = self.gcanvasComponent.calculatedFrame.size.width * [UIScreen mainScreen].scale / self.gcanvasComponent.componetFrame.size.width ;
+        [self.gcanvasPlugin setDevicePixelRatio:self.devicePixelRatio];
         
         //设置gcanvas frame
         CGRect compFrame = componet.componetFrame;
