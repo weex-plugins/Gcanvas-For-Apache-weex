@@ -15,20 +15,22 @@
             gcanvas.start(this.$el('canvas_holder'), function(){
                 var ctx = gcanvas.getContext('2d');
 
-                ctx.fillStyle = 'red';
-                ctx.fillRect(0, 0, 100, 100);
+                gcanvas.startLoop();
+                gcanvas.render(function(){
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(0, 0, 100, 100);
 
-                ctx.fillStyle = 'black';
-                ctx.fillRect(100, 100, 100, 100);
-                ctx.fillRect(25, 210, 700, 5);
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(100, 100, 100, 100);
+                    ctx.fillRect(25, 210, 700, 5);
 
-                ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
-                ctx.fill();
-
-                var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
-                ctx.drawImage(img, 100, 200, 210, 330);
-                //ctx.drawImage(img, 0,0,105,165, 100, 200, 210, 330);
-                ctx.render();
+                    ctx.arc(450, 200, 100, 0, Math.PI * 2, true);
+                    ctx.fill();
+                    
+                    var img = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
+                    ctx.drawImage(img, 100, 200, 210, 330);
+                });
+ 
             });
         }
     }

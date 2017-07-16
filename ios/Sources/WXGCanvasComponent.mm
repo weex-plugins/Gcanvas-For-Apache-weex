@@ -21,12 +21,42 @@
 #import <GLKit/GLKit.h>
 #import <GCanvas/GCVCommon.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+#import "WeexGcanvas.h"
+
+
+@interface WXGCanvasEAGLContext:NSObject
+
++ (EAGLContext*)createEAGLContext;
+
+@end
+
+@implementation WXGCanvasEAGLContext
+
++ (EAGLContext*)createEAGLContext
+{
+    static EAGLContext * firstContext = nil;
+    static dispatch_once_t onceToken;
+    
+    if( !firstContext )
+    {
+        dispatch_once(&onceToken, ^{
+            firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        });
+        return firstContext;
+    }
+    else
+    {
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+        return newContext;
+    }
+}
+@end
+
 
 @interface WXGCanvasComponent()
 
 @property(nonatomic, assign) CGRect frame;
-@property(nonatomic) BOOL isViewDidUnload;
-    
+@property(nonatomic, assign) BOOL isUnLoad;
 @end
 
 @implementation WXGCanvasComponent
@@ -79,48 +109,40 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         }
         
         self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);
-        
         self.componetFrame = self.frame;
-        
-        GCVLOG_METHOD(@"frame=(%.2f, %.2f) * (%.2f, %.2f)", self.frame.origin.x, self.frame.origin.y, self.frame.size.width, self.frame.size.height);
+        self.componentId = ref;
     }
     
     return self;
 }
 
--(void)viewDidUnload
-{
-    [super viewDidUnload];
-    self.isViewDidUnload = YES;
-}
-
 -(void)viewDidLoad
 {
     [super viewDidLoad];
-    self.isViewDidUnload = NO;
+    if(self.renderCallBack){
+        self.renderCallBack();
+    }
 }
 
-- (BOOL)isViewLoaded
+-(void)viewDidUnload
 {
-    if(self.glkview != nil && self.isViewDidUnload == NO){
-        return YES;
-    }
-    return NO;
+    [super viewDidUnload];
+    [EAGLContext setCurrentContext:nil];
 }
 
 - (UIView *)loadView
 {
     if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
-        glkview.context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        [EAGLContext setCurrentContext:glkview.context];
+        glkview.context = [WXGCanvasEAGLContext createEAGLContext];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-        glkview.layer.borderWidth = 0.5f;
+        glkview.backgroundColor = [UIColor clearColor];
         
         self.glkview = glkview;
     }
+    
     return self.glkview;
 }
 
