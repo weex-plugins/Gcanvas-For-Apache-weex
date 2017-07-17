@@ -283,7 +283,8 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 #pragma mark - SYNC Method
 - (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
 {
-    return @"";
+    //TODO
+    return @"1";
 }
 
 #pragma mark - Notification
