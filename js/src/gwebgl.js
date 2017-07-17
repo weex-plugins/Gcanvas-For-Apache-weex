@@ -760,6 +760,10 @@ GContextWebGL.prototype.depthMask = function(flag){
     this._drawCommands += (this.depthMaskId + (flag?1:0) + ";");
 };
 
+GContextWebGL.prototype.depthRange = function(near, far){
+    this._drawCommands += (this.depthRangeId + near + ", " + far + ";");
+}
+
 GContextWebGL.prototype.disable = function(cap){
     this._drawCommands += (this.disableId + cap + ";");
 };
@@ -847,28 +851,31 @@ GContextWebGL.prototype.getParameter = function(name) {
 };
 
 GContextWebGL.prototype.getProgramInfoLog = function(program){
-    return ''; // TODO:need asyn deal
+    return ""; // TODO:need asyn deal
 };
 
 GContextWebGL.prototype.getProgramParameter = function(id, type){
     var args = id + ',' + type;
     var result = GBridge.exeSyncCmd('getProgramParameter',args);
     
-    return result;
+    // return result;
+    return "";
 };
 
 GContextWebGL.prototype.getShaderInfoLog = function(id){
     var args = id;
     var result = GBridge.exeSyncCmd('getShaderInfoLog',args);
     
-    return result;
+    // return result;
+    return "";
 };
 
 GContextWebGL.prototype.getShaderParameter = function(shader, pname){
     var args = shader + ',' + pname;
     var result = GBridge.exeSyncCmd('getShaderParameter',args);
     
-    return result;
+    // return result;
+    return "";
 };
 
 GContextWebGL.prototype.getActiveUniform = function(id, index){
@@ -1047,11 +1054,11 @@ GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
     if (6==argc){
         var image = arguments[5];
         var imgData;
-        if (image instanceof HTMLCanvasElement){
-            imgData = image.toDataURL("image/jpeg");
-        }else{
+        // if (image instanceof HTMLCanvasElement){
+        //     imgData = image.toDataURL("image/jpeg");
+        // }else{
             imgData = image.src;
-        }
+        // }
         this._drawCommands += (this.texImage2DId + argc + "," + target + "," + level
         + "," + internalformat + "," + arguments[3] + "," + arguments[4]
         + "," + imgData + ";");
