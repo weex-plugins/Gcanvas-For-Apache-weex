@@ -326,7 +326,20 @@ GCanvas.setLogLevel = function(level){
     if(GCanvasPlatform !== 0) {
         GBridge.setLogLevel(level);
     }
-}
+},
+    
+    toDataURL:function(type,options){
+    //	GLog.d('gcanvas#toDataURL=====>>> ' + type + ',' + options);
+    	
+    	var args;
+	    if(typeof(options) == 'undefined'){
+	        args = type + ';';
+	    } else {
+	         args = type + ',' + options + ';';
+	    }
+	    
+    	return GBridge.exeSyncCmd('todataurl',args);
+    }
 
 //-----------------------------
 // GCanvas.htmlPlugin
