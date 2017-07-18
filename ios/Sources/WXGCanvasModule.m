@@ -254,7 +254,7 @@ WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
     NSString *componentId = notification.userInfo[@"componentId"];
     [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString *compId, WXGCanvasComponent *comp, BOOL * _Nonnull stop) {
         
-        if (comp && comp.view.window ) {
+        if (comp) {
             comp.gcanvasInitalized = NO;
             GCanvasPlugin *plugin = self.pluginDict[componentId];
             if (plugin)
