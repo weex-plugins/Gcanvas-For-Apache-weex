@@ -124,7 +124,7 @@ GCanvas.start = function(el){
     } else if (typeof navigator === 'object' && /ios/i.test(navigator.userAgent)) {
         GCanvasPlatform = 1;
     } else {
-        GCanvasPlatform = 2;
+        GCanvasPlatform = GBridge.isBrowser() ? 0 : 2;
     }
 
     GBridge.setup( {platform:GCanvasPlatform} );

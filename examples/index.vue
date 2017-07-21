@@ -9,6 +9,9 @@
 
       return {
         items: [ 
+
+          //test
+          {name: root + '/testcallNative', title: 'TestCallNative'},
           // common
           {name: root + '/singlecanvas', title: 'SingleGCanvas'},
           {name: root + '/multicanvas', title: 'MultiGCanvas'},
