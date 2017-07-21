@@ -2,6 +2,35 @@ var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
 var GCanvas = require("./gcanvas");
 
+
+
+/**
+ callGCanvasLinkNative中type的定义
+ | 0-1(ContextType) | 2 (MethodType) | 3 - 32 (OptionType) |
+ */
+
+if(typeof ContextType == "undefined"){
+    var ContextType = {
+        Context2D     : 0,
+        ContextWebGL  : 1,
+        // ContextVulkan : 2,
+        // ContextMetal  : 3,
+    };
+}
+
+if(typeof MethodType == "undefined"){
+    var MethodType = {
+        Async : 0,
+        Sync  : 1,
+    };
+}
+
+function WebGLCallNative(contextId, cmdArgs)
+{
+    var type = 0x6000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
+    callGCanvasLinkNative(contentId, type, cmdArgs)
+}
+
 function GContextWebGL(params){
     GInitWebGLFuncId(this);
     GInitWebGLEnum(this);
@@ -26,13 +55,6 @@ function GContextWebGL(params){
 
     this._uniformMgr = {};
     this._uniformCount = 3;
-
-    //GCanvas._forbiddenAutoReplaceCanvas =true;
-    //this._apiCanvas  = document.createElement('canvas');
-    //GCanvas._forbiddenAutoReplaceCanvas =false;
-    //console.log("apicanvas="+this._apiCanvas);
-    //this._apiContext = this._apiCanvas.getContext("2d");
-    //this._apiContext.font = this._font;
 
     this._savedGlobalAlpha =[];
     this.componentId = null;
@@ -105,6 +127,7 @@ function GInitWebGLFuncId(obj){
     obj.drawElementsInstancedANGLEId=(i++)+",";
     obj.enableId=(i++)+",";
     obj.enableVertexAttribArrayId=(i++)+",";
+    //finish
     obj.flushId=(i++)+",";
     obj.framebufferRenderbufferId=(i++)+",";
     obj.framebufferTexture2DId=(i++)+",";
@@ -133,6 +156,7 @@ function GInitWebGLFuncId(obj){
     obj.getUniformLocationId=(i++)+",";
     obj.getVertexAttribId=(i++)+",";
     obj.getVertexAttribOffsetId=(i++)+",";
+    //hint
     obj.isBufferId=(i++)+",";
     obj.isContextLostId=(i++)+",";
     obj.isEnabledId=(i++)+",";
@@ -499,56 +523,6 @@ function GInitWebGLEnum(obj){
     obj.OES_element_index_uint = 1;
 }
 
-function GAttribLocation() {
-    this.id = (++GAttribLocation.idCounter);
-}
-GAttribLocation.idCounter = 0;
-GAttribLocation.mapKey = [];
-GAttribLocation.mapVal = [];
-
-
-function GProgram() {
-    this.id = (++GProgram.idCounter);
-}
-GProgram.idCounter = 0;
-
-function GShader() {
-    this.id = (++GShader.idCounter);
-}
-GShader.idCounter = 0;
-
-function GTexture() {
-    this.id = (++GTexture.idCounter);
-}
-GTexture.idCounter = 0;
-
-function GUniformLocation() {
-    this.id = (++GUniformLocation.idCounter);
-}
-GUniformLocation.idCounter = 0;
-GUniformLocation.mapKey = [];
-GUniformLocation.mapVal = [];
-
-function GWebGLBuffer() {
-    this.id = (++GWebGLBuffer.idCounter);
-}
-GWebGLBuffer.idCounter = 0;
-
-function GWebGLFramebuffer() {
-    this.id = (++GWebGLFramebuffer.idCounter);
-}
-GWebGLFramebuffer.idCounter = 0;
-
-function GWebGLRenderbuffer() {
-    this.id = (++GWebGLRenderbuffer.idCounter);
-}
-GWebGLRenderbuffer.idCounter = 0;
-
-function GWebGLShaderPrecisionFormat(){
-}
-
-
-
 function GarrToBase64(array) 
 {   
     var str = '';
@@ -605,306 +579,376 @@ GContextWebGL.prototype.render = function() {
 
 
 //////////////////////////////////////////////////////////////////////////
-
-////////////////////////////// WEBGL API //////////////////////////////////
+//                  WEBGL 1.0 API
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext
+//////////////////////////////////////////////////////////////////////////
 
 GContextWebGL.prototype.activeTexture = function(texture){
-    this._drawCommands += (this.activeTextureId + texture + ";");
+    var cmd = (this.activeTextureId + texture + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.attachShader = function(program, shader){
-    this._drawCommands += (this.attachShaderId + program.id + "," + shader.id + ";");
+    var cmd = (this.attachShaderId + program + "," + shader + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.bindAttribLocation = function(program, index, name){
-    this._drawCommands += (this.bindAttribLocationId + program.id + "," + index + "," + name + ";");
+    var cmd = (this.bindAttribLocationId + program + "," + index + "," + name + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.bindBuffer = function(target, buffer){
-    this._drawCommands += (this.bindBufferId + target + "," + ((null == buffer)?-1:buffer.id) + ";");
+    var cmd = (this.bindBufferId + target + "," + buffer+ ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.bindFramebuffer = function(target, buf){
-    this._drawCommands += (this.bindFramebufferId + target + "," + ((null == buf)?-1:buf.id) + ";");
+GContextWebGL.prototype.bindFramebuffer = function(target, framebuffer){
+    var cmd = (this.bindFramebufferId + target + "," + framebuffer + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.bindRenderbuffer = function(target, buf){
-    this._drawCommands += (this.bindRenderbufferId + target + "," + ((null == buf)?-1:buf.id) + ";");
+GContextWebGL.prototype.bindRenderbuffer = function(target, renderbuffer){
+    var cmd = (this.bindRenderbufferId + target + "," + renderbuffer + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
+
+//new
+GContextWebGL.prototype.blendColor = function(red, green, blue, alpha){
+    var cmd = (this.bindRenderbufferId + red + "," + green + ","+ blue + "," + alpha + ";");
+    WebGLCallNative(this.contextId, cmd);
+}
 
 GContextWebGL.prototype.bindTexture = function(target, texture){
-    this._drawCommands += (this.bindTextureId + target + "," + ((null == texture)?-1:texture.id) + ";");
+    var cmd = (this.bindTextureId + target + "," + texture + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.blendEquation = function(mode){
-    this._drawCommands += (this.blendEquationId + mode + ";");
+    var cmd = (this.blendEquationId + mode + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.blendEquationSeparate = function(modeRGB, modeAlpha){
-    this._drawCommands += (this.blendEquationSeparateId + modeRGB + "," + modeAlpha  + ";");
+    var cmd = (this.blendEquationSeparateId + modeRGB + "," + modeAlpha  + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-
 GContextWebGL.prototype.blendFunc = function(sfactor, dfactor){
-    this._drawCommands += (this.blendFuncId + sfactor + "," + dfactor  + ";");
+    var cmd = (this.blendFuncId + sfactor + "," + dfactor  + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, dstAlpha){
-    this._drawCommands += (this.blendFuncSeparateId + srcRGB + "," + dstRGB + "," + srcAlpha + "," + dstAlpha  + ";");
+    var cmd = (this.blendFuncSeparateId + srcRGB + "," + dstRGB + "," + srcAlpha + "," + dstAlpha  + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.bufferData = function(target, array, usage){
-    // GLog.d("[bufferData] before:_drawCommands.length=" + this._drawCommands.length);
-    // GLog.d("[bufferData] array.length=" + array.length);
-    this._drawCommands += (this.bufferDataId + target + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + "," + usage + ";");
-    // GLog.d("[bufferData] after :_drawCommands.length=" + this._drawCommands.length);
+    var cmd = (this.bufferDataId + target + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + "," + usage + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.checkFramebufferStatus_ = function(target){
-    return this.FRAMEBUFFER_COMPLETE;// TODO:
+//new
+GContextWebGL.prototype.bufferSubData = function(target, offset, array){
+    var cmd = (this.bufferSubDataId + target + "," + offset + "," + GarrToBase64(array) + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.checkFramebufferStatus = function(target){
+    // return this.FRAMEBUFFER_COMPLETE;// TODO:
+    var cmd = (this.checkFramebufferStatusId + target + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.clear = function(mask){
-    this._drawCommands += (this.clearId + mask + ";");
+    var cmd = (this.clearId + mask + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.clearColor = function(r, g, b, a){
-    this._drawCommands += (this.clearColorId + r + "," + g + "," + b + "," + a + ";");
+GContextWebGL.prototype.clearColor = function(red, green, blue, alpha){
+    var cmd = (this.clearColorId + red + "," + green + "," + blue + "," + alpha + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.clearDepth = function(depth){
-    this._drawCommands += (this.clearDepthId + depth + ";");
+    var cmd = (this.clearDepthId + depth + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.clearStencil = function(s){
-    this._drawCommands += (this.clearStencilId + s + ";");
+    var cmd = (this.clearStencilId + s + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.colorMask = function(r, g, b, a){
-    this._drawCommands += (this.colorMaskId + r?1:0 + "," + g?1:0 + "," + b?1:0 + "," + a?1:0 + ";");
+GContextWebGL.prototype.colorMask = function(red, green, blue, alpha){
+    var cmd = (this.colorMaskId + red?1:0 + "," + green?1:0 + "," + blue?1:0 + "," + alpha?1:0 + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.compileShader = function(shader) {
-    this._drawCommands += (this.compileShaderId + shader.id + ";");
+    var cmd = (this.compileShaderId + shader + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
+//new
+GContextWebGL.prototype.compressedTexImage2D = function(target, level, internalformat, width, height, border, array) {
+    var cmd = (this.compressedTexImage2DId + target + "," + level + "," + internalformat + "," + width + "," + 
+               height + "," + border + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.compressedTexSubImage2D = function(target, level, xoffset, yoffset, width, height, format, array){
+    var cmd = (this.compressedTexSubImage2DId + target + "," + level + "," + xoffset + ","  + yoffset + "," + width + "," + 
+               height + "," + format + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+    WebGLCallNative(this.contextId, cmd);
+}
+
+//new
+GContextWebGL.prototype.copyTexImage2D = function(target, level, internalformat, x, y, width, height, border){
+    var cmd = (this.copyTexImage2DId + target + "," + level + "," + internalformat + ","  + x + "," + y + "," + 
+             width + "," + height + "," + border + ";");
+    WebGLCallNative(this.contextId, cmd);
+}
+
+//new
+GContextWebGL.prototype.copyTexSubImage2D = function(target, level, xoffset, yoffset, x, y, width, height){
+    var cmd = (this.copyTexSubImage2DId + target + "," + level + "," + xoffset + ","  + yoffset + "," + x + "," + y + "," + 
+              width + "," + height + ";");
+    WebGLCallNative(this.contextId, cmd);
+}
+
 GContextWebGL.prototype.createBuffer = function(){
-    var buffer = new GWebGLBuffer();
-    this._drawCommands += (this.createBufferId + buffer.id + ";");
-    return buffer;
+    var cmd = (this.createBufferId + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.createFramebuffer = function(){
-    var framebuffer = new GWebGLFramebuffer();
-    this._drawCommands += (this.createFramebufferId + framebuffer.id + ";");
-    return framebuffer;
-};
-
-GContextWebGL.prototype.createRenderbuffer = function(){
-    var renderbuffer= new GWebGLRenderbuffer();
-    this._drawCommands += (this.createRenderbufferId + renderbuffer.id + ";");
-    return renderbuffer;
+    var cmd = (this.createFramebufferId + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.createProgram = function(){
-    var program = new GProgram();
-    this._drawCommands += (this.createProgramId + program.id + ";");
-    return program;
+    var cmd = (this.createProgramId + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+GContextWebGL.prototype.createRenderbuffer = function(){
+    var cmd = (this.createRenderbufferId + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.createShader = function(type) {
-    var shader = new GShader();
-    this._drawCommands += (this.createShaderId + shader.id + "," + type + ";");
-    return shader;
+    var cmd = (this.createShaderId + type + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.createTexture = function() {
-    var texture = new GTexture();
-    this._drawCommands += (this.createTextureId + texture.id + ";");
-    return texture;
+    var cmd = (this.createTextureId + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.cullFace = function(mode){
-    this._drawCommands += (this.cullFaceId + mode + ";");
+    var cmd = (this.cullFaceId + mode + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.deleteBuffer = function(buffer){
-    this._drawCommands += (this.deleteBufferId + buffer.id + ";");
+    var cmd = (this.deleteBufferId + buffer + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.deleteFramebuffer = function(framebuffer){
-    this._drawCommands += (this.deleteFramebufferId + framebuffer.id + ";");
+    var cmd = (this.deleteFramebufferId + framebuffer + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.deleteProgram = function(program){
-    this._drawCommands += (this.deleteProgramId + program.id + ";");
+    var cmd = (this.deleteProgramId + program + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.deleteRenderbuffer = function(renderbuffer){
-    this._drawCommands += (this.deleteRenderbufferId + renderbuffer.id + ";");
+    var cmd = (this.deleteRenderbufferId + renderbuffer + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.deleteShader = function(shader){
-    this._drawCommands += (this.deleteShaderId + shader.id + ";");
+    var cmd = (this.deleteShaderId + shader + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.deleteTexture = function(texture){
-    this._drawCommands += (this.deleteTextureId + texture.id + ";");
+    var cmd = (this.deleteTextureId + texture + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.depthFunc = function(func){
-    this._drawCommands += (this.depthFuncId + func + ";");
+    var cmd = (this.depthFuncId + func + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.depthMask = function(flag){
-    this._drawCommands += (this.depthMaskId + (flag?1:0) + ";");
+    var cmd = (this.depthMaskId + (flag?1:0) + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.depthRange = function(near, far){
-    this._drawCommands += (this.depthRangeId + near + ", " + far + ";");
-}
+GContextWebGL.prototype.depthRange = function(zNear, zFar){
+    var cmd = (this.depthRangeId + zNear + "," + zFar + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.detachShader = function(program, shader){
+    var cmd = (this.detachShaderId + program + "," + shader + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
 
 GContextWebGL.prototype.disable = function(cap){
-    this._drawCommands += (this.disableId + cap + ";");
+    var cmd = (this.disableId + cap + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.disableVertexAttribArray = function(index){
-    this._drawCommands += (this.disableVertexAttribArrayId + index + ";");
+    var cmd = (this.disableVertexAttribArrayId + index + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.drawArrays = function(mode, first, count){
-    this._drawCommands += (this.drawArraysId + mode + "," + first + "," + count +  ";");
+    var cmd = (this.drawArraysId + mode + "," + first + "," + count +  ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.drawElements = function(mode, count, type, offset){
-    this._drawCommands += (this.drawElementsId + mode + "," + count + "," + type + "," + offset +  ";");
+    var cmd = (this.drawElementsId + mode + "," + count + "," + type + "," + offset +  ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.enable = function(cap){
-    this._drawCommands += (this.enableId + cap + ";");
+    var cmd = (this.enableId + cap + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.enableVertexAttribArray = function(index){
-    this._drawCommands += (this.enableVertexAttribArrayId + index + ";");
+    var cmd = (this.enableVertexAttribArrayId + index + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.flush = function(){
-    this._drawCommands += (this.flushId + ";");
-};
-
-GContextWebGL.prototype.generateMipmap = function(target){
-    this._drawCommands += (this.generateMipmapId + target + ";");
+    var cmd = (this.flushId + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.framebufferRenderbuffer = function(target, attachment, renderbuffertarget, renderbuffer){
-    this._drawCommands += (this.framebufferRenderbufferId + target + "," + attachment + "," + renderbuffertarget + "," + renderbuffer.id + ";");
+    var cmd = (this.framebufferRenderbufferId + target + "," + attachment + "," + renderbuffertarget + "," + renderbuffer + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.framebufferTexture2D = function(target, attachment, textarget, texture, level){
-    this._drawCommands += (this.framebufferTexture2DId + target + "," + attachment + "," + textarget + "," + texture.id + "," + level + ";");
+    var cmd = (this.framebufferTexture2DId + target + "," + attachment + "," + textarget + "," + texture + "," + level + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.frontFace = function(mode){
-    this._drawCommands += (this.frontFaceId + mode + ";");
+    var cmd = (this.frontFaceId + mode + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.getAttribLocation   = function(program, name) {
-    var key = program.id + ":" + name;
-    var index = GAttribLocation.mapKey.indexOf(key);
-    if (index > -1){
-        //GLog.d("[getAttribLocation] " + key + "=" + GAttribLocation.mapVal[index].id);
-        return GAttribLocation.mapVal[index];
-    }
-
-    var id = GAttribLocation.idCounter++;
-    this._drawCommands += (this.getAttribLocationId + program.id + "," + name + "," + id + ";");
-
-    GAttribLocation.mapKey.push(key);
-    GAttribLocation.mapVal.push(id);
-    //GLog.d("[GAttribLocation] " + key + "=" + id);
-
-    return id;
+GContextWebGL.prototype.generateMipmap = function(target){
+    var cmd = (this.generateMipmapId + target + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
+//new
+GContextWebGL.prototype.getActiveAttrib= function(program, index){
+    var cmd = (this.getActiveAttribId + program +  "," + index +  ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+GContextWebGL.prototype.getActiveUniform= function(program, index){
+    var cmd = (this.getActiveUniformId + program +  "," + index +  ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.getAttachedShaders= function(program){
+    var cmd = (this.getAttachedShadersId + program + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+GContextWebGL.prototype.getAttribLocation   = function(program, index) {
+    var cmd = (this.getAttribLocationId + program + "," + index + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.getBufferParameter= function(target, pname){
+    var cmd = (this.getBufferParameterId + target + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.getContextAttributes= function(){
+    var cmd = (this.getContextAttributesId + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.getError= function(){
+    var cmd = (this.getErrorId + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new
 GContextWebGL.prototype.getExtension = function(name) {
-    //GLog.w("[getExtension] " + name);
-    return null;
-//  var ret = new Object();
-//  return ret;// TODO: need call opengl es
+    var cmd = (this.getExtensionId + name + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
+//new
+GContextWebGL.prototype.getFramebufferAttachmentParameter = function(target, attachment, pname){
+    var cmd = (this.getFramebufferAttachmentParameterId + target + "," + attachment + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
 
-//TODO
 GContextWebGL.prototype.getParameter = function(name) {
-    if (typeof(GCanvas._glParams) == 'undefined'){
-        return null;
-    }
-    if (name == this.ALIASED_POINT_SIZE_RANGE){
-        var f32ar =  new Float32Array(2);
-        f32ar[0]= 1;
-        f32ar[1]= 256;
-        return f32ar;
-    }
-    //GLog.d("[GContextWebGL::getParameter] " + name + "=" + GCanvas._glParams[name]);
-    return GCanvas._glParams[name];
-    // TODO: unsupport this code:var _compressedTextureFormats = _glExtensionCompressedTextureS3TC ? _gl.getParameter( _gl.COMPRESSED_TEXTURE_FORMATS ) : [];
+    var cmd = (this.getParameterId + name + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.getProgramInfoLog = function(program){
-    return ""; // TODO:need asyn deal
+    var cmd = (this.getProgramInfoLogId + program + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.getProgramParameter = function(id, type){
-    var args = id + ',' + type;
-    var result = GBridge.exeSyncCmd('getProgramParameter',args);
-    
-    // return result;
-    return "";
+GContextWebGL.prototype.getProgramParameter = function(program, pname){
+    var cmd = (this.getProgramParameterId + program + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.getShaderInfoLog = function(id){
-    var args = id;
-    var result = GBridge.exeSyncCmd('getShaderInfoLog',args);
-    
-    // return result;
-    return "";
+//new
+GContextWebGL.prototype.getRenderbufferParameter = function(target, pname){
+    var cmd = (this.getRenderbufferParameterId + target + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
+}
+
+GContextWebGL.prototype.getShaderInfoLog = function(shader){
+    var cmd = (this.getShaderInfoLogId + shader + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.getShaderParameter = function(shader, pname){
-    var args = shader + ',' + pname;
-    var result = GBridge.exeSyncCmd('getShaderParameter',args);
-    
-    // return result;
-    return "";
+    var cmd = (this.getShaderParameterId + shader + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.getActiveUniform = function(id, index){
-    var args = id + ',' + index;
-    var result = GBridge.exeSyncCmd('getActiveUniform',args);
-    var tmp = result.split(',');
-    return {
-        type: tmp[0],
-        name: tmp[1]
-    };
-}
-
-GContextWebGL.prototype.getActiveAttrib = function(id, index){
-    var args = id + ',' + index;
-    var result = GBridge.exeSyncCmd('getActiveAttrib',args);
-    var tmp = result.split(',');
-    return {
-        type: tmp[0],
-        name: tmp[1]
-    };
-}
-
-GContextWebGL.prototype.scissor = function(x, y, w, h) {
-    this._drawCommands += (this.scissorId + x + "," + y + ","
-    + w+ "," + h + ";");
+GContextWebGL.prototype.getShaderPrecisionFormat = function(shaderType, precisionType){
+    var cmd = (this.getShaderPrecisionFormatId + shaderType + "," + precisionType + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
-
-
-GContextWebGL.prototype.getShaderPrecisionFormat = function(shader, pname){
+// GContextWebGL.prototype.getShaderPrecisionFormat = function(shader, pname){
     //var ret = new GWebGLShaderPrecisionFormat();
     //ret.range = 127;
     //ret.precision = 23;
@@ -992,94 +1036,240 @@ GContextWebGL.prototype.getShaderPrecisionFormat = function(shader, pname){
     //}
     //
     //return ret;
+// };
+
+GContextWebGL.prototype.getShaderSource = function(shader){
+    var cmd = (this.getShaderSourceId + shader + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new return array
+GContextWebGL.prototype.getSupportedExtensions = function(){
+    var cmd = (this.getSupportedExtensionsId + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.getTexParameter = function(target, pname){
+    var cmd = (this.getTexParameterId + target + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.getUniform = function(program, location){
+    var cmd = (this.getUniformId + program + "," + location + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.getUniformLocation = function(program, name) {
+    var cmd = (this.getUniformLocationId + program + "," + name + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
 
-    var key = program.id + ":" + name;
-    var index = GUniformLocation.mapKey.indexOf(key);
-    if (index > -1){
-        //GLog.d("[getUniformLocation] " + key + "=" + GUniformLocation.mapVal[index].id);
-        return GUniformLocation.mapVal[index];
-    }
+GContextWebGL.prototype.getVertexAttrib = function(index, pname) {
+    var cmd = (this.getVertexAttribId + index + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
 
-    var uniform = new GUniformLocation();
-    this._drawCommands += (this.getUniformLocationId + program.id + "," + name + "," + uniform.id + ";");
+GContextWebGL.prototype.getVertexAttribOffset = function(index, pname) {
+    var cmd = (this.getVertexAttribOffsetId + index + "," + pname + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
 
-    GUniformLocation.mapKey.push(key);
-    GUniformLocation.mapVal.push(uniform);
-    //GLog.d("[getUniformLocation] " + key + "=" + uniform.id);
-    return uniform;
+//new
+GContextWebGL.prototype.isBufferId = function(buffer) {
+    var cmd = (this.isBufferId + buffer + ";");
+    return WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.isContextLost = function(){
-    return false;
+    var cmd = (this.isContextLostId + ";");
+    return WebGLCallNative(this.contextId, cmd);
+    // return false;
 };
+
+//new 
+GContextWebGL.prototype.isEnabled = function(cap) {
+    var cmd = (this.isEnabledId + cap + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new 
+GContextWebGL.prototype.isFramebufferId = function(framebuffer) {
+    var cmd = (this.isFramebufferId + framebuffer + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new 
+GContextWebGL.prototype.isShaderId = function(shader) {
+    var cmd = (this.isShaderId + shader + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
+//new 
+GContextWebGL.prototype.isTexture = function(texture) {
+    var cmd = (this.isTextureId + texture + ";");
+    return WebGLCallNative(this.contextId, cmd);
+};
+
 GContextWebGL.prototype.lineWidth = function(width){
-    this._drawCommands += (this.lineWidthId + width + ";");
+    var cmd = (this.lineWidthId + width + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.linkProgram = function(program){
-    this._drawCommands += (this.linkProgramId + program.id + ";");
+    var cmd = (this.linkProgramId + program + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.pixelStorei = function(pname, param){
-    if (true == param)
-        param = 1;
-    else if (false == param)
-        param = 0;
-    this._drawCommands += (this.pixelStoreiId + pname + "," + param + ";");
+    var cmd = (this.pixelStoreiId + pname + "," + param?1:0 + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.polygonOffset = function(factor, units){
+    var cmd = (this.polygonOffsetId + factor + "," + units + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.readPixels = function(x, y, width, height, format, type, pixels){
+    var cmd = (this.readPixelsId + x + "," + y + "," +  width + "," + height + "," + format + "," + type + ";");
+    var retPixels = WebGLCallNative(this.contextId, cmd);
+    //todo retPixels -> pixels
+    return pixels;
+};
+
+GContextWebGL.prototype.renderbufferStorage = function(target, internalformat, width, height){
+    var cmd = (this.renderbufferStorageId + target + "," + internalformat + "," + width + "," + height + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.sampleCoverage = function(value, invert){
+    var cmd = (this.sampleCoverageId + value + "," + invert + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+GContextWebGL.prototype.scissor = function(x, y, width, height) {
+    var cmd = (this.scissorId + x + "," + y + "," + width + "," + height + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.shaderSource = function(shader, source){
-    this._drawCommands += (this.shaderSourceId + shader.id + "," + btoa(source) + ";");
+    var cmd = (this.shaderSourceId + shader + "," + btoa(source) + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
-
-
-GContextWebGL.prototype.renderbufferStorage = function(target, internalformat, width, height){
-    this._drawCommands += (this.renderbufferStorageId + target + "," + internalformat + "," + width + "," + height + ";");
+//new
+GContextWebGL.prototype.stencilFunc = function(func, ref, mask){
+    var cmd = (this.stencilFuncId + func + "," + ref + "," + mask + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
+//new
+GContextWebGL.prototype.stencilFuncSeparate = function(face, func, ref, mask){
+    var cmd = (this.stencilFuncId + face + "," + func + "," + ref + "," + mask + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
 
+//new
+GContextWebGL.prototype.stencilMask = function(mask){
+    var cmd = (this.stencilMaskId + mask + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
 
+//new
+GContextWebGL.prototype.stencilMaskSeparate = function(face, mask){
+    var cmd = (this.stencilMaskId + face + "," + mask + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.stencilOp = function(fail, zfail, zpass){
+    var cmd = (this.stencilOpId + fail + "," + zfail + "," + zpass + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
+//new
+GContextWebGL.prototype.stencilOpSeparate = function(face, fail, zfail, zpass){
+    var cmd = (this.stencilOpId + face + "," + fail + "," + zfail + "," + zpass + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
 
 //texImage2D(webgl.TEXTURE_2D, 0, webgl.RGB, webgl.RGB, webgl.UNSIGNED_BYTE, img);
 //WebGLRenderingContext.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 //texImage2D( _gl.TEXTURE_2D, 0, _gl.RGB, 16, 16, 0, _gl.RGB, _gl.UNSIGNED_BYTE, null );
 GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
     var argc = arguments.length;
-    //GLog.d("[texImage2D]arguments.length=" + argc);
+    if (6 == argc)
+    {
+        var format = arguments[3];
+        var type = arguments[4]
+        var imageData = arguments[5];
+        //todo imageData is (ImageData/HTMLImageElement/HTMLCanvasElement/HTMLVideoElement/ImageBitmap)
+        var cmd =  (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," + 
+                    format + "," + type + "," + imgData + ";");
+        WebGLCallNative(this.contextId, cmd);
+    }
+    else if (9 == argc)
+    {
+        var width = arguments[3];
+        var height = arguments[4]
+        var border = arguments[5];
+        var format = arguments[6];
+        var type = arguments[7];
+        var array = arguments[8]
 
-    if (6==argc){
-        var image = arguments[5];
-        var imgData;
-        // if (image instanceof HTMLCanvasElement){
-        //     imgData = image.toDataURL("image/jpeg");
-        // }else{
-            imgData = image.src;
-        // }
-        this._drawCommands += (this.texImage2DId + argc + "," + target + "," + level
-        + "," + internalformat + "," + arguments[3] + "," + arguments[4]
-        + "," + imgData + ";");
-        GLog.d("[texImage2D] finish..." + imgData.length);
-    }else if (9==argc){
-        var image = arguments[5];
-        this._drawCommands += (this.texImage2DId + argc + "," + target + "," + level
-        + "," + internalformat + "," + arguments[3] + "," + arguments[4]
-        + "," + arguments[5] + "," + arguments[6] + "," + arguments[7]
-        + "," + arguments[8] + ";");
+        var cmd = (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," + 
+                   width + "," + height + "," + border + "," + format + "," + type + "," + 
+                   array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+        WebGLCallNative(this.contextId, cmd);
     }
 };
 
+//new
+GContextWebGL.prototype.texParameterf = function(target, pname, param){
+    var cmd = (this.texParameterfId + target + "," + pname + "," + param + ";");
+    WebGLCallNative(this.contextId, cmd);
+};
+
 GContextWebGL.prototype.texParameteri = function(target, pname, param){
-    this._drawCommands += (this.texParameteriId + target + "," + pname + "," + param + ";");
+    var cmd = (this.texParameteriId + target + "," + pname + "," + param + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
+//new
+// void gl.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, ArrayBufferView? pixels);
+// void gl.texSubImage2D(target, level, xoffset, yoffset, format, type, ImageData? pixels);
+GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset){
+    var argc = arguments.length;
+    if( argc == 7 )
+    {
+        var format = arguments[4];
+        var type = arguments[5];
+        var imageData = arguments[6];
 
-GContextWebGL.prototype.uniform1f = function(location, value){
-    this._drawCommands += (this.uniform1fId + location.id + "," + value + ";");
-};
+        //TODO imageData
+        var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
+                    yoffset + "," + type + "," + imgData + ";");
+        WebGLCallNative(this.contextId, cmd);
+    }
+    else if( argc == 9)
+    {
+        var width = arguments[4];
+        var height = arguments[5];
+        var format = arguments[6];
+        var type = arguments[7];
+        var array = arguments[8];
+
+        var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," +  yoffset + "," + 
+                    width + "," + height + "," + format + "," + type + "," + GarrToBase64(array) + ";");
+        WebGLCallNative(this.contextId, cmd);
+    }
+}
+
 
 function trans2ArrayType(type, ar){
     if (ar instanceof type)
@@ -1097,87 +1287,97 @@ GContextWebGL.prototype.uniformXXv = function(id, value, type, cmd){
         return;
 
     value = trans2ArrayType(type, value);
-    this._drawCommands += (cmd + id + ","
+    var cmd = (cmd + id + ","
     + GarrToBase64(value) + ";");
 };
 
 GContextWebGL.prototype.uniform1f = function(location, value){
-    this._drawCommands += (this.uniform1fId  + location.id + "," + value + ";");
+    var cmd = (this.uniform1fId  + location + "," + value + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform1fv = function(location, value){
-    this.uniformXXv(location.id, value, Float32Array, this.uniform1fvId );
+    this.uniformXXv(location, value, Float32Array, this.uniform1fvId );
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform1i = function(location, value){
-    if (true == value)
-        value= 1;
-    else if (false == value)
-        value = 0;
-    this._drawCommands += (this.uniform1iId + location.id + "," + value + ";");
+    var cmd = (this.uniform1iId + location+ "," + value?1:0 + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform1iv = function(location, value){
-    this.uniformXXv(location.id, value, Int32Array, this.uniform1ivId );
+    this.uniformXXv(location, value, Int32Array, this.uniform1ivId );
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform2f = function(location, x, y){
-    this._drawCommands += (this.uniform2fId  + location.id + "," + x + "," + y + ";");
+    var cmd = (this.uniform2fId  + location + "," + x + "," + y + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform2fv = function(location, value){
-    this.uniformXXv(location.id, value, Float32Array, this.uniform2fvId);
+    this.uniformXXv(location, value, Float32Array, this.uniform2fvId);
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform2i = function(location, x, y){
-    this._drawCommands += (this.uniform2iId + location.id + "," + x + "," + y + ";");
+    var cmd = (this.uniform2iId + location + "," + x + "," + y + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform2iv = function(location, value){
-    this.uniformXXv(location.id, value, Int32Array, this.uniform2ivId );
+    this.uniformXXv(location, value, Int32Array, this.uniform2ivId );
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform3f = function(location, x, y, z){
-    this._drawCommands += (this.uniform3fId + location.id + "," + x + "," + y + "," + z + ";");
+    var cmd = (this.uniform3fId + location + "," + x + "," + y + "," + z + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform3fv = function(location, value){
-    this.uniformXXv(location.id, value, Float32Array, this.uniform3fvId);
+    this.uniformXXv(location, value, Float32Array, this.uniform3fvId);
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform3i = function(location, x, y, z){
-    this._drawCommands += (this.uniform3iId + location.id + "," + x + "," + y + "," + z + ";");
+    var cmd = (this.uniform3iId + location + "," + x + "," + y + "," + z + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform3iv = function(location, value){
-    this.uniformXXv(location.id, value, Int32Array, this.uniform3ivId );
+    this.uniformXXv(location, value, Int32Array, this.uniform3ivId );
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform4f = function(location, x, y, z, w){
-    this._drawCommands += (this.uniform4fId + location.id + "," + x + "," + y + "," + z + "," + w + ";");
+    var cmd = (this.uniform4fId + location + "," + x + "," + y + "," + z + "," + w + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform4fv = function(location, value){
-    this.uniformXXv(location.id, value, Float32Array, this.uniform4fvId);
+    this.uniformXXv(location, value, Float32Array, this.uniform4fvId);
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform4i = function(location, x, y, z, w){
-    this._drawCommands += (this.uniform4iId + location.id + "," + x + "," + y + "," + z + "," + w + ";");
+    var cmd = (this.uniform4iId + location + "," + x + "," + y + "," + z + "," + w + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.uniform4iv = function(location, value){
-    this.uniformXXv(location.id, value, Int32Array, this.uniform4ivId );
+    this.uniformXXv(location, value, Int32Array, this.uniform4ivId );
+    WebGLCallNative(this.contextId, cmd);
 };
-
-
 
 GContextWebGL.prototype.uniformMatrixXfv = function(location, transpose, value, apiId){
     if (value.length == 0)
         return;
-    this._drawCommands += (apiId + location.id + "," + (transpose?1:0));
-    this._drawCommands += "," + GarrToBase64(value) + (";");
+    var cmd = (apiId + location + "," + (transpose?1:0));
+    var cmd = "," + GarrToBase64(value) + (";");
+    WebGLCallNative(this.contextId, cmd);
 };
-
 
 GContextWebGL.prototype.uniformMatrix2fv = function(location, transpose, value){
     this.uniformMatrixXfv(location, transpose, value, this.uniformMatrix2fvId);
@@ -1191,50 +1391,57 @@ GContextWebGL.prototype.uniformMatrix4fv = function(location, transpose, value){
     this.uniformMatrixXfv(location, transpose, value, this.uniformMatrix4fvId);
 };
 
-
 GContextWebGL.prototype.useProgram = function(program){
-    this._drawCommands += (this.useProgramId + program.id + ";");
+    var cmd = (this.useProgramId + program + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.validateProgram = function(program){
-    // TODO:
+    var cmd = (this.validateProgramId + program + ";");
+    WebGLCallNative(this.contextId, cmd);
 };
 
 GContextWebGL.prototype.vertexAttrib2fv = function(index, value){
-    this._drawCommands += this.vertexAttrib2fvId + index;
+    var cmd = this.vertexAttrib2fvId + index;
     for (var i = 0; i < value.length; i++) {
-        this._drawCommands += ",";
-        this._drawCommands += value[i].toFixed(3);
+        cmd += ",";
+        cmd += value[i].toFixed(3);
     }
+    cmd += ";";
+    WebGLCallNative(this.contextId, cmd);    
 };
 
 GContextWebGL.prototype.vertexAttribPointer = function(index, size, type, normalized, stride, offset){
-    this._drawCommands += (this.vertexAttribPointerId + index + "," + size + ","
-    + type + "," + (normalized?1:0) + "," + stride + "," + offset + ";");
+    var cmd = (this.vertexAttribPointerId + index + "," + size + ","+ type + "," + (normalized?1:0) + "," + 
+                stride + "," + offset + ";");
+    WebGLCallNative(this.contextId, cmd);    
+};
+
+GContextWebGL.prototype.viewport = function(x, y, width, height) {
+    var cmd = (this.viewportId + x + "," + y + ","+ width + "," + height + ";");
+    WebGLCallNative(this.contextId, cmd);    
 };
 
 
-GContextWebGL.prototype.viewport = function(x, y, w, h) {
-    this._drawCommands += (this.viewportId + x + "," + y + ","
-    + w+ "," + h + ";");
-};
 
-GContextWebGL.prototype.getString = function(name) {
-    var args = name;
-    var result = GBridge.exeSyncCmd('getString',args);
-    return result;
-}
+////////////////////////////////////////////
+// WebGL Extension
+////////////////////////////////////////////
 //extension for OES_vertex_array_object
 GContextWebGL.prototype.bindVertexArrayOES = function(array) {
-    this._drawCommands += (this.bindVertexArrayOESId + array + ";");
+    var cmd = (this.bindVertexArrayOESId + array + ";");
 };
 
 GContextWebGL.prototype.deleteVertexArraysOES = function(size, arrayRef) {
-    this._drawCommands += (this.deleteVertexArraysOESId + size + "," + arrayRef + ";");
+    var cmd = (this.deleteVertexArraysOESId + size + "," + arrayRef + ";");
 };
 
 GContextWebGL.prototype.genVertexArraysOES = function(size, arrayRef) {
-    this._drawCommands += (this.genVertexArraysOESId + size + "," + arrayRef + ";");
+    // var cmd = (this.genVertexArraysOESId + size + "," + arrayRef + ";");
+
+    var type;
+    var args = (this.genVertexArraysOESId + size + "," + arrayRef + ";");
+    GCanvasCallNative(this.contextId, type, args);
 };
 
 GContextWebGL.prototype.isVertexArrayOES = function(array) {
@@ -1242,24 +1449,6 @@ GContextWebGL.prototype.isVertexArrayOES = function(array) {
     var result = GBridge.exeSyncCmd('isVertexArrayOES',args);
     return result;
 };
-
-//function autoInjectMetaViewport(){
-//    var metas = document.getElementsByTagName("meta");
-//    for (var i_matas = 0; i_matas < metas.length; ++i_matas) {
-//        var meta_name = metas[i_matas].getAttribute("name");
-//        if (meta_name == "viewport") {
-//            return;
-//        }
-//    }
-//    var injectMeta = "<meta n" + "ame='viewport' content='width=device-width, initial-scale=1.0' />"
-//    GLog.d("[autoInjectMetaViewport] injectMeta:" + injectMeta);
-//    document.write(injectMeta);
-//};
-//
-//autoInjectMetaViewport();
-
-
-
 
 
 
