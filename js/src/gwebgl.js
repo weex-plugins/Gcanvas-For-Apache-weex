@@ -563,6 +563,18 @@ function Gbase64ToArr(base64)
     // }
     // return bytes.buffer;
 }
+
+//////////////////////////////////////////////////////////////////////////
+//                        GWebGLActiveInfos
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGLActiveInfos
+//////////////////////////////////////////////////////////////////////////
+function GWebGLActiveInfo(){
+    this.name;
+    this.size;
+    this.type;
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 
@@ -706,7 +718,6 @@ GContextWebGL.prototype.compressedTexSubImage2D = function(target, level, xoffse
     WebGLCallNative(this.contextId, cmd);
 }
 
-//new
 GContextWebGL.prototype.copyTexImage2D = function(target, level, internalformat, x, y, width, height, border){
     var cmd = (this.copyTexImage2DId + target + "," + level + "," + internalformat + ","  + x + "," + y + "," + 
              width + "," + height + "," + border + ";");
@@ -864,21 +875,28 @@ GContextWebGL.prototype.generateMipmap = function(target){
 //new
 GContextWebGL.prototype.getActiveAttrib= function(program, index){
     var cmd = (this.getActiveAttribId + program +  "," + index +  ";");
-    return WebGLCallNative(this.contextId, cmd);
+    var result = WebGLCallNative(this.contextId, cmd);
+    //TODO convert result -> GWebGLActiveInfo    
+    var activeInfo;
+    return activeInfo;
 };
 
 GContextWebGL.prototype.getActiveUniform= function(program, index){
     var cmd = (this.getActiveUniformId + program +  "," + index +  ";");
-    return WebGLCallNative(this.contextId, cmd);
+    var result = WebGLCallNative(this.contextId, cmd);
+    //TODO convert result -> GWebGLActiveInfo    
+    var activeInfo;
+    return activeInfo;
 };
 
 //new
-GContextWebGL.prototype.getAttachedShaders= function(program){
+GContextWebGL.prototype.getAttachedShaders = function(program){
     var cmd = (this.getAttachedShadersId + program + ";");
+    //TODO return array
     return WebGLCallNative(this.contextId, cmd);
 };
 
-GContextWebGL.prototype.getAttribLocation   = function(program, index) {
+GContextWebGL.prototype.getAttribLocation = function(program, index) {
     var cmd = (this.getAttribLocationId + program + "," + index + ";");
     return WebGLCallNative(this.contextId, cmd);
 };
