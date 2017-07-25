@@ -28,6 +28,7 @@
             
             gl.viewport(0, 0, 750, 750);
 
+            
             var vertexShader = gl.createShader(gl.VERTEX_SHADER);
             gl.shaderSource(vertexShader, vertexShaderStr);
             gl.compileShader(vertexShader);
@@ -37,7 +38,7 @@
             //     gl.deleteShader(vertexShader);
             //     return;
             // }
-             
+            
             var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
             gl.shaderSource(fragmentShader, fragmentShaderStr);
             gl.compileShader(fragmentShader);

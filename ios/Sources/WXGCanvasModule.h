@@ -22,4 +22,6 @@
 
 @interface WXGCanvasModule : NSObject <WXModuleProtocol>
 
++(id)excuteCallNative:(NSDictionary*)dict;
+
 @end

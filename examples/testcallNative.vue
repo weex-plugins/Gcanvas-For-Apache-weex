@@ -13,8 +13,10 @@
 			var ref = this.$refs.canvas_holder;
 			var gcanvas = GCanvas.start(ref);
 
-			var ctx = gcanvas.getContext('2d');
-			callNative("abc", [1,2,3], "args");
+			var ctx = gcanvas.getContext('webgl');
+			// callNative("abc", [1,2,3], "args");
+
+			extendCallNative({"key":12, "args":"args"});
 		}
 	};
 </script>
