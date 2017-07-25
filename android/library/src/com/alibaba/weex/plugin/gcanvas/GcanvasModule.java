@@ -237,6 +237,7 @@ import org.json.JSONObject;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -254,6 +255,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     private static final String CMD_SET_CONTEXT_TYPE = "setContextType";
     private static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
     private static final String CMD_SET_DEVICE_PIXEL = "setDevicePixelRatio";
+    private static final String CMD_RESET = "reset";
 
     private HashMap<String, GComponentDelegate> mComponentMappings = new HashMap<>(1);
 
@@ -271,6 +273,16 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             return;
         }
         this.execGCanvasCMD(refId, CMD_BIND_TEXTURE, src, callback);
+    }
+
+    @JSMethod
+    public void resetComponent(String refId) {
+        Iterator iter = mComponentMappings.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            GComponentDelegate delegate = (GComponentDelegate) entry.getValue();
+            delegate.isDirty = true;
+        }
     }
 
     @JSMethod
@@ -323,11 +335,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
     @JSMethod
     public void registerRetachFunction(String refId, JSCallback callback) {
-        GComponentDelegate mWXGCanvasCompMapping = mComponentMappings.get(refId);
+//        GComponentDelegate mWXGCanvasCompMapping = mComponentMappings.get(refId);
 
-        if (null != mWXGCanvasCompMapping && null != mWXGCanvasCompMapping.gcanvasComponent) {
-            mWXGCanvasCompMapping.gcanvasComponent.setReattachJSCallback(callback);
-        }
+//        if (null != mWXGCanvasCompMapping && null != mWXGCanvasCompMapping.gcanvasComponent) {
+//            mWXGCanvasCompMapping.gcanvasComponent.setReattachJSCallback(callback);
+//        }
     }
 
 
@@ -473,11 +485,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     public void render(String cmd, String refId, JSCallback callBack) {
         if (!TextUtils.isEmpty(cmd) && !TextUtils.isEmpty(refId)) {
             GComponentDelegate delegate = mComponentMappings.get(refId);
-            if ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
+            if ((null == delegate || (!delegate.isEnabled.get() && !delegate.isDestroyed())) && !mIsDestroyed.get()) {
                 try {
                     long waitGap = 16;
                     synchronized (mLock) {
-                        while ((null == delegate || delegate.gcanvasComponent == null || !delegate.gcanvasComponent.isGCanvasViewPrepared()) && !mIsDestroyed.get()) {
+                        while ((null == delegate || (!delegate.isEnabled.get() && !delegate.isDestroyed())) && !mIsDestroyed.get()) {
                             mLock.wait(waitGap);
                             delegate = mComponentMappings.get(refId);
                             if (null != delegate && delegate.isDestroyed()) {
@@ -489,7 +501,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                     GLog.e(TAG, "error when render " + refId, throwable);
                 }
             }
-            if (null != delegate) {
+            if (null != delegate && !mIsDestroyed.get()) {
+                if (delegate.isDirty) {
+                    delegate.executeCmdImpl(CMD_RESET, null, null);
+                    delegate.isDirty = false;
+                }
                 delegate.render(cmd);
             }
         }
@@ -583,9 +599,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         mComponentMappings.clear();
         mUIHandler.removeCallbacksAndMessages(null);
         mIsDestroyed.set(true);
-        synchronized (mLock) {
-            mLock.notifyAll();
-        }
     }
 
     @Override
@@ -599,27 +612,28 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     }
 
     @Override
+    public void onGCanvasViewReattached(WXGcanvasComponent component, GCanvasView canvasView) {
+        if (mIsDestroyed.get()) {
+            return;
+        }
+
+        GComponentDelegate delegate = mComponentMappings.get(component.getRef());
+
+        if (null == delegate) {
+            return;
+        }
+
+        if (delegate.isDestroyed()) {
+            return;
+        }
+
+        if (component.isGCanvasViewPrepared()) {
+            delegate.executeCmdImpl(CMD_SET_CONTEXT_TYPE, delegate.contextType, null);
+        }
+    }
+
+    @Override
     public void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-//        if (mIsDestroyed.get()) {
-//            return;
-//        }
-//
-//        GComponentDelegate delegate = mComponentMappings.get(component.getRef());
-//
-//        if (null == delegate) {
-//            return;
-//        }
-//
-//        if (delegate.isDestroyed()) {
-//            return;
-//        }
-//
-//        if (component.isGCanvasViewPrepared()) {
-//            try {
-//                delegate.render(delegate.lastCmd);
-//            } catch (Throwable e) {
-//            }
-//        }
     }
 
     @Override
@@ -627,7 +641,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         GLog.d(TAG, "onGCanvasViewDetachedFromWindow");
         mUIHandler.removeCallbacksAndMessages(null);
         // 清除texture map, 保障在重新attach图片重新加载
-
     }
 
     static class CommandCache {
@@ -653,6 +666,8 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         CommandCacheRunner cacheRunner;
         HashMap<String, ArrayList<JSCallback>> mBindCallbacks = new HashMap<>();
         AtomicBoolean isEnabled = new AtomicBoolean(false);
+        String contextType;
+        boolean isDirty = false;
 
         GComponentDelegate(GcanvasModule module, WXGcanvasComponent component) {
             this.canvasModule = module;
@@ -679,6 +694,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             commandCaches.clear();
             sIdCounter = 0;
             sPicToTextureMap.clear();
+            isEnabled.set(false);
             synchronized (this) {
                 mBindCallbacks.clear();
             }
@@ -728,24 +744,6 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 return "";
             }
 
-//            if (!gcanvasComponent.getCurrentState().isReady()) {
-//                cacheRenderCmds.addIfAbsent(cmd);
-//                return "";
-//            }
-
-
-            while (!gcanvasComponent.getCurrentState().isReady() && !gcanvasComponent.getCurrentState().isDestroyed() && !isEnabled.get()) {
-                synchronized (this) {
-                    try {
-                        wait(16);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    }
-                }
-            }
-
-
             return gcanvasComponent.getGCanvas().executeSyncCmd(cmd, args);
         }
 
@@ -756,20 +754,13 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             }
 
 
-            while (!gcanvasComponent.getCurrentState().isReady() && !gcanvasComponent.getCurrentState().isDestroyed() && !isEnabled.get()) {
-                synchronized (this) {
-                    try {
-                        wait(16);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        break;
-                    }
-                }
+            if (gcanvasComponent.getCurrentState().isDestroyed()) {
+                GLog.i(TAG, "destroyed! abandon render cmd = " + cmd);
+                return;
             }
 
-
-            if (gcanvasComponent.getCurrentState().isDestroyed()) {
-                GLog.i(TAG, "destroyed! abandon cmd = " + cmd);
+            if (!isEnabled.get()) {
+                GLog.i(TAG, "not enable! abandon render cmd = " + cmd);
                 return;
             }
 
@@ -784,10 +775,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             替换后
             ["d0,0,0,105,165,100,250,210,330;"]
             */
-
-
             try {
-                GLog.i(TAG, "execute render. id = " + gcanvasComponent.getRef() + ", cmd = " + cmd + ", isReady ==> " + (gcanvasComponent.getCurrentState().isReady()));
                 gcanvasComponent.getGCanvas().executeRender(CMD_RENDER, cmd, null);
             } catch (Throwable e) {
             }
@@ -851,6 +839,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
                 try {
                     JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_CONTEXT_TYPE, "[" + args + "]");
+                    contextType = args;
                     fastCanvas.executeForWeex(CMD_SET_CONTEXT_TYPE, ja, null);
                 } catch (Exception e) {
                     GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
@@ -887,6 +876,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             } else if (cmd.equals(CMD_SET_DEVICE_PIXEL)) {
                 try {
                     fastCanvas.executeForWeex(CMD_SET_DEVICE_PIXEL, GCanvasHelper.argsToJsonArrary(CMD_SET_DEVICE_PIXEL, "[" + args + "]"), null);
+                } catch (Throwable e) {
+                }
+            } else if (cmd.equals(CMD_RESET)) {
+                try {
+                    fastCanvas.executeForWeex(CMD_RESET, null, null);
                 } catch (Throwable e) {
                 }
             }

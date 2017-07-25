@@ -112,6 +112,8 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
         void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView);
 
         void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView);
+
+        void onGCanvasViewReattached(WXGcanvasComponent component, GCanvasView canvasView);
     }
 }
 

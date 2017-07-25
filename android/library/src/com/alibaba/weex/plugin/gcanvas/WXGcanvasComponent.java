@@ -9,7 +9,6 @@ import android.widget.FrameLayout;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasView;
-import com.taobao.gcanvas.GLog;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
 import com.taobao.weex.bridge.JSCallback;
@@ -42,8 +41,11 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
     private String mContextType = "2d";
 
+    private String mTransparency = "opaque";
+
     public static class PropName {
         public static final String ContextType = "context-type";
+        public static final String Transparency = "Transparency";
     }
 
     public GCanvasView.GCanvasConfig getCanvasConfig() {
@@ -68,14 +70,21 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         mContextType = type;
     }
 
+    @WXComponentProp(name = PropName.Transparency)
+    public void setTransparency(String transparency){
+        mTransparency = transparency;
+    }
+
+
     @Override
     protected boolean setProperty(String key, Object param) {
         switch (key) {
             case PropName.ContextType:
-                String contextType = WXUtils.getString(param, null);
-                if (contextType != null) {
-                    setContextType(contextType);
-                }
+                setContextType(WXUtils.getString(param, "2d"));
+                return true;
+
+            case PropName.Transparency:
+                setTransparency(WXUtils.getString(param, "opaque"));
                 return true;
         }
         return super.setProperty(key, param);
@@ -142,8 +151,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         if (!TextUtils.isEmpty(backgroundColor)) {
             mCanvas.config.clearColor = backgroundColor;
         }
-
-        GLog.setLevel("debug");
 
         mContainer = new FrameLayout(context);
         mSurfaceView = new WXGCanvasGLSurfaceView(this, mCanvas, context);
@@ -213,7 +220,15 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         }
 
         @Override
+        public void onGCanvasViewReattached(WXGcanvasComponent component, GCanvasView canvasView) {
+
+        }
+
+        @Override
         public void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView) {
+            if (null != mDelegateListener) {
+                mDelegateListener.onGCanvasViewAttachToWindow(component, canvasView);
+            }
             if (mIsDetached) {
                 Context context = mContainer.getContext();
 
@@ -248,7 +263,7 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
                 mIsDetached = false;
                 if (null != mDelegateListener) {
-                    mDelegateListener.onGCanvasViewAttachToWindow(component, canvasView);
+                    mDelegateListener.onGCanvasViewReattached(component, canvasView);
                 }
             }
         }
@@ -280,7 +295,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
             this.mDestroyCount = 0;
             this.mReadyCount = 0;
             this.mFirstReadyTime = 0;
-            GLog.i("GcanvasModule", "clear");
         }
 
         public synchronized void ready() {
@@ -288,12 +302,10 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
             if (mFirstReadyTime == 0) {
                 mFirstReadyTime = System.currentTimeMillis();
             }
-            GLog.i("GcanvasModule", "ready ==> mReadyCount = " + mReadyCount + ", mDestroyCount = " + mDestroyCount);
         }
 
         public synchronized void destroy() {
             this.mDestroyCount++;
-            GLog.i("GcanvasModule", "destroy ==> mDestroyCount = " + mDestroyCount + "mReadyCount = " + mReadyCount);
         }
 
         public synchronized boolean isReady() {
