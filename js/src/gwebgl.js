@@ -1012,15 +1012,14 @@ GContextWebGL.prototype.getVertexAttribOffset = function(index, pname) {
 };
 
 //new
-GContextWebGL.prototype.isBufferId = function(buffer) {
+GContextWebGL.prototype.isBuffer = function(buffer) {
     var cmd = (this.isBufferId + buffer + ";");
     return WebGLCallNative(this.componentId, cmd);
 };
 
+//OpenGL ES not support
 GContextWebGL.prototype.isContextLost = function(){
-    var cmd = (this.isContextLostId + ";");
-    return WebGLCallNative(this.componentId, cmd);
-    // return false;
+    return false;
 };
 
 //new 
@@ -1030,13 +1029,13 @@ GContextWebGL.prototype.isEnabled = function(cap) {
 };
 
 //new 
-GContextWebGL.prototype.isFramebufferId = function(framebuffer) {
+GContextWebGL.prototype.isFramebuffer = function(framebuffer) {
     var cmd = (this.isFramebufferId + framebuffer + ";");
     return WebGLCallNative(this.componentId, cmd);
 };
 
 //new 
-GContextWebGL.prototype.isShaderId = function(shader) {
+GContextWebGL.prototype.isShader = function(shader) {
     var cmd = (this.isShaderId + shader + ";");
     return WebGLCallNative(this.componentId, cmd);
 };
@@ -1083,7 +1082,7 @@ GContextWebGL.prototype.renderbufferStorage = function(target, internalformat, w
 
 //new
 GContextWebGL.prototype.sampleCoverage = function(value, invert){
-    var cmd = (this.sampleCoverageId + value + "," + invert + ";");
+    var cmd = (this.sampleCoverageId + value + "," + invert?1:0 + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1105,7 +1104,7 @@ GContextWebGL.prototype.stencilFunc = function(func, ref, mask){
 
 //new
 GContextWebGL.prototype.stencilFuncSeparate = function(face, func, ref, mask){
-    var cmd = (this.stencilFuncId + face + "," + func + "," + ref + "," + mask + ";");
+    var cmd = (this.stencilFuncSeparateId + face + "," + func + "," + ref + "," + mask + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1222,8 +1221,7 @@ GContextWebGL.prototype.uniformXXv = function(id, value, type, cmd){
         return;
 
     value = trans2ArrayType(type, value);
-    var cmd = (cmd + id + ","
-    + GarrToBase64(value) + ";");
+    var cmd = (cmd + id + "," + GarrToBase64(value) + ";");
 };
 
 GContextWebGL.prototype.uniform1f = function(location, value){
@@ -1309,8 +1307,7 @@ GContextWebGL.prototype.uniform4iv = function(location, value){
 GContextWebGL.prototype.uniformMatrixXfv = function(location, transpose, value, apiId){
     if (value.length == 0)
         return;
-    var cmd = (apiId + location + "," + (transpose?1:0));
-    var cmd = "," + GarrToBase64(value) + (";");
+    var cmd = (apiId + location + "," + (transpose?1:0)) + "," + GarrToBase64(value) + (";");
     WebGLCallNative(this.componentId, cmd);
 };
 
