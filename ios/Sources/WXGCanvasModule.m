@@ -541,6 +541,9 @@ static NSMutableDictionary *staticCompModuleMap;
         
         [module checkGCanvasAvailable:componentId];
         retDict = [module callGCanvasNative:dict];
+        
+        [component.glkview setNeedsDisplay];
+
         dispatch_semaphore_signal(_semaphore);
     });
     

@@ -1216,12 +1216,13 @@ function trans2ArrayType(type, ar){
     return f32ar;
 }
 
-GContextWebGL.prototype.uniformXXv = function(id, value, type, cmd){
+GContextWebGL.prototype.uniformXXv = function(id, value, type, cmdId){
     if (value.length == 0)
         return;
 
     value = trans2ArrayType(type, value);
-    var cmd = (cmd + id + "," + GarrToBase64(value) + ";");
+    var cmd = (cmdId + id + "," + GarrToBase64(value) + ";");
+    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform1f = function(location, value){
@@ -1231,7 +1232,6 @@ GContextWebGL.prototype.uniform1f = function(location, value){
 
 GContextWebGL.prototype.uniform1fv = function(location, value){
     this.uniformXXv(location, value, Float32Array, this.uniform1fvId );
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform1i = function(location, value){
@@ -1241,7 +1241,6 @@ GContextWebGL.prototype.uniform1i = function(location, value){
 
 GContextWebGL.prototype.uniform1iv = function(location, value){
     this.uniformXXv(location, value, Int32Array, this.uniform1ivId );
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform2f = function(location, x, y){
@@ -1251,7 +1250,6 @@ GContextWebGL.prototype.uniform2f = function(location, x, y){
 
 GContextWebGL.prototype.uniform2fv = function(location, value){
     this.uniformXXv(location, value, Float32Array, this.uniform2fvId);
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform2i = function(location, x, y){
@@ -1261,7 +1259,6 @@ GContextWebGL.prototype.uniform2i = function(location, x, y){
 
 GContextWebGL.prototype.uniform2iv = function(location, value){
     this.uniformXXv(location, value, Int32Array, this.uniform2ivId );
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform3f = function(location, x, y, z){
@@ -1271,7 +1268,6 @@ GContextWebGL.prototype.uniform3f = function(location, x, y, z){
 
 GContextWebGL.prototype.uniform3fv = function(location, value){
     this.uniformXXv(location, value, Float32Array, this.uniform3fvId);
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform3i = function(location, x, y, z){
@@ -1281,7 +1277,6 @@ GContextWebGL.prototype.uniform3i = function(location, x, y, z){
 
 GContextWebGL.prototype.uniform3iv = function(location, value){
     this.uniformXXv(location, value, Int32Array, this.uniform3ivId );
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform4f = function(location, x, y, z, w){
@@ -1291,7 +1286,6 @@ GContextWebGL.prototype.uniform4f = function(location, x, y, z, w){
 
 GContextWebGL.prototype.uniform4fv = function(location, value){
     this.uniformXXv(location, value, Float32Array, this.uniform4fvId);
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniform4i = function(location, x, y, z, w){
@@ -1301,7 +1295,6 @@ GContextWebGL.prototype.uniform4i = function(location, x, y, z, w){
 
 GContextWebGL.prototype.uniform4iv = function(location, value){
     this.uniformXXv(location, value, Int32Array, this.uniform4ivId );
-    WebGLCallNative(this.componentId, cmd);
 };
 
 GContextWebGL.prototype.uniformMatrixXfv = function(location, transpose, value, apiId){
@@ -1362,24 +1355,24 @@ GContextWebGL.prototype.viewport = function(x, y, width, height) {
 //extension for OES_vertex_array_object
 GContextWebGL.prototype.bindVertexArrayOES = function(array) {
     var cmd = (this.bindVertexArrayOESId + array + ";");
+    WebGLCallNative(this.componentId, cmd);    
 };
 
 GContextWebGL.prototype.deleteVertexArraysOES = function(size, arrayRef) {
     var cmd = (this.deleteVertexArraysOESId + size + "," + arrayRef + ";");
+    WebGLCallNative(this.componentId, cmd);    
 };
 
 GContextWebGL.prototype.genVertexArraysOES = function(size, arrayRef) {
     // var cmd = (this.genVertexArraysOESId + size + "," + arrayRef + ";");
 
-    var type;
     var args = (this.genVertexArraysOESId + size + "," + arrayRef + ";");
-    GCanvasCallNative(this.componentId, type, args);
+    WebGLCallNative(this.componentId, cmd);    
 };
 
 GContextWebGL.prototype.isVertexArrayOES = function(array) {
-    var args = array;
-    var result = GBridge.exeSyncCmd('isVertexArrayOES',args);
-    return result;
+    var cmd = (this.isVertexArrayOESId + array + ";")
+    return WebGLCallNative(this.componentId, cmd);    
 };
 
 
