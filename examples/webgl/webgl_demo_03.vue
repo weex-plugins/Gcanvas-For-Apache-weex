@@ -156,8 +156,6 @@
                 
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer);
                 gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
-                window.requestAnimationFrame(animate);
-
              }, 16);
 		}
 	};

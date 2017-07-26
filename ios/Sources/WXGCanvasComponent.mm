@@ -141,14 +141,10 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         glkview.backgroundColor = [UIColor clearColor];
         
         self.glkview  = glkview;
-        __weak typeof(self) weakSelf = self;
-//        dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, 0.1*NSEC_PER_SEC);
-//        dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-            [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasCompLoadedNotificationName
-                                                                object:nil
-                                                              userInfo:@{@"componentId":weakSelf.componentId}];
-//        });
+        [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasCompLoadedNotificationName
+                                                            object:nil
+                                                          userInfo:@{@"componentId":self.componentId}];
     }
     
     return self.glkview;

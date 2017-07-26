@@ -526,24 +526,20 @@ static NSMutableDictionary *staticCompModuleMap;
     WXGCanvasModule *module = [WXGCanvasModule getModuleByComponentId:componentId];
     if( !module ) return nil;
     
-    
     WXGCanvasComponent *component = [module gcanvasComponentById:componentId];
+    CFTimeInterval startTime = CACurrentMediaTime();
     while (!component.glkview)
     {
-        NSLog(@"waiting...");
+        CFTimeInterval current = CACurrentMediaTime();
+        if( current- startTime > 1 )  //1s超时退出
+            break;
         component = [module gcanvasComponentById:componentId];
     }
     
-    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
     __block NSDictionary *retDict;
-
+    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
     dispatch_async(dispatch_get_main_queue(), ^{
-        
-        [module checkGCanvasAvailable:componentId];
         retDict = [module callGCanvasNative:dict];
-        
-        [component.glkview setNeedsDisplay];
-
         dispatch_semaphore_signal(_semaphore);
     });
     
@@ -551,31 +547,22 @@ static NSMutableDictionary *staticCompModuleMap;
     return retDict;
 }
 
-- (void)checkGCanvasAvailable:(NSString*)componentId
+- (NSDictionary*)callGCanvasNative:(NSDictionary*)dict
 {
+    NSString *componentId = dict[@"contextId"];
+    NSUInteger type = [dict[@"type"] integerValue];
+    NSString *args = dict[@"args"];
     
-//    while (!component.glkview)
-//    {
-//        NSLog(@"waiting...");
-//    }
-//    while( !(component.isViewLoaded && self.weexInstance) )
-//    {
-//    }
-    
+    //componnet
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    GCanvasPlugin *plugin = self.pluginDict[componentId];
 
-    //设置当前的上线文EAGLContext
+    if( !component || !plugin ) return @{};
+    
     if (!component.gcanvasInitalized)
     {
-        
-        GCanvasPlugin *plugin = self.pluginDict[component.componentId];
-        if( !plugin )
-        {
-            return;
-        }
-        
         [EAGLContext setCurrentContext:component.glkview.context];
-
+        
         //设置gcanvas像素比率
         self.devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
         [plugin setDevicePixelRatio:self.devicePixelRatio];
@@ -588,37 +575,32 @@ static NSMutableDictionary *staticCompModuleMap;
                                          compFrame.size.height*self.devicePixelRatio);
         [plugin setClearColor:component.glkview.backgroundColor];
         [plugin setFrame:gcanvasFrame];
-        
         component.gcanvasInitalized = YES;
     }
-}
-
-- (NSDictionary*)callGCanvasNative:(NSDictionary*)dict
-{
-    NSString *componentId = dict[@"contextId"];
-    NSUInteger type = [dict[@"type"] integerValue];
-    NSString *args = dict[@"args"];
     
+    //webgl command
     if( type >> 30 == 1 )   //webgl
     {
         BOOL isSync = type >> 29 & 0x01;
         if( isSync )
         {
-            GCanvasPlugin *plugin = self.pluginDict[componentId];
-            if (plugin)
+            //check command need display
+            NSString *cmd = dict[@"args"];
+            int cmdIdx = atoi(cmd.UTF8String);
+            if( cmdIdx == 45 || cmdIdx == 47 || cmdIdx == 51 )
             {
-                [plugin addCommands:args];
-                [plugin execCommands];
-                
-                NSString *ret = [plugin getSyncResult];
-                if( !ret )
-                {
-                    return @{};
-                }
-                return @{@"result":ret};
+                NSLog(@"SetNeedDisplay :%d", index);
+                [component.glkview setNeedsDisplay];
             }
+            
+            [plugin addCommands:args];
+            [plugin execCommands];
+            
+            NSString *ret = [plugin getSyncResult];
+            return ret ? @{@"result":ret} : @{};
         }
     }
+    return @{};
 }
 
 @end
