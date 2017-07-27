@@ -949,9 +949,33 @@ GContextWebGL.prototype.getFramebufferAttachmentParameter = function(target, att
     return WebGLCallNative(this.componentId, cmd);
 };
 
-GContextWebGL.prototype.getParameter = function(name) {
-    var cmd = (this.getParameterId + name + ";");
-    return WebGLCallNative(this.componentId, cmd);
+GContextWebGL.prototype.getParameter = function(pname) {
+    var cmd = (this.getParameterId + pname + ";");
+    var resultString = WebGLCallNative(this.componentId, cmd);
+
+    /*
+    kReturnBoolean = 1,
+    kReturnInt,
+    kReturnFloat,
+    kReturnIntArray,
+    kReturnFloatArray,
+    kReturnString
+    */
+    var resultArray = resultString.split(",");
+    switch( resultArray[0] )
+    {
+        case 1: return parseInt(resultArray[1]) == 1;
+        case 2: return parseInt(resultArray[1]);
+        case 3: return parseFloat(resultArray[1]);
+        case 4:
+        case 5:
+        {
+            var array = resultArray.subarray(1,-1);
+            return array;
+        }
+        case 6: return resultArray[1];
+        default: return nil;
+    }
 };
 
 GContextWebGL.prototype.getProgramInfoLog = function(program){
