@@ -589,12 +589,22 @@ function GWebGLActiveInfo(){
 function createGWebGLActiveInfoByString(infoString)
 {
 
-
 }
 
 //////////////////////////////////////////////////////////////////////////
+//                        GWebGLShaderPrecisionFormat
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGLShaderPrecisionFormat
+//////////////////////////////////////////////////////////////////////////
+function GWebGLShaderPrecisionFormat(){
+    this.rangeMin;
+    this.rangeMax;
+    this.precision;
+}
 
-
+//////////////////////////////////////////////////////////////////////////
+//                        GWebGLActiveInfos
+// https://developer.mozilla.org/en-US/docs/Web/API/WebGLActiveInfos
+//////////////////////////////////////////////////////////////////////////
 
 GContextWebGL.prototype.render = function() {
     var commands = this._drawCommands;
