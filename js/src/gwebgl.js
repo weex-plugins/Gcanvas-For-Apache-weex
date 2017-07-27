@@ -890,9 +890,6 @@ GContextWebGL.prototype.generateMipmap = function(target){
     WebGLCallNative(this.componentId, cmd);
 };
 
-
-function 
-
 //new
 GContextWebGL.prototype.getActiveAttrib= function(program, index){
     var cmd = (this.getActiveAttribId + program +  "," + index +  ";");
