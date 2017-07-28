@@ -1119,9 +1119,9 @@ GContextWebGL.prototype.polygonOffset = function(factor, units){
 //new
 GContextWebGL.prototype.readPixels = function(x, y, width, height, format, type, pixels){
     var cmd = (this.readPixelsId + x + "," + y + "," +  width + "," + height + "," + format + "," + type + ";");
-    var retPixels = WebGLCallNative(this.componentId, cmd);
-    //todo retPixels -> pixels
-    return pixels;
+    var pixelsString = WebGLCallNative(this.componentId, cmd);
+    var pixelsArray = retPixels.split(",");
+    return pixelsArray;
 };
 
 GContextWebGL.prototype.renderbufferStorage = function(target, internalformat, width, height){
