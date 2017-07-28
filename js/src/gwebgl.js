@@ -696,7 +696,6 @@ GContextWebGL.prototype.bufferSubData = function(target, offset, array){
 
 //new
 GContextWebGL.prototype.checkFramebufferStatus = function(target){
-    // return this.FRAMEBUFFER_COMPLETE;// TODO:
     var cmd = (this.checkFramebufferStatusId + target + ";");
     return WebGLCallNative(this.componentId, cmd);
 };
@@ -920,8 +919,9 @@ GContextWebGL.prototype.getActiveUniform= function(program, index){
 //new
 GContextWebGL.prototype.getAttachedShaders = function(program){
     var cmd = (this.getAttachedShadersId + program + ";");
-    //TODO return array
-    return WebGLCallNative(this.componentId, cmd);
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    var resultArray = resultString.split(",");
+    return resultArray;
 };
 
 GContextWebGL.prototype.getAttribLocation = function(program, name) {
@@ -937,8 +937,7 @@ GContextWebGL.prototype.getBufferParameter= function(target, pname){
 
 //new TODO OpenGL ES not Support
 GContextWebGL.prototype.getContextAttributes= function(){
-    var cmd = (this.getContextAttributesId + ";");
-    WebGLCallNative(this.componentId, cmd);
+    return null;
 };
 
 //new
@@ -1017,7 +1016,17 @@ GContextWebGL.prototype.getShaderParameter = function(shader, pname){
 //return range,precision
 GContextWebGL.prototype.getShaderPrecisionFormat = function(shaderType, precisionType){
     var cmd = (this.getShaderPrecisionFormatId + shaderType + "," + precisionType + ";");
-    return WebGLCallNative(this.componentId, cmd);
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    var resultArray = resultString.split(",");
+    if( resultArray.length == 3 )
+    {
+        var precisionFormat= new GWebGLShaderPrecisionFormat();
+        precisionFormat.rangeMin = resultArray[0];
+        precisionFormat.rangeMax = resultArray[1];
+        precisionFormat.precision = resultArray[2];
+        return precisionFormat;
+    }
+    return null; 
 };
 
 GContextWebGL.prototype.getShaderSource = function(shader){
@@ -1061,9 +1070,7 @@ GContextWebGL.prototype.getVertexAttribOffset = function(index, pname) {
 //new
 GContextWebGL.prototype.isBuffer = function(buffer) {
     var cmd = (this.isBufferId + buffer + ";");
-    var result = WebGLCallNative(this.componentId, cmd);
-    parseInt()
-    return 
+    return WebGLCallNative(this.componentId, cmd);
 };
 
 //OpenGL ES not support
@@ -1080,6 +1087,18 @@ GContextWebGL.prototype.isEnabled = function(cap) {
 //new 
 GContextWebGL.prototype.isFramebuffer = function(framebuffer) {
     var cmd = (this.isFramebufferId + framebuffer + ";");
+    return WebGLCallNative(this.componentId, cmd);
+};
+
+//new 
+GContextWebGL.prototype.isProgram = function(program) {
+    var cmd = (this.isProgramId + program + ";");
+    return WebGLCallNative(this.componentId, cmd);
+};
+
+//new 
+GContextWebGL.prototype.isRenderbuffer = function(renderbuffer) {
+    var cmd = (this.isRenderbufferId + renderbuffer + ";");
     return WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1464,7 +1483,6 @@ GContextWebGL.prototype.deleteVertexArraysOES = function(size, arrayRef) {
 
 GContextWebGL.prototype.genVertexArraysOES = function(size, arrayRef) {
     // var cmd = (this.genVertexArraysOESId + size + "," + arrayRef + ";");
-
     var args = (this.genVertexArraysOESId + size + "," + arrayRef + ";");
     WebGLCallNative(this.componentId, cmd);    
 };
