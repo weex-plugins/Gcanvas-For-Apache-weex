@@ -10,7 +10,7 @@ def common
 #    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex'
 #    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
     pod 'WeexSDK', :git=>'git@github.com:kfeagle/incubator-weex.git', :branch=>'ios-native-0.16-dev'
-    pod 'WXDevtool', '0.15.4'
+    pod 'WXDevtool', '0.15.2'
     pod 'SDWebImage', '3.7.5'
     pod 'SocketRocket', '0.4.2'
     pod 'ATSDK-Weex', '0.0.1'
