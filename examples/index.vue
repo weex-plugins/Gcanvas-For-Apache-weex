@@ -32,10 +32,11 @@
           {name: root + '/hilo2d/flappy_bird/flappy', title:'Hilo2d-FlappyBird'},
 
           //webgl
-          {name: root + '/webgl/webgl_demo_01', title:'WebGL-Demo-01'},
-          {name: root + '/webgl/webgl_demo_02', title:'WebGL-Demo-02'},
-          {name: root + '/webgl/webgl_demo_03', title:'WebGL-Demo-03'},
-          {name: root + '/webgl/webgl_demo_04', title:'WebGL-Demo-04'},
+          {name: root + '/webgl/01_webgl_triangle', title:'01-WebGL-Triangle'},
+          {name: root + '/webgl/02_webgl_gradient', title:'02-WebGL-Gradient'},
+          {name: root + '/webgl/03_webgl_rotation', title:'03-WebGL-Rotation'},
+          {name: root + '/webgl/04_webgl_cube', title:'04-WebGL-Cube'},
+          {name: root + '/webgl/05_webgl_triangle_texture', title:'05-WebGL-Triangle-Texture'},
           {name: root + '/webgl/06_webgl_texImage2D', title:'06-WebGL-texImage2D'}
 
         ]

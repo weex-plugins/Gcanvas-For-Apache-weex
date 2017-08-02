@@ -1,0 +1,143 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=gb2312">
+<script id="shader-vs" type="x-shader/x-vertex">
+attribute vec3 v3Position;
+varying vec2 v_texCoord;
+void main(void)
+{
+    v_texCoord = vec2((v3Position.x+1.0)/2.0, 1.0-(v3Position.y+1.0)/2.0);
+    gl_Position = vec4(v3Position, 1.0);
+}
+</script>
+
+<script id="shader-fs" type="x-shader/x-fragment">
+    precision mediump float;
+uniform sampler2D s_texture;
+varying vec2 v_texCoord;
+
+void main(void)
+{
+    gl_FragColor = texture2D(s_texture, v_texCoord);
+}
+</script>
+<script>
+
+function ShaderSourceFromScript(scriptID)
+{
+    var shaderScript = document.getElementById(scriptID);
+    if (shaderScript == null) return "";
+
+    var sourceCode = "";
+    var child = shaderScript.firstChild;
+    while (child)
+    {
+        if (child.nodeType == child.TEXT_NODE ) sourceCode += child.textContent;
+        child = child.nextSibling;
+    }
+
+    return sourceCode;
+}
+
+var webgl = null;
+var vertexShaderObject = null;
+var fragmentShaderObject = null;
+var programObject = null;
+var triangleBuffer = null; 
+var v3PositionIndex = 0;
+var textureObject = null;
+var samplerIndex = -1;
+
+function Init()
+{
+    var myCanvasObject = document.getElementById('myCanvas');
+    webgl = myCanvasObject.getContext("experimental-webgl");
+
+    webgl.viewport(0, 0, myCanvasObject.clientWidth, myCanvasObject.clientHeight);
+
+    vertexShaderObject = webgl.createShader(webgl.VERTEX_SHADER);
+    fragmentShaderObject = webgl.createShader(webgl.FRAGMENT_SHADER);
+
+    webgl.shaderSource(vertexShaderObject, ShaderSourceFromScript("shader-vs"));
+    webgl.shaderSource(fragmentShaderObject, ShaderSourceFromScript("shader-fs"));
+
+    webgl.compileShader(vertexShaderObject);
+    webgl.compileShader(fragmentShaderObject);
+
+    if(!webgl.getShaderParameter(vertexShaderObject, webgl.COMPILE_STATUS)){alert(webgl.getShaderInfoLog(vertexShaderObject));return;}
+    if(!webgl.getShaderParameter(fragmentShaderObject, webgl.COMPILE_STATUS)){alert(webgl.getShaderInfoLog(fragmentShaderObject));return;}
+
+    programObject = webgl.createProgram();
+
+    webgl.attachShader(programObject, vertexShaderObject);
+    webgl.attachShader(programObject, fragmentShaderObject);
+
+    webgl.bindAttribLocation(programObject, v3PositionIndex, "v3Position");
+
+    webgl.linkProgram(programObject);
+    if(!webgl.getProgramParameter(programObject, webgl.LINK_STATUS)){alert(webgl.getProgramInfoLog(programObject));return;}
+
+    samplerIndex = webgl.getUniformLocation(programObject, "s_texture");
+    console.debug("samplerIndex=" + samplerIndex);
+
+    webgl.useProgram(programObject);
+
+    var jsArrayData = [
+        0.0, 1.0, 0.0,//上顶点
+        -1.0, -1.0, 0.0,//左顶点
+        1.0, 0.0, 0.0];//右顶点
+
+    triangleBuffer = webgl.createBuffer();
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer);
+    webgl.bufferData(webgl.ARRAY_BUFFER, new Float32Array(jsArrayData), webgl.STATIC_DRAW);
+    
+    webgl.clearColor(0.0, 0.5, 1.0, 1.0);
+    webgl.clear(webgl.COLOR_BUFFER_BIT);
+    
+    
+    
+    var img = document.getElementById('myTexture');
+    textureObject = webgl.createTexture();
+    webgl.bindTexture(webgl.TEXTURE_2D, textureObject);
+    webgl.texImage2D(webgl.TEXTURE_2D, 0, webgl.RGB, webgl.RGB, webgl.UNSIGNED_BYTE, img);
+    
+    
+    var img2 = document.getElementById('myTexture2');
+    textureObject2 = webgl.createTexture();
+    webgl.bindTexture(webgl.TEXTURE_2D, textureObject2);
+    webgl.texImage2D(webgl.TEXTURE_2D, 0, webgl.RGB, webgl.RGB, webgl.UNSIGNED_BYTE, img2);
+    
+    
+    
+    
+
+
+    webgl.bindBuffer(webgl.ARRAY_BUFFER, triangleBuffer); 
+    webgl.enableVertexAttribArray(v3PositionIndex); 
+    webgl.vertexAttribPointer(v3PositionIndex, 3, webgl.FLOAT, false, 0, 0);
+
+
+    webgl.activeTexture(webgl.TEXTURE1);
+    webgl.bindTexture(webgl.TEXTURE_2D, textureObject);
+    webgl.uniform1i(samplerIndex, 0);
+    
+    
+    webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_MIN_FILTER, webgl.NEAREST);
+    webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_MAG_FILTER, webgl.NEAREST);
+    webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_WRAP_S, webgl.CLAMP_TO_EDGE);
+    webgl.texParameteri(webgl.TEXTURE_2D, webgl.TEXTURE_WRAP_T, webgl.CLAMP_TO_EDGE);
+
+    webgl.drawArrays(webgl.TRIANGLES, 0, 3);
+
+}
+</script>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+<input type="button" onclick="Init();" value="button" />
+
+<!--cubeTexture1.bmp texture.bmp-->
+<img id="myTexture" src='https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png'>
+<img id="myTexture2" src='https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png'>
+</body>
+</html>
