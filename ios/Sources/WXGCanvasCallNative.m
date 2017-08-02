@@ -27,7 +27,13 @@
 
 @implementation WXGCanvasCallNative
 
-- (id)excuteCallNative:(NSDictionary *)dict
++ (BOOL)checkParameters:(NSDictionary *)parameters
+{
+    return YES;
+}
+
+
++ (id)excuteCallNative:(NSDictionary *)dict
 {
     return [WXGCanvasModule excuteCallNative:dict];
 }

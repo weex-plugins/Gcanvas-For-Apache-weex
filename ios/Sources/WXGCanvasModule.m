@@ -28,7 +28,7 @@
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import "WXGCanvasCallNative.h"
 
-@interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol, WXExtendCallNativeProtocol>
+@interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
 
 //modify
 @property (nonatomic, assign) CGFloat devicePixelRatio;
@@ -518,7 +518,7 @@ static NSMutableDictionary *staticCompModuleMap;
 }
 
 
-#pragma mark - WXExtendCallNativeProtocol
+#pragma mark - executeCallNative
 + (id)excuteCallNative:(NSDictionary *)dict
 {
     NSString *componentId = dict[@"contextId"];
@@ -587,9 +587,10 @@ static NSMutableDictionary *staticCompModuleMap;
             //check command need display
             NSString *cmd = dict[@"args"];
             int cmdIdx = atoi(cmd.UTF8String);
+            
+            //need display 45-drawArrays 47-drawElements 51-flush
             if( cmdIdx == 45 || cmdIdx == 47 || cmdIdx == 51 )
             {
-                NSLog(@"SetNeedDisplay :%d", index);
                 [component.glkview setNeedsDisplay];
             }
             

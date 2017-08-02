@@ -1,6 +1,7 @@
 var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
 var GCanvas = require("./gcanvas");
+var GCanvasImage = require("./gcanvasimage");
 
 
 
@@ -28,7 +29,7 @@ if(typeof MethodType == "undefined"){
 function WebGLCallNative(componentId, cmdArgs)
 {
     var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
-    var result = extendCallNative({"contextId": componentId, "type":type, "args":cmdArgs});
+    var result = extendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
     if( result )
     {
         return result["result"];
@@ -1200,9 +1201,15 @@ GContextWebGL.prototype.stencilOpSeparate = function(face, fail, zfail, zpass){
     WebGLCallNative(this.componentId, cmd);
 };
 
-//texImage2D(webgl.TEXTURE_2D, 0, webgl.RGB, webgl.RGB, webgl.UNSIGNED_BYTE, img);
-//WebGLRenderingContext.texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
-//texImage2D( _gl.TEXTURE_2D, 0, _gl.RGB, 16, 16, 0, _gl.RGB, _gl.UNSIGNED_BYTE, null );
+
+// void texImage2D(GLenum target, GLint level, GLint internalformat,
+//                   GLsizei width, GLsizei height, GLint border, GLenum format,
+//                   GLenum type, [AllowShared] ArrayBufferView? pixels);
+//   void texImage2D(GLenum target, GLint level, GLint internalformat,
+//                   GLenum format, GLenum type, TexImageSource source); // May throw DOMException
+//texImage2D(webgl.TEXTURE_2D, 0, webgl.RGB, webgl.RGB, webgl.UNSIGNED_BYTE, img); 
+//texImage2D(target, level, internalformat, format, type, img);
+//texImage2D(target, level, internalformat, width, height, border, format, type, pixels);
 GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
     var argc = arguments.length;
     if (6 == argc)
@@ -1210,10 +1217,15 @@ GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
         var format = arguments[3];
         var type = arguments[4]
         var imageData = arguments[5];
-        //todo imageData is (ImageData/HTMLImageElement/HTMLCanvasElement/HTMLVideoElement/ImageBitmap)
-        var cmd =  (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," + 
-                    format + "," + type + "," + imgData + ";");
-        WebGLCallNative(this.componentId, cmd);
+
+
+        //imageData is GCanvasImage
+        if(imageData instanceof GCanvasImage)
+        {
+            var cmd = (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," + 
+                      format + "," + type + "," + imageData.src + ";");
+            WebGLCallNative(this.componentId, cmd);  
+        }
     }
     else if (9 == argc)
     {
@@ -1251,7 +1263,7 @@ GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset
     {
         var format = arguments[4];
         var type = arguments[5];
-        var imageData = arguments[6];
+        var imgData = arguments[6];
 
         //TODO imageData
         var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
