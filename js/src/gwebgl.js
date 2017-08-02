@@ -26,9 +26,21 @@ if(typeof MethodType == "undefined"){
     };
 }
 
+var G_UseGBridge = 1;
+
 function WebGLCallNative(componentId, cmdArgs)
 {
     var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
+
+    if( G_UseGBridge )
+    {
+        var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
+        if( result )
+        {
+            return result["result"];
+        }
+    }
+
     var result = extendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
     if( result )
     {

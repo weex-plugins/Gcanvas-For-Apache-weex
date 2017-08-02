@@ -187,6 +187,9 @@ var GBridge = {
     exeSyncCmd: function (componentId, action, args){
     	GLog.d('bridge#exeSyncCmd(): action: ' + action + ',args:' + args);
     	return canvasModule.execGcanvaSyncCMD(action,args);
+    },
+    callExtendCallNative:function(dict){
+      return  canvasModule && canvasModule.extendCallNative(dict);
     }
 };
 

@@ -61,6 +61,7 @@ WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其�
 
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
+WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
 static NSMutableDictionary *staticCompModuleMap;
@@ -519,6 +520,34 @@ static NSMutableDictionary *staticCompModuleMap;
 
 
 #pragma mark - executeCallNative
+
+- (NSDictionary*)extendCallNative:(NSDictionary*)dict
+{
+    NSString *componentId = dict[@"contextId"];
+    
+    
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    CFTimeInterval startTime = CACurrentMediaTime();
+    while (!component.glkview)
+    {
+        CFTimeInterval current = CACurrentMediaTime();
+        if( current- startTime > 1 )  //1s超时退出
+            break;
+        component = [self gcanvasComponentById:componentId];
+    }
+    
+    __block NSDictionary *retDict;
+    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        retDict = [self callGCanvasNative:dict];
+        dispatch_semaphore_signal(_semaphore);
+    });
+    
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    return retDict;
+
+}
+
 + (id)excuteCallNative:(NSDictionary *)dict
 {
     NSString *componentId = dict[@"contextId"];
