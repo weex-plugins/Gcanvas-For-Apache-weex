@@ -46,8 +46,6 @@
       exampleList: require('./include/example-list.vue')
     },
     created: function() {
-      let root = typeof window === 'object' ? 'vue-web/vue' : 'vue'
-      let platform = this.$getConfig().env.platform.toLowerCase()
     }
   }
 </script>
