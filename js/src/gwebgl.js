@@ -996,7 +996,7 @@ GContextWebGL.prototype.getParameter = function(pname) {
             return array;
         }
         case 6: return resultArray[1];
-        default: return nil;
+        default: return null;
     }
 };
 
