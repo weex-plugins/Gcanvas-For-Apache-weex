@@ -502,10 +502,10 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 }
             }
             if (null != delegate && !mIsDestroyed.get()) {
-                if (delegate.isDirty) {
-                    delegate.executeCmdImpl(CMD_RESET, null, null);
-                    delegate.isDirty = false;
-                }
+//                if (delegate.isDirty) {
+//                    delegate.executeCmdImpl(CMD_RESET, null, null);
+//                    delegate.isDirty = false;
+//                }
                 delegate.render(cmd);
             }
         }
@@ -629,6 +629,23 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
         if (component.isGCanvasViewPrepared()) {
             delegate.executeCmdImpl(CMD_SET_CONTEXT_TYPE, delegate.contextType, null);
+        }
+
+            Log.i("GCanvasModule","start to rebind image texture.");
+            while (iter.hasNext()) {
+                Map.Entry entry = (Map.Entry) iter.next();
+                String url = (String) entry.getKey();
+                ImageInfo info = (ImageInfo)entry.getValue();
+                try {
+                    JSONArray ja = new JSONArray();
+                    ja.put(url);
+                    ja.put(info.id);
+                    component.getGCanvas().executeForWeex(CMD_BIND_TEXTURE, ja, null);
+                } catch (Throwable e) {
+                    GLog.e(TAG, e.getMessage(), e);
+                }
+                GLog.i("GCanvasModule","rebind image url is "+url);
+            }
         }
     }
 

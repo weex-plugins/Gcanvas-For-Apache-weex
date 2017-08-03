@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvas;
 import com.taobao.gcanvas.GCanvasView;
+import com.taobao.gcanvas.GLog;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
 import com.taobao.weex.bridge.JSCallback;
@@ -53,6 +54,7 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
     }
 
     private void initGCanvas(Context context) {
+//        GLog.setLevel("debug");
         mCanvas = new GCanvas(getRef());
         GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
         mCanvas.initialize(context);
@@ -201,6 +203,9 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
     class WXCanvasComponentLifeListener implements WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
 
         private WXGCanvasGLSurfaceView.WXCanvasLifecycleListener mDelegateListener;
+        GCanvasView.GCanvasConfig config;
+        int width = 0;
+        int height = 0;
 
 
         @Override
@@ -237,8 +242,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
                     detachCallback.invoke(null);
                 }
 
-                int width = 0, height = 0;
-
                 if (mSurfaceView != null) {
                     width = mSurfaceView.getMeasuredWidth();
                     height = mSurfaceView.getMeasuredHeight();
@@ -246,10 +249,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
                     mContainer.removeView(mSurfaceView);
                     mSurfaceView = null;
                 }
-
-                GCanvasView.GCanvasConfig config = mCanvas.config;
-                mCanvas.onDestroy();
-                mCanvas = null;
 
                 initGCanvas(context);
                 mCanvas.config = config;
@@ -275,6 +274,12 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
                 mIsDetached = true;
                 if (null != mDelegateListener) {
                     mDelegateListener.onGCanvasViewDetachedFromWindow(component, canvasView);
+                }
+//
+                if(mCanvas != null) {
+                    config = mCanvas.config;
+                    mCanvas.onDestroy();
+                    mCanvas = null;
                 }
             }
         }
