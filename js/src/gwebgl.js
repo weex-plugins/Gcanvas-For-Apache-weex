@@ -31,6 +31,7 @@ var G_UseGBridge = 1;
 function WebGLCallNative(componentId, cmdArgs)
 {
     var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
+    GLog.d("WebGLCallNative command: " + cmdArgs);
 
     if( G_UseGBridge )
     {
@@ -1560,54 +1561,67 @@ GContextWebGL.prototype.viewport = function(x, y, width, height) {
 
 //extension for ANGLE_instanced_arrays
 GContextWebGL.prototype.drawArraysInstancedANGLE = function(mode, first, count, primcount) {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.drawArraysInstancedANGLEId : this.drawArraysInstancedANGLEId;
-    var cmd = (cmdId + mode + "," + first + "," + count + "," + primcount + ";");
-    // var cmd = (this.drawArraysInstancedANGLEId + mode + "," + first + "," + count + "," + primcount + ";");
-    WebGLCallNative(this.componentId, cmd); 
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.drawArraysInstancedANGLEId + mode + "," + first + "," + count + "," + primcount + ";");
+    WebGLCallNative(gl.componentId, cmd); 
 }
 
 GContextWebGL.prototype.drawElementsInstancedANGLE = function(mode, count, type, offset, primcount) {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.drawElementsInstancedANGLEId : this.drawElementsInstancedANGLEId;
-    var cmd = (cmdId + mode + "," + count + "," +  type + "," + offset + "," + primcount + ";");
-    // var cmd = (this.drawElementsInstancedANGLEId + mode + "," + count + "," + 
-    //             type + "," + offset + "," + primcount + ";");
-    WebGLCallNative(this.componentId, cmd); 
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.drawElementsInstancedANGLEId + mode + "," + count + "," +  type + "," + offset + "," + primcount + ";");
+    WebGLCallNative(gl.componentId, cmd); 
 }
 
 GContextWebGL.prototype.vertexAttribDivisorANGLE = function(index, divisor) {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.vertexAttribDivisorANGLEId : this.vertexAttribDivisorANGLEId;
-    var cmd = (cmdId + index + "," + divisor + ";");
-    // var cmd = (this.vertexAttribDivisorANGLEId + index + "," + divisor + ";");
-    WebGLCallNative(this.componentId, cmd); 
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.vertexAttribDivisorANGLEId + index + "," + divisor + ";");
+    WebGLCallNative(gl.componentId, cmd); 
 }
 
 //extension for OES_vertex_array_object
 GContextWebGL.prototype.deleteVertexArrayOES = function(array) {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.deleteVertexArrayOESId : this.deleteVertexArrayOESId;
-    var cmd = (cmdId + array + ";");
-    // var cmd = (this.deleteVertexArrayOESId + array + ";");
-    WebGLCallNative(this.componentId, cmd);    
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.deleteVertexArrayOESId + array + ";");
+    WebGLCallNative(gl.componentId, cmd);    
 };
 
 GContextWebGL.prototype.createVertexArrayOES = function() {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.createVertexArrayOESId : this.createVertexArrayOESId;
-    var cmd = (cmdId + ";");
-    // var cmd = (this.createVertexArrayOESId + ";");
-    return WebGLCallNative(this.componentId, cmd);    
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.createVertexArrayOESId + ";");
+    return WebGLCallNative(gl.componentId, cmd);    
 };
 
 GContextWebGL.prototype.isVertexArrayOES = function(array) {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.isVertexArrayOESId : this.isVertexArrayOESId;
-    var cmd = (cmdId + array + ";")
-    // var cmd = (this.isVertexArrayOESId + array + ";")
-    return WebGLCallNative(this.componentId, cmd);    
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.isVertexArrayOESId + array + ";")
+    return WebGLCallNative(gl.componentId, cmd);    
 };
 
 GContextWebGL.prototype.bindVertexArrayOES = function(array) {
-    var cmdId = (this instanceof GContextWebGLExtension) ? this.gl.bindVertexArrayOESId : this.bindVertexArrayOESId;
-    var cmd = (cmdId + array + ";");
-    // var cmd = (this.bindVertexArrayOESId + array + ";");
-    WebGLCallNative(this.componentId, cmd);    
+    var gl = this; 
+    if( this instanceof GContextWebGLExtension ){
+        gl = this.gl;
+    }
+    var cmd = (gl.bindVertexArrayOESId + array + ";");
+    WebGLCallNative(gl.componentId, cmd);    
 };
 
 module.exports = GContextWebGL;
