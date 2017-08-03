@@ -631,7 +631,9 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             delegate.executeCmdImpl(CMD_SET_CONTEXT_TYPE, delegate.contextType, null);
         }
 
+        if(!mImageIdCache.isEmpty()) {
             Log.i("GCanvasModule","start to rebind image texture.");
+            Iterator iter = mImageIdCache.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String url = (String) entry.getKey();
