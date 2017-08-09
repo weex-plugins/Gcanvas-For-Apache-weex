@@ -241,6 +241,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @WeexModule(name = "gcanvas")
 public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
@@ -355,9 +356,11 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 final HashMap<String, Object> resultMap = new HashMap<>();
                 if (null == imgInfo) {
                     imgInfo = new ImageInfo();
-                    imgInfo.isLoading.set(true);
-                    imgInfo.id = id;
                     mImageIdCache.put(url, imgInfo);
+                }
+                if (imgInfo.status.get() == ImageInfo.IDLE) {
+                    imgInfo.status.set(ImageInfo.LOADING);
+                    imgInfo.id = id;
                     ArrayList<JSCallback> callbacks = mCallbacks.get(url);
                     if (null == callbacks) {
                         callbacks = new ArrayList<>();
@@ -376,6 +379,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                                 resultMap.put("url", url);
                                 resultMap.put("width", imageInfo.width);
                                 resultMap.put("height", imageInfo.height);
+                                imageInfo.status.set(ImageInfo.LOADED);
                                 try {
                                     ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
                                     if (null != callbackList) {
@@ -384,6 +388,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                                         }
                                     }
                                 } catch (Throwable throwable) {
+                                    imageInfo.status.set(ImageInfo.IDLE);
                                     callBack.invoke(resultMap);
                                 }
                             } else {
@@ -418,7 +423,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                             return true;
                         }
                     }).fetch();
-                } else if (imgInfo.isLoading.get()) {
+                } else if (ImageInfo.LOADING == imgInfo.status.get()) {
                     ArrayList<JSCallback> callbacks = mCallbacks.get(url);
                     if (null == callbacks) {
                         callbacks = new ArrayList<>();
@@ -426,11 +431,17 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                     }
 
                     callbacks.add(callBack);
-                } else {
+                } else if (ImageInfo.LOADED == imgInfo.status.get()) {
                     resultMap.put("id", id);
                     resultMap.put("url", url);
                     resultMap.put("width", imgInfo.width);
                     resultMap.put("height", imgInfo.height);
+                    ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
+                    if (null != callbackList) {
+                        for (JSCallback cb : callbackList) {
+                            cb.invoke(resultMap);
+                        }
+                    }
                     callBack.invoke(resultMap);
                 }
             } catch (Throwable e) {
@@ -631,13 +642,13 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
             delegate.executeCmdImpl(CMD_SET_CONTEXT_TYPE, delegate.contextType, null);
         }
 
-        if(!mImageIdCache.isEmpty()) {
-            Log.i("GCanvasModule","start to rebind image texture.");
+        if (!mImageIdCache.isEmpty()) {
+            Log.i("GCanvasModule", "start to rebind image texture.");
             Iterator iter = mImageIdCache.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String url = (String) entry.getKey();
-                ImageInfo info = (ImageInfo)entry.getValue();
+                ImageInfo info = (ImageInfo) entry.getValue();
                 try {
                     JSONArray ja = new JSONArray();
                     ja.put(url);
@@ -646,7 +657,7 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
                 } catch (Throwable e) {
                     GLog.e(TAG, e.getMessage(), e);
                 }
-                GLog.i("GCanvasModule","rebind image url is "+url);
+                GLog.i("GCanvasModule", "rebind image url is " + url);
             }
         }
     }
@@ -923,10 +934,13 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     }
 
     static class ImageInfo {
+        static final int IDLE = -1;
+        static final int LOADING = 0x100;
+        static final int LOADED = 0x200;
         public int width;
         public int height;
         public int id;
-        public AtomicBoolean isLoading = new AtomicBoolean(false);
+        public AtomicInteger status = new AtomicInteger(IDLE);
     }
 
     static class GCanvasImageCache {
