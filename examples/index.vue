@@ -37,7 +37,9 @@
           {name: root + '/webgl/03_webgl_rotation', title:'03-WebGL-Rotation'},
           {name: root + '/webgl/04_webgl_cube', title:'04-WebGL-Cube'},
           {name: root + '/webgl/05_webgl_triangle_texture', title:'05-WebGL-Triangle-Texture'},
-          {name: root + '/webgl/06_webgl_texImage2D', title:'06-WebGL-texImage2D'}
+          {name: root + '/webgl/06_webgl_texImage2D', title:'06-WebGL-texImage2D'},
+          {name: root + '/webgl/3d', title:'Hilo3d'}
+
 
         ]
       }

@@ -26,7 +26,7 @@
 
 <script>
   var timer = weex.requireModule('timer');
-  // var gcanvas=require('weex-gcanvas');
+  // var GCanvas=require('weex-gcanvas');
   var GCanvas = require('../js/src/gcanvas');
   var Image = require('../js/src/gcanvasimage');
   var getBaseURL = require('./include/base-url.js').getBaseURL

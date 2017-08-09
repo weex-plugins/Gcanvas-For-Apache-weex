@@ -1,0 +1,78 @@
+<template>
+    <div id="test">
+        <text id="canvas_demo1" style="width:750;height:100;background-color:#e0e0e0">fps:{{fps}}</text>
+        <div ontouchend="onTouch" ontouchmove="onTouch" ontouchstart="onTouch" style="width: 750;height: 750;position:relative;">
+            <gcanvas id="canvas_holder" style="position:absolute;top:0;left:0;width:750;height:750;background-color:#ffffff"></gcanvas>
+        </div>
+        <text id="canvas_demo1" style="width:750;height:100;backgroundColor:#e0e0e0">hilo_demo 上边界</text>
+    </div>
+</template>
+<script>
+    // var Hilo3d = require('@ali/hilo-weex');
+    //var Hilo3d = require('/Users/jiangc/gitlab/Hilo3d-weex/index.js');
+    //var Hilo3d = require('/Users/yuankong/code/hilo3d-weex/index.js');
+    var Hilo3d = require('./index.js')
+    var Image = Hilo3d.Image;
+    var CanvasElement = Hilo3d.CanvasElement;
+
+    var innerWidth = 750;
+    var innerHeight = 750
+
+    const modal = require('@weex-module/modal');
+    // var gcanvas = require('@weex-module/gcanvas');
+
+    module.exports = {
+        data: {
+            fps: 0
+        },
+
+        created: function () {
+            Hilo3d.resetGCanvas();
+        },
+
+        ready: function () {
+            this.start();
+        },
+        methods: {
+            start: function () {
+
+                var innerWidth = 750;
+                var innerHeight = 750;
+
+                var ele = this.ele = new CanvasElement(this.$el('canvas_holder'));
+
+
+                var camera = new Hilo3d.PerspectiveCamera({
+                    aspect: innerWidth / innerHeight,
+                    far: 20000,
+                    near:1,
+                    z:5
+                });
+                var stage = new Hilo3d.Stage({
+                    canvas: ele,
+                    camera: camera,
+                    width: innerWidth,
+                    height: innerHeight
+                });
+
+                var ticker = new Hilo3d.Ticker(30);
+                ticker.addTick(stage);
+                ticker.addTick(Hilo3d.Tween);
+                ticker.start();
+
+
+                var box = new Hilo3d.Mesh({
+                    geometry: new Hilo3d.BoxGeometry(),
+                    material: new Hilo3d.BasicMaterial({
+                        diffuse: new Hilo3d.Color(1, 1, 1)
+                    })
+                });
+                stage.addChild(box);
+                stage.onUpdate = function(){
+                    box.rotationY+=3;
+                    console.log("=====box.rotateY:"+box.rotationY);
+                }
+            }
+        }
+    }
+</script>

@@ -1008,6 +1008,8 @@ GContextWebGL.prototype.getExtension = function(name)
         ext.drawArraysInstancedANGLE = gl.drawArraysInstancedANGLE;
         ext.drawElementsInstancedANGLE = gl.drawElementsInstancedANGLE;
         ext.vertexAttribDivisorANGLE = gl.vertexAttribDivisorANGLE;
+        
+        ext.VERTEX_ATTRIB_ARRAY_DIVISOR_ANGLE = 0x88FE;
     }
     else if( name == "OES_vertex_array_object" )
     {
@@ -1017,6 +1019,11 @@ GContextWebGL.prototype.getExtension = function(name)
         ext.deleteVertexArrayOES = gl.deleteVertexArrayOES;
         ext.isVertexArrayOES = gl.isVertexArrayOES;
         ext.bindVertexArrayOES = gl.bindVertexArrayOES;
+
+        ext.VERTEX_ARRAY_BINDING_OES = 0x85B5;
+        ext.OES_vertex_array_object = 1;
+        ext.OES_texture_float = 1;
+        ext.OES_element_index_uint = 1;
 
     }
     else if( name == "OES_texture_float" )
@@ -1113,7 +1120,9 @@ GContextWebGL.prototype.getShaderSource = function(shader){
 //new return array
 GContextWebGL.prototype.getSupportedExtensions = function(){
     var cmd = (this.getSupportedExtensionsId + ";");
-    return WebGLCallNative(this.componentId, cmd);
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    var resultArray = resultString.split(",");
+    return resultArray;
 };
 
 //new
@@ -1215,8 +1224,7 @@ GContextWebGL.prototype.polygonOffset = function(factor, units){
 GContextWebGL.prototype.readPixels = function(x, y, width, height, format, type, pixels){
     var cmd = (this.readPixelsId + x + "," + y + "," +  width + "," + height + "," + format + "," + type + ";");
     var pixelsString = WebGLCallNative(this.componentId, cmd);
-    var pixelsArray = retPixels.split(",");
-    return pixelsArray;
+    pixels = retPixels.split(",");
 };
 
 GContextWebGL.prototype.renderbufferStorage = function(target, internalformat, width, height){
