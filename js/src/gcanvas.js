@@ -18,14 +18,18 @@ libGCanvas.start(function(){
     //do any action here
 },function(){
     nativeLog('gcanvas.start failed');
-}); 
+});
 
 */
 
+var GImage = require('./gcanvasimage.js');
 var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
-//var GContextWebGL = require('./gwebgl');
+var GContextWebGL = require('./gwebgl');
 var GContext2D = require('./gcontext2d');
+var GHashMap = require('./ghashmap');
+var htmlPlugin = require("./index");
+
 
 ///////////////////////////////
 var GSupport = {};
@@ -40,9 +44,9 @@ GSupport.supportScroll = false;
 GSupport.newCanvasMode = false;             //true: GCanvasView in Webview
 GSupport.sameLevel = false; //newCanvasMode = true && true: GCanvasView and Webview is same level;
 GSupport.clearColor = "white";
-GSupport.WHITE_LIST = [
+GSupport.WHITE_LIST = {
 
-    model_check = [
+    model_check : [
         function(info) {return info.MODEL == 'GT-I9300';},
         function(info) {return info.MODEL == 'GT-I9500';},
         function(info) {return info.MODEL == 'GT-N7108';},
@@ -57,11 +61,11 @@ GSupport.WHITE_LIST = [
         function(info) {return info.MODEL == 'SM-G9006V';},
         function(info) {return info.MODEL == 'SM-N9006';}
     ],
-    version_check = [
+    version_check : [
         function(info) {GLog.d("info.OS_RELEASE=" + info.OS_RELEASE); return false;},
         function(info) {return (info.OS_RELEASE >= '4.1.0')&&( info.OS_RELEASE <= '4.4.2');}
     ]
-];
+};
 
 
 GSupport.checkList = function(successFunc, failureFunc){
@@ -91,16 +95,47 @@ GSupport.checkList = function(successFunc, failureFunc){
 ///////////////////////////////
 
 var GDeviceInfo = {};
-var _context = null;
-var _context_type = 0;//0--2d;1--webgl
+// var _context = null;
+// var _context_type = 0;//0--2d;1--webgl
 ///////////////////////////////
 
-var GCanvasPlatform = 2;//0--H5;1--iOS;2--Android
+var GCanvasPlatform = GBridge.isBrowser()? 0 : 2;//0--H5;1--iOS;2--Android
+var currentEl;
+var contextTypes = ['2d','webgl']
+var currentContextOfType = {};
 
-var GCanvas = {
-    start: function (ref, succ, fail) {
-        GLog.d('gcanvas#start=====>>>');
+function GCanvas(componentId)
+{
+    this.componentId = componentId;
+    this.id = ++(GCanvas.idCounter);
+}
 
+GCanvas.idCounter = 0;
+GCanvas.canvasMap = new GHashMap();
+
+//-----------------------------
+// GCanvas.start
+//-----------------------------
+GCanvas.start = function(el){
+    GLog.d('gcanvas#start=====>>>');
+
+    if (typeof WXEnvironment === 'object' && /ios/i.test(WXEnvironment.platform)) {
+        GCanvasPlatform = 1;
+    } else if (typeof navigator === 'object' && /ios/i.test(navigator.userAgent)) {
+        GCanvasPlatform = 1;
+    } else {
+        GCanvasPlatform = 2;
+    }
+
+    GBridge.setup( {platform:GCanvasPlatform} );
+
+    if(GCanvasPlatform === 0)
+    {
+        currentEl = el
+        return currentEl;
+    }
+    else 
+    {
         //bind canvas
         var config = [];
         config.push(GSupport.renderMode);
@@ -110,87 +145,205 @@ var GCanvas = {
         config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
         config.push(GSupport.clearColor);
         config.push(GSupport.sameLevel);
-        GBridge.callEnable(ref,config,function(e){});
+        GBridge.callEnable(el.ref,config,function(e){});
 
-        
+        var canvas = new GCanvas(el.ref);
+        GCanvas.canvasMap.put(el.ref, canvas);
+        return canvas;
+    }
+}
 
-        //get device
-        GBridge.getDeviceInfo(function(e){//这里是异步操作
+//-----------------------------
+// Instance Method: getContext
+//-----------------------------
+GCanvas.prototype.getContext = function(contextID){
+    GLog.d('gcanvas#getContext=====>>>');
 
-
-
-          if (e.data && e.data.platform == "iOS"){
-              GCanvasPlatform = 1;
-
-          }else{
-            GCanvasPlatform = 2;
-
-          }
-          console.log('GCanvasPlatform = ' + GCanvasPlatform);
-          succ();
-          /*
-            if(e && e.result === 'success'){
-                if (e.data && e.data.platform == "iOS"){
-                    GCanvasPlatform = 1;
-                    succ();
-                }else{
-                    var info = JSON.parse(e.data);
-                    if(info.GCANVASLIBENABLE && info.IS_AVAILABLE){
-                        GDeviceInfo = info;
-                        GSupport.checkList(succ,fail);
-                    }else{
-                        fail&&fail();
-                    }
-                }
-            }else{
-                fail&&fail();
-            }
-            */
-        });
-    },
-
-    getContext: function (contextID) {
-        GLog.d('gcanvas#getContext=====>>>');
-        if (_context){
-            return _context;//unsupport change type after create
+    var context = this.context;
+    //brower
+    if(GCanvasPlatform === 0) {
+        if (context){
+            return context;//unsupport change type after create
         }
-
-        if (contextID.match(/webgl/i)){
-            _context = new GContextWebGL();
-            _context_type = 1;
-        }else{
-            _context = new GContext2D();
-            _context_type = 0;
+        else if(currentEl&&currentEl.getContext) {
+            context = currentEl.getContext(contextID)
+            if(context&&!context.render) context.render = function(){}
         }
+        return context
+    }
 
-        GBridge.setContextType(_context_type);
+    if (context){
+        return context;//unsupport change type after create
+    }
 
-        if (!_context.timer) {
-            _context.timer = setInterval(this.render.bind(this), 16);            
-        }
-        
-        return _context;
-    },
-    render: function(){
-        // GLog.d('[GCanvas::render] start...');
-        _context.render("auto");
-    },
+    var context_type;
+    if (contextID.match(/webgl/i)){
+        context = new GContextWebGL();
+        context_type = 1;
+    }else{
+        context = new GContext2D();
+        context_type = 0;
+    }
 
-    disable: function(){
-        GLog.d('gcanvas#disable=====>>>');
-        GBridge.callDisable();
-    },
+    GBridge.setContextType(this.componentId, context_type);
 
-    setHiQuality: function(quality){
-        GLog.d('gcanvas#setHiQuality=====>>>' + quality);
+    context.componentId = this.componentId;
+    // if (!context.timer) {
+    //    context.timer = setInterval(this.render.bind(this), 16);
+    // }
+
+    this.context = context;
+    GBridge.callRegisterReattachJSCallback(this.componentId, context._clearImageTextures);
+
+    this.startLoop();
+
+    return context;
+}
+
+//-----------------------------
+// Instance Method: render
+//-----------------------------
+GCanvas.prototype.render = function(){
+    if(GCanvasPlatform !== 0 && this.context)
+    {
+        this.context.render("auto");
+    }
+}
+
+//-----------------------------
+// Instance Method: stopRender
+//-----------------------------
+GCanvas.prototype.stopRender = function(){
+    if(!this.context){
+        return;
+    }
+
+    if(this.context.timer){
+        clearInterval(this.context.timer);
+        this.context.timer = null;
+    }
+}
+
+//-----------------------------
+// Instance Method: startLoop
+//-----------------------------
+GCanvas.prototype.startLoop = function(fps){
+    if(!this.context){
+        return;
+    }
+ 
+    fps = parseFloat(fps) || 16;
+    if(!this.context.timer){
+        this.context.timer = setInterval(this.render.bind(this),fps);
+    }
+}
+
+//-----------------------------
+// Instance Method: stopLoop
+//-----------------------------
+GCanvas.prototype.stopLoop = function(){
+    if(!this.context){
+        return;
+    }
+ 
+    if(this.context.timer){
+        clearInterval(this.context.timer);
+        this.context.timer = null;
+    }
+}
+
+
+//-----------------------------
+// Instance Method: reset
+//-----------------------------
+GCanvas.prototype.reset = function(){
+    if(GCanvasPlatform !== 0){
+        GBridge.resetComponent(this.componentId);
+    }
+}
+
+//-----------------------------
+// Instance Method: setDevicePixelRatio
+//-----------------------------
+GCanvas.prototype.setDevicePixelRatio = function(){
+    if(!this.context){
+        return;
+    }
+
+    GBridge.callSetDevPixelRatio(this.componentId);
+}
+
+//-----------------------------
+// GCanvas.disable
+//-----------------------------
+GCanvas.disable = function(){
+    // GLog.d('gcanvas#disable=====>>>');
+    // if(GCanvasPlatform !== 0){
+    //     GBridge.callDisable();
+    // }
+}
+
+GCanvas.prototype.setup = function(support){
+    if(!this.context){
+        return;
+    }
+    var config = [];
+    var mySupport = support || GSupport;
+
+    for(var attr in GSupport){
+      if(mySupport[attr] != undefined){
+         GSupport[attr] = mySupport[attr];
+      }
+    }
+
+    var config = {
+      'renderMode':GSupport.renderMode,
+      'hybridLayerType':GSupport.hybridLayerType,
+      'supportScroll':GSupport.supportScroll,
+      'sameLevel':GSupport. sameLevel,
+      'newCanvasMode':GSupport.newCanvasMode,
+      'clearColor': GSupport.clearColor
+    };
+
+    GBridge.callSetup(config, this.componentId, function(e){});
+}
+
+//-----------------------------
+// GCanvas.setHiQuality
+//-----------------------------
+GCanvas.setHiQuality = function(){
+    GLog.d('gcanvas#setHiQuality=====>>>' + quality);
+    if(GCanvasPlatform !== 0) {
         GBridge.setHiQuality(quality);
+    }
+}
 
-    },
-
-    setLogLevel:function(level){
-        GLog.d('gcanvas#setLogLevel=====>>> ' + level);
+//-----------------------------
+// GCanvas.setLogLevel
+//-----------------------------
+GCanvas.setLogLevel = function(level){
+    GLog.d('gcanvas#setLogLevel=====>>> ' + level);
+    if(GCanvasPlatform !== 0) {
         GBridge.setLogLevel(level);
     }
-};
+},
+    
+    toDataURL:function(type,options){
+    //	GLog.d('gcanvas#toDataURL=====>>> ' + type + ',' + options);
+    	
+    	var args;
+	    if(typeof(options) == 'undefined'){
+	        args = type + ';';
+	    } else {
+	         args = type + ',' + options + ';';
+	    }
+	    
+    	return GBridge.exeSyncCmd('todataurl',args);
+    }
+
+//-----------------------------
+// GCanvas.htmlPlugin
+//-----------------------------
+GCanvas.htmlPlugin = htmlPlugin;
 
 module.exports = GCanvas;
