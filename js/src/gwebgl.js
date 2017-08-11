@@ -618,6 +618,21 @@ function Gbase64ToArr(base64)
     // return bytes.buffer;
 }
 
+//字符串split使用
+function GetArrayType(array)
+{
+    //1 - uint8 array
+    //2 - uint16 array
+    //4 - uint32 array 
+    //14 - float32 array
+    var bytes = array.BYTES_PER_ELEMENT;
+    if( bytes == 4 && (array instanceof Float32Array) )
+    {
+        return 10+bytes;
+    }
+    return bytes;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //                        GWebGLActiveInfos
 // https://developer.mozilla.org/en-US/docs/Web/API/WebGLActiveInfos
@@ -740,13 +755,14 @@ GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, d
 };
 
 GContextWebGL.prototype.bufferData = function(target, array, usage){
-    var cmd = (this.bufferDataId + target + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + "," + usage + ";");
+
+    var cmd = (this.bufferDataId + target + "," + GetArrayType(array) + "," + GarrToBase64(array) + "," + usage + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
 //new
 GContextWebGL.prototype.bufferSubData = function(target, offset, array){
-    var cmd = (this.bufferSubDataId + target + "," + offset + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+    var cmd = (this.bufferSubDataId + target + "," + offset + "," + GetArrayType(array) + "," + GarrToBase64(array) + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -789,14 +805,14 @@ GContextWebGL.prototype.compileShader = function(shader) {
 //new
 GContextWebGL.prototype.compressedTexImage2D = function(target, level, internalformat, width, height, border, array) {
     var cmd = (this.compressedTexImage2DId + target + "," + level + "," + internalformat + "," + width + "," + 
-               height + "," + border + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+               height + "," + border + "," + GetArrayType(array) + "," + GarrToBase64(array) + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
 //new
 GContextWebGL.prototype.compressedTexSubImage2D = function(target, level, xoffset, yoffset, width, height, format, array){
     var cmd = (this.compressedTexSubImage2DId + target + "," + level + "," + xoffset + ","  + yoffset + "," + width + "," + 
-               height + "," + format + "," + array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+               height + "," + format + "," + GetArrayType(array)  + "," + GarrToBase64(array) + ";");
     WebGLCallNative(this.componentId, cmd);
 }
 
@@ -1224,7 +1240,7 @@ GContextWebGL.prototype.polygonOffset = function(factor, units){
 GContextWebGL.prototype.readPixels = function(x, y, width, height, format, type, pixels){
     var cmd = (this.readPixelsId + x + "," + y + "," +  width + "," + height + "," + format + "," + type + ";");
     var pixelsString = WebGLCallNative(this.componentId, cmd);
-    pixels = retPixels.split(",");
+    var pixelsArray = pixelsString.split(",");
 };
 
 GContextWebGL.prototype.renderbufferStorage = function(target, internalformat, width, height){
@@ -1321,7 +1337,7 @@ GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
 
         var cmd = (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," + 
                    width + "," + height + "," + border + "," + format + "," + type + "," + 
-                   array.BYTES_PER_ELEMENT + "," + GarrToBase64(array) + ";");
+                   GetArrayType(array) + "," + GarrToBase64(array) + ";");
         WebGLCallNative(this.componentId, cmd);
     }
 };

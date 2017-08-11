@@ -64,7 +64,7 @@
                 var box = new Hilo3d.Mesh({
                     geometry: new Hilo3d.BoxGeometry(),
                     material: new Hilo3d.BasicMaterial({
-                        diffuse: new Hilo3d.Color(1, 1, 1)
+                        diffuse: new Hilo3d.Color(0.5, 0.5, 0.5)
                     })
                 });
                 stage.addChild(box);
