@@ -243,6 +243,7 @@ function GInitWebGLFuncId(obj){
 
 function GInitWebGLEnum(obj){
     //GL Constant Define
+    obj.NO_ERROR = 0x0;
     obj.NONE = 0x0;
     obj.ONE = 0x1;
     obj.LINE_LOOP = 0x2;
@@ -1069,8 +1070,13 @@ GContextWebGL.prototype.getParameter = function(pname) {
     kReturnFloatArray,
     kReturnString
     */
+    if( !resultString ) return null;
+
     var resultArray = resultString.split(",");
-    switch( resultArray[0] )
+    if( resultArray.length <2 ) return null;
+
+    var retType = parseInt(resultArray[0]);
+    switch( retType )
     {
         case 1: return parseInt(resultArray[1]) == 1;
         case 2: return parseInt(resultArray[1]);

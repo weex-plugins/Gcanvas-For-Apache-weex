@@ -10,6 +10,11 @@
       return {
         items: [ 
 
+          //webgl api
+          {name: root + '/webgl_api_test/wx_01_gl_activeTexture', title: 'API_01_gl_activeTexture'},
+          {name: root + '/webgl_api_test/wx_02_gl_attachShader', title: 'API_02_gl_attachShader'},
+          {name: root + '/webgl_api_test/wx_gl_clear', title: 'API_gl_clear'},
+        
           //test
           {name: root + '/testcallNative', title: 'TestCallNative'},
           // common
