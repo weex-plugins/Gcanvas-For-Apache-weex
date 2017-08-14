@@ -23,10 +23,10 @@
 #import <GCanvas/GCVCommon.h>
 #import <GCanvas/GCanvasPlugin.h>
 #import <WeexSDK/WXComponentManager.h>
-#import <WeexSDK/WXExtendCallNativeProtocol.h>
+//#import <WeexSDK/WXExtendCallNativeProtocol.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
-#import "WXGCanvasCallNative.h"
+//#import "WXGCanvasCallNative.h"
 
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
 
@@ -325,6 +325,12 @@ static NSMutableDictionary *staticCompModuleMap;
 #pragma mark - SYNC Method
 - (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
 {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin *plugin, BOOL * _Nonnull stop) {
+            [plugin execGcanvaSyncCMD:typeStr args:args];
+        }];
+    });
+    
     //TODO
     return @"1";
 }
@@ -537,9 +543,10 @@ static NSMutableDictionary *staticCompModuleMap;
     }
     
     __block NSDictionary *retDict;
+    __weak typeof(self) weakSelf = self;
     dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
     dispatch_async(dispatch_get_main_queue(), ^{
-        retDict = [self callGCanvasNative:dict];
+        retDict = [weakSelf callGCanvasNative:dict];
         dispatch_semaphore_signal(_semaphore);
     });
     

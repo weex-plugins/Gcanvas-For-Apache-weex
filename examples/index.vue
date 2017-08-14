@@ -13,8 +13,15 @@
           //webgl api
           {name: root + '/webgl_api_test/wx_01_gl_activeTexture', title: 'API_01_gl_activeTexture'},
           {name: root + '/webgl_api_test/wx_02_gl_attachShader', title: 'API_02_gl_attachShader'},
+          {name: root + '/webgl_api_test/wx_03_gl_bindAttribLocation', title: 'API_03_gl_bindAttribLocation'},
+          {name: root + '/webgl_api_test/wx_04_gl_bindBuffer', title: 'API_04_gl_bindBuffer'},
+          {name: root + '/webgl_api_test/wx_05_gl_bindFrameBuffer', title: 'API_05_gl_bindFrameBuffer'},
+          {name: root + '/webgl_api_test/wx_06_gl_bindRenderBuffer', title: 'API_06_gl_bindRenderBuffer'},
+          {name: root + '/webgl_api_test/wx_07_gl_bindTexture', title: 'API_07_gl_bindTexture'},
+          {name: root + '/webgl_api_test/wx_08_gl_blendColor', title: 'API_08_gl_blendColor'},
+
           {name: root + '/webgl_api_test/wx_gl_clear', title: 'API_gl_clear'},
-        
+          
           //test
           {name: root + '/testcallNative', title: 'TestCallNative'},
           // common

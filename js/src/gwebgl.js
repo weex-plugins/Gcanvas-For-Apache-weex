@@ -58,8 +58,6 @@ function GContextWebGL(params){
     GInitWebGLFuncIdExt(this);
     GInitWebGLEnumExt(this);
 
-    GInitWebGLParams(params);
-
     this._drawCommands = "";
     this._globalAlpha = 1.0;
     this._fillStyle = "rgb(0,0,0)";
@@ -84,17 +82,6 @@ function GContextWebGL(params){
     this.componentId = null;
 
     
-}
-
-function GInitWebGLParams(params) 
-{
-    // if( !params || params.length == 0 )
-    //     return;
-
-    // var u8ar = Gbase64ToArr(params);
-    // GCanvas._glParams = new Int32Array(u8ar.buffer);
-
-    // console.log("GInitWebGLParams:"+GCanvas._glParams);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -599,24 +586,14 @@ function GarrToBase64(array)
             }
         }
     }
-    // GLog.d("GarrToBase64(), before: "+ str);
-    // GLog.d("GarrToBase64(), after : "+ btoa(str));
     return btoa(str);
 }
 
 function Gbase64ToArr(base64)
 {
-    // GLog.d("base64:" + base64);
     var binary_string = atob(base64);
-    // GLog.d("binary_string:" + binary_string);
     var array = binary_string.slice();
     return array;
-    // var len = binary_string.length;
-    // var bytes = new Uint8Array( len );
-    // for (var i = 0; i < len; i++)        {
-    //     bytes[i] = binary_string.charCodeAt(i);
-    // }
-    // return bytes.buffer;
 }
 
 //字符串split使用
@@ -726,7 +703,7 @@ GContextWebGL.prototype.bindRenderbuffer = function(target, renderbuffer){
 
 //new
 GContextWebGL.prototype.blendColor = function(red, green, blue, alpha){
-    var cmd = (this.bindRenderbufferId + red + "," + green + ","+ blue + "," + alpha + ";");
+    var cmd = (this.blendColorId + red + "," + green + ","+ blue + "," + alpha + ";");
     WebGLCallNative(this.componentId, cmd);
 }
 
@@ -756,7 +733,6 @@ GContextWebGL.prototype.blendFuncSeparate = function(srcRGB, dstRGB, srcAlpha, d
 };
 
 GContextWebGL.prototype.bufferData = function(target, array, usage){
-
     var cmd = (this.bufferDataId + target + "," + GetArrayType(array) + "," + GarrToBase64(array) + "," + usage + ";");
     WebGLCallNative(this.componentId, cmd);
 };
