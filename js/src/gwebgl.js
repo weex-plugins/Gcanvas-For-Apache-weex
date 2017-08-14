@@ -229,8 +229,11 @@ function GInitWebGLFuncId(obj){
 function GInitWebGLEnum(obj){
     //GL Constant Define
     obj.NO_ERROR = 0x0;
+    obj.ZERO = 0x0;
+
     obj.NONE = 0x0;
     obj.ONE = 0x1;
+    obj.LINES = 0x1;
     obj.LINE_LOOP = 0x2;
     obj.LINE_STRIP = 0x3;
     obj.TRIANGLES = 0x4;
