@@ -88,7 +88,7 @@ function GContextWebGL(params){
 
 function GInitWebGLFuncId(obj){
     var i=1;
-    obj.activeTextureId=(i++)+",";
+    obj.activeTextureId=(i++)+",";         //1
     obj.attachShaderId=(i++)+",";
     obj.bindAttribLocationId=(i++)+",";
     obj.bindBufferId=(i++)+",";
@@ -97,7 +97,7 @@ function GInitWebGLFuncId(obj){
     obj.bindTextureId=(i++)+",";
     obj.blendColorId=(i++)+",";
     obj.blendEquationId=(i++)+",";
-    obj.blendEquationSeparateId=(i++)+",";
+    obj.blendEquationSeparateId=(i++)+","; //10
     obj.blendFuncId=(i++)+",";
     obj.blendFuncSeparateId=(i++)+",";
     obj.bufferDataId=(i++)+",";
@@ -107,7 +107,7 @@ function GInitWebGLFuncId(obj){
     obj.clearColorId=(i++)+",";
     obj.clearDepthId=(i++)+",";
     obj.clearStencilId=(i++)+",";
-    obj.colorMaskId=(i++)+",";
+    obj.colorMaskId=(i++)+",";              //20
     obj.compileShaderId=(i++)+",";
     obj.compressedTexImage2DId=(i++)+",";
     obj.compressedTexSubImage2DId=(i++)+",";
@@ -117,7 +117,7 @@ function GInitWebGLFuncId(obj){
     obj.createFramebufferId=(i++)+",";
     obj.createProgramId=(i++)+",";
     obj.createRenderbufferId=(i++)+",";
-    obj.createShaderId=(i++)+",";
+    obj.createShaderId=(i++)+",";           //30
     obj.createTextureId=(i++)+",";
     obj.cullFaceId=(i++)+",";
     obj.deleteBufferId=(i++)+",";
@@ -127,7 +127,7 @@ function GInitWebGLFuncId(obj){
     obj.deleteShaderId=(i++)+",";
     obj.deleteTextureId=(i++)+",";
     obj.depthFuncId=(i++)+",";
-    obj.depthMaskId=(i++)+",";
+    obj.depthMaskId=(i++)+",";              //40
     obj.depthRangeId=(i++)+",";
     obj.detachShaderId=(i++)+",";
     obj.disableId=(i++)+",";
@@ -137,8 +137,7 @@ function GInitWebGLFuncId(obj){
     obj.drawElementsId=(i++)+",";
     obj.drawElementsInstancedANGLEId=(i++)+",";
     obj.enableId=(i++)+",";
-    obj.enableVertexAttribArrayId=(i++)+",";
-    //finish
+    obj.enableVertexAttribArrayId=(i++)+",";    //50
     obj.flushId=(i++)+",";
     obj.framebufferRenderbufferId=(i++)+",";
     obj.framebufferTexture2DId=(i++)+",";
@@ -148,7 +147,7 @@ function GInitWebGLFuncId(obj){
     obj.getActiveUniformId=(i++)+",";
     obj.getAttachedShadersId=(i++)+",";
     obj.getAttribLocationId=(i++)+",";
-    obj.getBufferParameterId=(i++)+",";
+    obj.getBufferParameterId=(i++)+",";         //60
     obj.getContextAttributesId=(i++)+",";
     obj.getErrorId=(i++)+",";
     obj.getExtensionId=(i++)+",";
@@ -158,7 +157,7 @@ function GInitWebGLFuncId(obj){
     obj.getProgramParameterId=(i++)+",";
     obj.getRenderbufferParameterId=(i++)+",";
     obj.getShaderInfoLogId=(i++)+",";
-    obj.getShaderParameterId=(i++)+",";
+    obj.getShaderParameterId=(i++)+",";         //70
     obj.getShaderPrecisionFormatId=(i++)+",";
     obj.getShaderSourceId=(i++)+",";
     obj.getSupportedExtensionsId=(i++)+",";
@@ -167,9 +166,8 @@ function GInitWebGLFuncId(obj){
     obj.getUniformLocationId=(i++)+",";
     obj.getVertexAttribId=(i++)+",";
     obj.getVertexAttribOffsetId=(i++)+",";
-    //hint
     obj.isBufferId=(i++)+",";
-    obj.isContextLostId=(i++)+",";
+    obj.isContextLostId=(i++)+",";              //80
     obj.isEnabledId=(i++)+",";
     obj.isFramebufferId=(i++)+",";
     obj.isProgramId=(i++)+",";
@@ -179,7 +177,7 @@ function GInitWebGLFuncId(obj){
     obj.lineWidthId=(i++)+",";
     obj.linkProgramId=(i++)+",";
     obj.pixelStoreiId=(i++)+",";
-    obj.polygonOffsetId=(i++)+",";
+    obj.polygonOffsetId=(i++)+",";              //90
     obj.readPixelsId=(i++)+",";
     obj.renderbufferStorageId=(i++)+",";
     obj.sampleCoverageId=(i++)+",";
@@ -189,7 +187,7 @@ function GInitWebGLFuncId(obj){
     obj.stencilFuncSeparateId=(i++)+",";
     obj.stencilMaskId=(i++)+",";
     obj.stencilMaskSeparateId=(i++)+",";
-    obj.stencilOpId=(i++)+",";
+    obj.stencilOpId=(i++)+",";                  //100
     obj.stencilOpSeparateId=(i++)+",";
     obj.texImage2DId=(i++)+",";
     obj.texParameterfId=(i++)+",";
@@ -199,7 +197,7 @@ function GInitWebGLFuncId(obj){
     obj.uniform1fvId=(i++)+",";
     obj.uniform1iId=(i++)+",";
     obj.uniform1ivId=(i++)+",";
-    obj.uniform2fId=(i++)+",";
+    obj.uniform2fId=(i++)+",";                  //110
     obj.uniform2fvId=(i++)+",";
     obj.uniform2iId=(i++)+",";
     obj.uniform2ivId=(i++)+",";
@@ -209,7 +207,7 @@ function GInitWebGLFuncId(obj){
     obj.uniform3ivId=(i++)+",";
     obj.uniform4fId=(i++)+",";
     obj.uniform4fvId=(i++)+",";
-    obj.uniform4iId=(i++)+",";
+    obj.uniform4iId=(i++)+",";                  //120
     obj.uniform4ivId=(i++)+",";
     obj.uniformMatrix2fvId=(i++)+",";
     obj.uniformMatrix3fvId=(i++)+",";
@@ -219,7 +217,7 @@ function GInitWebGLFuncId(obj){
     obj.vertexAttrib1fId=(i++)+","; //new
     obj.vertexAttrib2fId=(i++)+","; //new
     obj.vertexAttrib3fId=(i++)+","; //new
-    obj.vertexAttrib4fId=(i++)+","; //new
+    obj.vertexAttrib4fId=(i++)+","; //new       //130
     obj.vertexAttrib1fvId=(i++)+","; //new
     obj.vertexAttrib2fvId=(i++)+","; //new
     obj.vertexAttrib3fvId=(i++)+","; //new
@@ -1060,7 +1058,7 @@ GContextWebGL.prototype.getParameter = function(pname) {
         case 4:
         case 5:
         {
-            var array = resultArray.subarray(1,-1);
+            var array = resultArray.slice(1);
             return array;
         }
         case 6: return resultArray[1];
