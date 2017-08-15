@@ -1345,12 +1345,16 @@ GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset
     {
         var format = arguments[4];
         var type = arguments[5];
-        var imgData = arguments[6];
+        var imageData = arguments[6];
 
-        //TODO imageData
-        var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
-                    yoffset + "," + type + "," + imgData + ";");
-        WebGLCallNative(this.componentId, cmd);
+        //imageData is GCanvasImage
+        if(imageData instanceof GCanvasImage)
+        {
+            var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
+                        yoffset + "," + type + "," + imageData.src + ";");
+            WebGLCallNative(this.componentId, cmd);
+        }
+        
     }
     else if( argc == 9)
     {

@@ -10,6 +10,8 @@
       return {
         items: [ 
 
+          {name: root + '/webgl/weex_mesh', title:'Weex-Mesh'},
+
           //webgl api
           {name: root + '/webgl_api_test/wx_01_gl_activeTexture', title: 'API_01_gl_activeTexture'},
           {name: root + '/webgl_api_test/wx_02_gl_attachShader', title: 'API_02_gl_attachShader'},
@@ -19,6 +21,8 @@
           {name: root + '/webgl_api_test/wx_06_gl_bindRenderBuffer', title: 'API_06_gl_bindRenderBuffer'},
           {name: root + '/webgl_api_test/wx_07_gl_bindTexture', title: 'API_07_gl_bindTexture'},
           {name: root + '/webgl_api_test/wx_08_gl_blendColor', title: 'API_08_gl_blendColor'},
+          {name: root + '/webgl_api_test/wx_135_gl_vertexAttribPointer', title: 'API_135_gl_vertexAttribPointer'},
+          {name: root + '/webgl_api_test/wx_136_gl_viewport', title: 'API_136_gl_viewport'},
 
           {name: root + '/webgl_api_test/wx_gl_clear', title: 'API_gl_clear'},
           
