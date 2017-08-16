@@ -89,6 +89,12 @@
 
                 stage.addChild( box2 );
 
+                stage.onUpdate = function(){
+                    Box.rotationY+=3;
+                    box2.rotationY+=3;
+                    Sphere.rotationY+=3;
+                }
+
                 // var box = new Hilo3d.Mesh({
                 //     geometry: new Hilo3d.BoxGeometry(),
                 //     material: new Hilo3d.BasicMaterial({

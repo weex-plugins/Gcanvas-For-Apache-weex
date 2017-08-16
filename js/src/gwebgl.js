@@ -26,6 +26,12 @@ if(typeof MethodType == "undefined"){
     };
 }
 
+if(typeof CmdType == "undefined"){
+    var CmdType = {
+        Render : 1,
+    };
+}
+
 var G_UseGBridge = 1;
 var G_NeedRender = false;
 
@@ -641,8 +647,8 @@ GContextWebGL.prototype.render = function()
     if( G_NeedRender )
     {
         G_NeedRender = true;
-        var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
-        var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": this.componentId, "type":type, "args":"render"});
+        var type = 0x60000001; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29 | CmdType.Render
+        var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": this.componentId, "type":type});
     }
 };
 

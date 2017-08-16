@@ -51,7 +51,7 @@ WX_PlUGIN_EXPORT_HANDLER(WXGCanvasCallNative, WXExtendCallNativeProtocol)
 @synthesize weexInstance;
 
 WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
-WX_EXPORT_METHOD(@selector(enable2:callback:));
+//WX_EXPORT_METHOD(@selector(enable2:callback:));
 WX_EXPORT_METHOD(@selector(render:componentId:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:callback:));
@@ -60,7 +60,7 @@ WX_EXPORT_METHOD(@selector(setLogLevel:));
 WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其他gcavans reset
 
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
-WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
+//WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
@@ -173,17 +173,7 @@ static NSMutableDictionary *staticCompModuleMap;
                                              selector:@selector(onGCanvasResetNotify:)
                                                  name:KGCanvasResetNotificationName
                                                object:nil];
-
-    NSArray *config = args[@"config"];
-    if( config && config.count > 4 && [config[4] integerValue] == 1 )
-    {
-        GCVLOG_METHOD(@"all parameter:%@", [plugin getAllParameter]);
-        return [plugin getAllParameter];
-    }
-    else
-    {
-        return @"";
-    }
+    return @"";
 }
 
 - (void)render:(NSString *)commands componentId:(NSString*)componentId
@@ -288,6 +278,9 @@ static NSMutableDictionary *staticCompModuleMap;
                 textureId = [GCVCommon bindTexture:imageCache.image];
                 if( textureId > 0 )
                 {
+                    //clean image after bind success
+//                    imageCache.image = nil;
+                    
                     [plugin addTextureId:textureId
                                withAppId:imageCache.jsTextreId
                                    width:imageCache.width
@@ -323,17 +316,17 @@ static NSMutableDictionary *staticCompModuleMap;
 }
 
 #pragma mark - SYNC Method
-- (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin *plugin, BOOL * _Nonnull stop) {
-            [plugin execGcanvaSyncCMD:typeStr args:args];
-        }];
-    });
-    
-    //TODO
-    return @"1";
-}
+//- (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
+//{
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin *plugin, BOOL * _Nonnull stop) {
+//            [plugin execGcanvaSyncCMD:typeStr args:args];
+//        }];
+//    });
+//    
+//    //TODO
+//    return @"1";
+//}
 
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
@@ -343,10 +336,7 @@ static NSMutableDictionary *staticCompModuleMap;
                                                   object:nil];
     
     NSString *componentId = notification.userInfo[@"componentId"];
-    
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
-    
-    
 }
 
 - (void)onGCanvasResetNotify:(NSNotification*)notification
@@ -451,13 +441,13 @@ static NSMutableDictionary *staticCompModuleMap;
         return;
     }
     
-    GCanvasPlugin *plugin = self.pluginDict[component.componentId];
+    GCanvasPlugin *plugin = self.pluginDict[component.ref];
     if( !plugin )
     {
         return;
     }
     
-    GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@", component.componentId);
+    GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@", component.ref);
     
     [EAGLContext setCurrentContext:component.glkview.context];
 
@@ -491,7 +481,7 @@ static NSMutableDictionary *staticCompModuleMap;
                 
                 if( src && componentId && callback )
                 {
-                    if( componentId == component.componentId )
+                    if( componentId == component.ref )
                     {
                         [self bindImageTexture:src componentId:componentId callback:callback];
                         
@@ -620,6 +610,14 @@ static NSMutableDictionary *staticCompModuleMap;
         BOOL isSync = type >> 29 & 0x01;
         if( isSync )
         {
+            
+            BOOL rendCmd = type & 0x01;
+            if( rendCmd )
+            {
+                [component.glkview setNeedsDisplay];
+                return @{};
+            }
+            
             //check command need display
 //            NSString *cmd = dict[@"args"];
 //            int cmdIdx = atoi(cmd.UTF8String);
@@ -629,13 +627,6 @@ static NSMutableDictionary *staticCompModuleMap;
 //            {
 //                [component.glkview setNeedsDisplay];
 //            }
-            
-            //TODO 用type来确定render命令
-            if( [args isEqualToString:@"render"] )
-            {
-                [component.glkview setNeedsDisplay];
-                return @{};
-            }
             
             [plugin addCommands:args];
             [plugin execCommands];
