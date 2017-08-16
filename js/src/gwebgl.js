@@ -27,9 +27,12 @@ if(typeof MethodType == "undefined"){
 }
 
 var G_UseGBridge = 1;
+var G_NeedRender = false;
 
 function WebGLCallNative(componentId, cmdArgs)
 {
+    G_NeedRender = true;
+
     var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
     GLog.d("WebGLCallNative command: " + cmdArgs);
 
@@ -51,37 +54,14 @@ function WebGLCallNative(componentId, cmdArgs)
     return null;
 }
 
-function GContextWebGL(params){
+function GContextWebGL(){
     GInitWebGLFuncId(this);
     GInitWebGLEnum(this);
     
     GInitWebGLFuncIdExt(this);
     GInitWebGLEnumExt(this);
 
-    this._drawCommands = "";
-    this._globalAlpha = 1.0;
-    this._fillStyle = "rgb(0,0,0)";
-    this._strokeStyle = "rgb(0,0,0)";
-    this._lineWidth = 1;
-    this._lineCap = "butt";
-    this._lineJoin= "miter";
-    this._miterLimit = 10;
-    this._globalCompositeOperation = "source-over";
-    this._textAlign = "start";
-    this._textBaseline = "alphabetic";
-    this._font = "10px sans-serif";
-    this._images = {};
-    this._canvases1 = {};
-    this._canvases2 = {};
-    this._getImageData = new Array();
-
-    this._uniformMgr = {};
-    this._uniformCount = 3;
-
-    this._savedGlobalAlpha =[];
-    this.componentId = null;
-
-    
+    this.componentId = null;    
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -656,13 +636,13 @@ function GContextWebGLExtension(gl)
 }
 
 
-GContextWebGL.prototype.render = function() {
-    var commands = this._drawCommands;
-    this._drawCommands = "";
-    if (commands != null && commands != "") {
-        // GLog.d("GContextWebGL#render() called, commands is "+ commands);
-        //GCanvas._toNative(null, null, 'GCanvas', 'render', [ commands ]);
-        GBridge.callRender(this.componentId, commands)
+GContextWebGL.prototype.render = function() 
+{
+    if( G_NeedRender )
+    {
+        G_NeedRender = true;
+        var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
+        var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": this.componentId, "type":type, "args":"render"});
     }
 };
 

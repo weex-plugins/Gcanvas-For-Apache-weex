@@ -615,19 +615,26 @@ static NSMutableDictionary *staticCompModuleMap;
     }
     
     //webgl command
-    if( type >> 30 == 1 )   //webgl
+    if( type >> 30 & 0x01 == 1 )   //webgl
     {
         BOOL isSync = type >> 29 & 0x01;
         if( isSync )
         {
             //check command need display
-            NSString *cmd = dict[@"args"];
-            int cmdIdx = atoi(cmd.UTF8String);
+//            NSString *cmd = dict[@"args"];
+//            int cmdIdx = atoi(cmd.UTF8String);
+//            
+//            //need display 45-drawArrays 47-drawElements 51-flush
+//            if( cmdIdx == 45 || cmdIdx == 47 || cmdIdx == 51 )
+//            {
+//                [component.glkview setNeedsDisplay];
+//            }
             
-            //need display 45-drawArrays 47-drawElements 51-flush
-            if( cmdIdx == 45 || cmdIdx == 47 || cmdIdx == 51 )
+            //TODO 用type来确定render命令
+            if( [args isEqualToString:@"render"] )
             {
                 [component.glkview setNeedsDisplay];
+                return @{};
             }
             
             [plugin addCommands:args];

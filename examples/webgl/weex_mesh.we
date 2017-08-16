@@ -60,15 +60,15 @@
                 ticker.addTick(Hilo3d.Tween);
                 ticker.start();
 
-                // var Box = new Hilo3d.Mesh({
-                //     geometry: new Hilo3d.BoxGeometry({
-                //         width: 1,
-                //         height: 1,
-                //         depth: 1
-                //     }),
-                //     material: new Hilo3d.BasicMaterial()
-                // }); 
-                // stage.addChild( Box );
+                var Box = new Hilo3d.Mesh({
+                    geometry: new Hilo3d.BoxGeometry({
+                        width: 1,
+                        height: 1,
+                        depth: 1
+                    }),
+                    material: new Hilo3d.BasicMaterial()
+                }); 
+                stage.addChild( Box );
 
                 var Sphere = new Hilo3d.Mesh({
                     geometry: new Hilo3d.SphereGeometry(),
@@ -77,6 +77,17 @@
                 Sphere.x = 2;
 
                 stage.addChild( Sphere );
+
+
+                var box2 = new Hilo3d.Mesh({
+                    geometry: new Hilo3d.BoxGeometry(),
+                    material: new Hilo3d.BasicMaterial()
+                });
+                box2.x = 0.5;
+                box2.y = 0.5;
+
+
+                stage.addChild( box2 );
 
                 // var box = new Hilo3d.Mesh({
                 //     geometry: new Hilo3d.BoxGeometry(),

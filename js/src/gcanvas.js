@@ -111,7 +111,7 @@ function GCanvas(componentId)
 }
 
 GCanvas.idCounter = 0;
-GCanvas.canvasMap = new GHashMap();
+// GCanvas.canvasMap = new GHashMap();
 
 //-----------------------------
 // GCanvas.start
@@ -145,9 +145,10 @@ GCanvas.start = function(el){
         config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
         config.push(GSupport.clearColor);
         config.push(GSupport.sameLevel);
-        GCanvas.enableRet = GBridge.callEnable(el.ref, config);
+
+        GBridge.callEnable(el.ref, config);
         var canvas = new GCanvas(el.ref);
-        GCanvas.canvasMap.put(el.ref, canvas);
+        // GCanvas.canvasMap.put(el.ref, canvas);
         return canvas;
     }
 }
@@ -177,7 +178,7 @@ GCanvas.prototype.getContext = function(contextID){
 
     var context_type;
     if (contextID.match(/webgl/i)){
-        context = new GContextWebGL(GCanvas.enableRet);
+        context = new GContextWebGL();
         context_type = 1;
     }else{
         context = new GContext2D();
