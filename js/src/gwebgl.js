@@ -1341,7 +1341,6 @@ GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset
                         yoffset + "," + type + "," + imageData.src + ";");
             WebGLCallNative(this.componentId, cmd);
         }
-        
     }
     else if( argc == 9)
     {
@@ -1352,7 +1351,7 @@ GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset
         var array = arguments[8];
 
         var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," +  yoffset + "," + 
-                    width + "," + height + "," + format + "," + type + "," + GarrToBase64(array) + ";");
+                    width + "," + height + "," + format + "," + type + "," + GetArrayType(array) + "," + GarrToBase64(array) + ";");
         WebGLCallNative(this.componentId, cmd);
     }
 }

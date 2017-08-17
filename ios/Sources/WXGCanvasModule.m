@@ -604,29 +604,18 @@ static NSMutableDictionary *staticCompModuleMap;
         component.gcanvasInitalized = YES;
     }
     
-    //webgl command
     if( type >> 30 & 0x01 == 1 )   //webgl
     {
-        BOOL isSync = type >> 29 & 0x01;
+        BOOL isSync = type >> 29 & 0x01; //sync
         if( isSync )
         {
-            
-            BOOL rendCmd = type & 0x01;
+            BOOL rendCmd = type & 0x01; //render per 16 ms
+
             if( rendCmd )
             {
                 [component.glkview setNeedsDisplay];
                 return @{};
             }
-            
-            //check command need display
-//            NSString *cmd = dict[@"args"];
-//            int cmdIdx = atoi(cmd.UTF8String);
-//            
-//            //need display 45-drawArrays 47-drawElements 51-flush
-//            if( cmdIdx == 45 || cmdIdx == 47 || cmdIdx == 51 )
-//            {
-//                [component.glkview setNeedsDisplay];
-//            }
             
             [plugin addCommands:args];
             [plugin execCommands];

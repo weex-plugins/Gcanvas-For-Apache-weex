@@ -110,7 +110,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         
         self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);
         self.componetFrame = self.frame;
-        self.componentId = ref;
+//        self.componentId = ref;
     }
     
     return self;
@@ -144,7 +144,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         
         [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasCompLoadedNotificationName
                                                             object:nil
-                                                          userInfo:@{@"componentId":self.componentId}];
+                                                          userInfo:@{@"componentId":self.ref}];
     }
     
     return self.glkview;
