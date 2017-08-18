@@ -11,6 +11,7 @@
         items: [ 
 
           {name: root + '/webgl/weex_mesh', title:'Weex-Mesh'},
+          {name: root + '/webgl/weex_load_texture', title:'Weex-LoadTexture'},
 
           //webgl api
           {name: root + '/webgl_api_test/wx_01_gl_activeTexture', title: 'API_01_gl_activeTexture'},

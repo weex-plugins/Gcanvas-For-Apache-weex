@@ -511,7 +511,7 @@ function GInitWebGLEnum(obj){
     obj.MAX_FRAGMENT_UNIFORM_VECTORS = 0x8DFD;
 
     obj.UNPACK_FLIP_Y_WEBGL = 0x9240;
-    // obj.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241;
+    obj.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241;
     // obj.CONTEXT_LOST_WEBGL = 0x9242;
     // obj.UNPACK_COLORSPACE_CONVERSION_WEBGL = 0x9243;
     // obj.BROWSER_DEFAULT_WEBGL = 0x9244;
@@ -617,8 +617,8 @@ GWebGLActiveInfo.convertFormString = function(infoString)
     if( infoArray.length < 3 ) return null;
     
     var activeInfo = new GWebGLActiveInfo();
-    activeInfo.type = infoArray[0];
-    activeInfo.size = infoArray[1];
+    activeInfo.type = parseInt(infoArray[0]);
+    activeInfo.size = parseInt(infoArray[1]);
     activeInfo.name = infoArray[2];
     return activeInfo;
 }
@@ -1090,9 +1090,9 @@ GContextWebGL.prototype.getShaderPrecisionFormat = function(shaderType, precisio
     if( resultArray.length == 3 )
     {
         var precisionFormat= new GWebGLShaderPrecisionFormat();
-        precisionFormat.rangeMin = resultArray[0];
-        precisionFormat.rangeMax = resultArray[1];
-        precisionFormat.precision = resultArray[2];
+        precisionFormat.rangeMin = parseInt(resultArray[0]);
+        precisionFormat.rangeMax = parseInt(resultArray[1]);
+        precisionFormat.precision = parseInt(resultArray[2]);
         return precisionFormat;
     }
     return null; 
@@ -1196,7 +1196,12 @@ GContextWebGL.prototype.linkProgram = function(program){
 };
 
 GContextWebGL.prototype.pixelStorei = function(pname, param){
-    var cmd = (this.pixelStoreiId + pname + "," + (param?1:0) + ";");
+    // UNPACK_FLIP_Y_WEBGL = 0x9240;
+    // obj.UNPACK_PREMULTIPLY_ALPHA_WEBGL = 0x9241;
+    //filter _WEBGL feature
+    if( pname == 0x9240 || pname == 0x9241 ) return;
+
+    var cmd = (this.pixelStoreiId + pname + "," + param + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 

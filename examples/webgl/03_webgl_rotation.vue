@@ -6,9 +6,6 @@
 
 <script>
 	
-	var fragmentShaderStr = "void main() { gl_FragColor = vec4(0.8, 0.8, 0.0, 1.0); }";
-	var vertexShaderStr = "attribute vec3 position; uniform mat4 mv; uniform mat4 proj; void main() { gl_Position = proj * mv * vec4(position, 1.0); }";
-
 	var GCanvas=require('../../js/src/gcanvas'); //调试使用
 
 	var gcanvas;
