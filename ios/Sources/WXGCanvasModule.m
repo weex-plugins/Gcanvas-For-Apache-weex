@@ -621,7 +621,7 @@ static NSMutableDictionary *staticCompModuleMap;
             [plugin execCommands];
             
             NSString *ret = [plugin getSyncResult];
-            return ret ? @{@"result":ret} : @{};
+            return @{@"result":ret};
         }
     }
     return @{};
