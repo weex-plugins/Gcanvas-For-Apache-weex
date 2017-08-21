@@ -10,22 +10,23 @@
       return {
         items: [ 
 
-          {name: root + '/webgl/weex_mesh', title:'Weex-Mesh'},
-          {name: root + '/webgl/weex_load_texture', title:'Weex-LoadTexture'},
+          //hilo3d
+          {name: root + '/webgl/hilo3d_mesh', title:'Hilo3d-Mesh'},
+          {name: root + '/webgl/hilo3d_load_texture', title:'Hilo3d-LoadTexture'},
+          {name: root + '/webgl/hilo3d_basic', title:'Hilo3d-Basic'},
 
           //webgl api
-          {name: root + '/webgl_api_test/wx_01_gl_activeTexture', title: 'API_01_gl_activeTexture'},
-          {name: root + '/webgl_api_test/wx_02_gl_attachShader', title: 'API_02_gl_attachShader'},
-          {name: root + '/webgl_api_test/wx_03_gl_bindAttribLocation', title: 'API_03_gl_bindAttribLocation'},
-          {name: root + '/webgl_api_test/wx_04_gl_bindBuffer', title: 'API_04_gl_bindBuffer'},
-          {name: root + '/webgl_api_test/wx_05_gl_bindFrameBuffer', title: 'API_05_gl_bindFrameBuffer'},
-          {name: root + '/webgl_api_test/wx_06_gl_bindRenderBuffer', title: 'API_06_gl_bindRenderBuffer'},
-          {name: root + '/webgl_api_test/wx_07_gl_bindTexture', title: 'API_07_gl_bindTexture'},
-          {name: root + '/webgl_api_test/wx_08_gl_blendColor', title: 'API_08_gl_blendColor'},
-          {name: root + '/webgl_api_test/wx_135_gl_vertexAttribPointer', title: 'API_135_gl_vertexAttribPointer'},
-          {name: root + '/webgl_api_test/wx_136_gl_viewport', title: 'API_136_gl_viewport'},
-
-          {name: root + '/webgl_api_test/wx_gl_clear', title: 'API_gl_clear'},
+          // {name: root + '/webgl_api_test/wx_01_gl_activeTexture', title: 'API_01_gl_activeTexture'},
+          // {name: root + '/webgl_api_test/wx_02_gl_attachShader', title: 'API_02_gl_attachShader'},
+          // {name: root + '/webgl_api_test/wx_03_gl_bindAttribLocation', title: 'API_03_gl_bindAttribLocation'},
+          // {name: root + '/webgl_api_test/wx_04_gl_bindBuffer', title: 'API_04_gl_bindBuffer'},
+          // {name: root + '/webgl_api_test/wx_05_gl_bindFrameBuffer', title: 'API_05_gl_bindFrameBuffer'},
+          // {name: root + '/webgl_api_test/wx_06_gl_bindRenderBuffer', title: 'API_06_gl_bindRenderBuffer'},
+          // {name: root + '/webgl_api_test/wx_07_gl_bindTexture', title: 'API_07_gl_bindTexture'},
+          // {name: root + '/webgl_api_test/wx_08_gl_blendColor', title: 'API_08_gl_blendColor'},
+          // {name: root + '/webgl_api_test/wx_135_gl_vertexAttribPointer', title: 'API_135_gl_vertexAttribPointer'},
+          // {name: root + '/webgl_api_test/wx_136_gl_viewport', title: 'API_136_gl_viewport'},
+          // {name: root + '/webgl_api_test/wx_gl_clear', title: 'API_gl_clear'},
           
           //test
           {name: root + '/testcallNative', title: 'TestCallNative'},
@@ -55,7 +56,6 @@
           {name: root + '/webgl/04_webgl_cube', title:'04-WebGL-Cube'},
           {name: root + '/webgl/05_webgl_triangle_texture', title:'05-WebGL-Triangle-Texture'},
           {name: root + '/webgl/06_webgl_texImage2D', title:'06-WebGL-texImage2D'},
-          {name: root + '/webgl/3d', title:'Hilo3d'}
 
 
         ]

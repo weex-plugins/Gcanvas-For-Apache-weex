@@ -19,7 +19,6 @@
     var innerHeight = 750
 
     const modal = require('@weex-module/modal');
-    // var gcanvas = require('@weex-module/gcanvas');
 
     module.exports = {
         data: {

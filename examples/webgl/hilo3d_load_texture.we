@@ -18,8 +18,10 @@
     var innerWidth = 750;
     var innerHeight = 750
 
-    const modal = require('@weex-module/modal');
-    var GUtils = require('@weex-module/gcanvas');
+    // const modal = require('@weex-module/modal');
+    // var GUtils = require('@weex-module/gcanvas');
+
+    const modal = weex.requireModule('modal');
 
     module.exports = {
         data: {
@@ -75,7 +77,9 @@
                     var mesh = new Hilo3d.Mesh({
                         geometry: new Hilo3d.BoxGeometry(),
                         material: new Hilo3d.BasicMaterial({
-                            diffuse: diffuse
+                            // diffuse: diffuse
+                            diffuse: new Hilo3d.Color(0.8, 0.8, 0)
+
                         })  
                     });
                     stage.addChild( mesh );
