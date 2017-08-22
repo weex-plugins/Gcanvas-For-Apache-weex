@@ -1022,10 +1022,15 @@ GContextWebGL.prototype.getFramebufferAttachmentParameter = function(target, att
     return WebGLCallNative(this.componentId, cmd);
 };
 
-GContextWebGL.prototype.getParameter = function(pname) {
-    var cmd = (this.getParameterId + pname + ";");
-    var resultString = WebGLCallNative(this.componentId, cmd);
 
+function GetRetrunResultByString(resultString)
+{
+    if( !resultString ) return null;
+
+    var resultArray = resultString.split(",");
+    if( resultArray.length <2 ) return null;
+
+    var retType = parseInt(resultArray[0]);
     /*
     kReturnBoolean = 1,
     kReturnInt,
@@ -1034,12 +1039,6 @@ GContextWebGL.prototype.getParameter = function(pname) {
     kReturnFloatArray,
     kReturnString
     */
-    if( !resultString ) return null;
-
-    var resultArray = resultString.split(",");
-    if( resultArray.length <2 ) return null;
-
-    var retType = parseInt(resultArray[0]);
     switch( retType )
     {
         case 1: return parseInt(resultArray[1]) == 1;
@@ -1054,6 +1053,12 @@ GContextWebGL.prototype.getParameter = function(pname) {
         case 6: return resultArray[1];
         default: return null;
     }
+}
+
+GContextWebGL.prototype.getParameter = function(pname) {
+    var cmd = (this.getParameterId + pname + ";");
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    return GetRetrunResultByString(resultString);
 };
 
 GContextWebGL.prototype.getProgramInfoLog = function(program){
@@ -1120,7 +1125,8 @@ GContextWebGL.prototype.getTexParameter = function(target, pname){
 //new
 GContextWebGL.prototype.getUniform = function(program, location){
     var cmd = (this.getUniformId + program + "," + location + ";");
-    return WebGLCallNative(this.componentId, cmd);
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    return GetRetrunResultByString(resultString);
 };
 
 GContextWebGL.prototype.getUniformLocation = function(program, name) {
@@ -1130,7 +1136,25 @@ GContextWebGL.prototype.getUniformLocation = function(program, name) {
 
 GContextWebGL.prototype.getVertexAttrib = function(index, pname) {
     var cmd = (this.getVertexAttribId + index + "," + pname + ";");
-    return WebGLCallNative(this.componentId, cmd);
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    return GetRetrunResultByString(resultString);
+
+    // if( !resultString ) return null;
+
+    // var resultArray = resultString.split(",");
+    // if( resultArray.length <2 ) return null;
+
+    // var retType = parseInt(resultArray[0]);
+    // switch( retType )
+    // {
+    //     case 2: return parseInt(resultArray[1]);
+    //     case 5:
+    //     {
+    //         var array = resultArray.slice(1);
+    //         return array;
+    //     }
+    //     default: return null;
+    // }
 };
 
 GContextWebGL.prototype.getVertexAttribOffset = function(index, pname) {
@@ -1392,7 +1416,7 @@ GContextWebGL.prototype.uniform1fv = function(location, value){
 };
 
 GContextWebGL.prototype.uniform1i = function(location, value){
-    var cmd = (this.uniform1iId + location+ "," + (value?1:0) + ";");
+    var cmd = (this.uniform1iId + location+ "," + value + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1491,19 +1515,19 @@ GContextWebGL.prototype.vertexAttrib1f = function(index, v0){
 
 //new
 GContextWebGL.prototype.vertexAttrib2f = function(index, v0, v1){
-    var cmd = (this.vertexAttrib1fId + index + "," + v0 + "," + v1 + ";");
+    var cmd = (this.vertexAttrib2fId + index + "," + v0 + "," + v1 + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
 //new
 GContextWebGL.prototype.vertexAttrib3f = function(index, v0, v1, v2){
-    var cmd = (this.vertexAttrib1fId + index + "," + v0 + "," + v1 + "," + v2 + ";");
+    var cmd = (this.vertexAttrib3fId + index + "," + v0 + "," + v1 + "," + v2 + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
 //new
 GContextWebGL.prototype.vertexAttrib4f = function(index, v0, v1, v2, v3){
-    var cmd = (this.vertexAttrib1fId + index + "," + v0 + "," + v1 + "," + v2 + "," + v3+ ";");
+    var cmd = (this.vertexAttrib4fId + index + "," + v0 + "," + v1 + "," + v2 + "," + v3+ ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1513,7 +1537,7 @@ GContextWebGL.prototype.vertexAttribXXfv_ = function(index, value, type, cmdId){
         return;
 
     value = trans2ArrayType(type, value);
-    var cmd = (cmdId + id + "," + GarrToBase64(value) + ";");
+    var cmd = (cmdId + index + "," + GarrToBase64(value) + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
