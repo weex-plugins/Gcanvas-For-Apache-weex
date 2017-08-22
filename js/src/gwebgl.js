@@ -565,11 +565,13 @@ function GarrToBase64(array)
         {
             if( i < array.length - 1 )
             {
-                str = str + array[i] + ',';
+                // str = str + array[i] + ',';
+                str = str + array[i].toFixed(3) + ',';
             }
             else
             {
-                str = str + array[i];
+                // str = str + array[i];
+                str = str + array[i].toFixed(3);
             }
         }
     }

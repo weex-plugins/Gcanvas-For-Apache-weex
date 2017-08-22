@@ -23,9 +23,9 @@
 #import <GCanvas/GCVCommon.h>
 #import <GCanvas/GCanvasPlugin.h>
 #import <WeexSDK/WXComponentManager.h>
-//#import <WeexSDK/WXExtendCallNativeProtocol.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+//#import <WeexSDK/WXExtendCallNativeProtocol.h>
 //#import "WXGCanvasCallNative.h"
 
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
@@ -37,8 +37,6 @@
 
 @property (strong, nonatomic) NSMutableArray *bindCacheArray;   //cache bindTexture
 
-
-
 @end
 
 
@@ -46,12 +44,12 @@
 
 WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 
-WX_PlUGIN_EXPORT_HANDLER(WXGCanvasCallNative, WXExtendCallNativeProtocol)
+//WX_PlUGIN_EXPORT_HANDLER(WXGCanvasCallNative, WXExtendCallNativeProtocol)
 
 @synthesize weexInstance;
 
+//async
 WX_EXPORT_METHOD(@selector(getDeviceInfo:callback:));
-//WX_EXPORT_METHOD(@selector(enable2:callback:));
 WX_EXPORT_METHOD(@selector(render:componentId:));
 WX_EXPORT_METHOD(@selector(preLoadImage:callback:));
 WX_EXPORT_METHOD(@selector(bindImageTexture:componentId:callback:));
@@ -59,8 +57,8 @@ WX_EXPORT_METHOD(@selector(setContextType:componentId:));
 WX_EXPORT_METHOD(@selector(setLogLevel:));
 WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其他gcavans reset
 
+//sync
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
-//WX_EXPORT_METHOD_SYNC(@selector(execGcanvaSyncCMD:args:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
@@ -103,43 +101,6 @@ static NSMutableDictionary *staticCompModuleMap;
     if(callback){
         callback(@{@"result":@"success", @"data":@{@"platform":@"iOS"}});
     }
-}
-
-- (void)enable2:(NSDictionary *)args callback:(WXModuleCallback)callback
-{
-    if (!args || !args[@"componentId"])
-    {
-        if(callback){
-            callback(@{@"result":@"fail", @"errorMsg":@"input args is error."});
-        }
-        return;
-    }
-    
-    NSString *componentId = args[@"componentId"];
-    
-    GCVLOG_METHOD(@"enable:callback:, componentId=%@", componentId);
-    
-    //plugin
-    GCanvasPlugin *plugin = [[GCanvasPlugin alloc] initWithComponentId:componentId];
-    
-    if( !self.pluginDict )
-    {
-        self.pluginDict = NSMutableDictionary.dictionary;
-    }
-    self.pluginDict[componentId] = plugin;
-    
-    
-    //save
-    [WXGCanvasModule setModule:self forComponentId:componentId];
-    
-    if(callback){
-        callback(@{@"result":@"success"});
-    }
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onGCanvasResetNotify:)
-                                                 name:KGCanvasResetNotificationName
-                                               object:nil];
 }
 
 - (NSString*)enable:(NSDictionary *)args
@@ -315,19 +276,6 @@ static NSMutableDictionary *staticCompModuleMap;
     
 }
 
-#pragma mark - SYNC Method
-//- (NSString*)execGcanvaSyncCMD:(NSString*)typeStr args:(NSString*)args
-//{
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin *plugin, BOOL * _Nonnull stop) {
-//            [plugin execGcanvaSyncCMD:typeStr args:args];
-//        }];
-//    });
-//    
-//    //TODO
-//    return @"1";
-//}
-
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
 {
@@ -336,7 +284,7 @@ static NSMutableDictionary *staticCompModuleMap;
                                                   object:nil];
     
     NSString *componentId = notification.userInfo[@"componentId"];
-    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+    [self gcanvasComponentById:componentId];
 }
 
 - (void)onGCanvasResetNotify:(NSNotification*)notification
@@ -604,7 +552,7 @@ static NSMutableDictionary *staticCompModuleMap;
         component.gcanvasInitalized = YES;
     }
     
-    if( type >> 30 & 0x01 == 1 )   //webgl
+    if( (type >> 30 & 0x01) == 1 )   //webgl
     {
         BOOL isSync = type >> 29 & 0x01; //sync
         if( isSync )
