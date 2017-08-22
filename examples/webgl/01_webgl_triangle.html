@@ -1,0 +1,179 @@
+<html>
+    <head>
+        <title>WebGL test</title>
+        <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+ 
+        <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 position;
+             
+            uniform mat4 mv;
+            uniform mat4 proj;
+ 
+            void main()
+            {
+                gl_Position = proj * mv * vec4(position, 1.0);
+            }
+        </script>
+        <script id="shader-fs" type="x-shader/x-fragment">
+            void main()
+            {
+                gl_FragColor = vec4(0.8, 0.8, 0.0, 1.0);
+            }
+        </script>
+ 
+        <script type="text/javascript">          
+            // Initialises WebGL and creates the 3D scene.
+            function loadScene()
+            {
+                var canvas = document.getElementById("webGLCanvas");
+                if (!canvas.getContext)
+                {
+                    alert("There's no canvas available.");
+                    return;
+                }
+ 
+                var gl = canvas.getContext("experimental-webgl");
+                if (!gl)
+                {
+                    alert("There's no WebGL context available.");
+                    return;
+                }
+                
+                /*
+                var vendor_info = document.getElementById("vendor_info");
+                var renderer_info = document.getElementById("renderer_info");
+                var version_info = document.getElementById("version_info");
+                var ext_info = document.getElementById("ext_info");
+                vendor_info.innerHTML = gl.getParameter(gl.VENDOR);
+                renderer_info.innerHTML = gl.getParameter(gl.RENDERER);
+                version_info.innerHTML = gl.getParameter(gl.VERSION);
+                var exts = gl.getSupportedExtensions();
+                var s = "";
+                for (index in exts)
+                {
+                    s += exts[index] + "<br />";
+                }
+                ext_info.innerHTML = s;
+                */
+                 
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                 
+                var vertexShaderScript = document.getElementById("shader-vs");
+                var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+                gl.shaderSource(vertexShader, vertexShaderScript.text);
+                gl.compileShader(vertexShader);
+                if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS))
+                {
+                    alert("Unable to compile the vertex shader");
+                    gl.deleteShader(vertexShader);
+                    return;
+                }
+                 
+                var fragmentShaderScript = document.getElementById("shader-fs");
+                var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+                gl.shaderSource(fragmentShader, fragmentShaderScript.text);
+                gl.compileShader(fragmentShader);
+                if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS))
+                {
+                    alert("Unable to compile the fragment shader");
+                    gl.deleteShader(fragmentShader);
+                    return;
+                }
+ 
+                gl.program = gl.createProgram();
+                gl.attachShader(gl.program, vertexShader);
+                gl.attachShader(gl.program, fragmentShader);
+                gl.linkProgram(gl.program);
+                if (!gl.getProgramParameter(gl.program, gl.LINK_STATUS))
+                {
+                    alert("Unable to link shaders");
+                    gl.deleteProgram(gl.program);
+                    gl.deleteProgram(vertexShader);
+                    gl.deleteProgram(fragmentShader);
+                    return;
+                }
+ 
+                gl.clearColor(0.2, 0.4, 0.6, 1.0);
+                gl.clearDepth(1.0);
+                gl.enable(gl.DEPTH_TEST);
+                gl.depthFunc(gl.LEQUAL);
+                 
+                var vertexBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+                var vertices = new Float32Array([
+                    0.0,   1.0, 1.0,
+                    -1.0, -1.0, 1.0,
+                    1.0,  -1.0, 1.0
+                ]);
+     
+                gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+                 
+                gl.useProgram(gl.program);
+                var vertexPosition = gl.getAttribLocation(gl.program, "position");
+                gl.enableVertexAttribArray(vertexPosition);
+                gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
+ 
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                 
+                var fov = 90.0;
+                var aspect = canvas.width / canvas.height;
+                var nearPlane = 1.0;
+                var farPlane = 100.0;
+                var top = nearPlane * Math.tan(fov / 2 * Math.PI / 180);
+                var bottom = -top;
+                var right = top * aspect;
+                var left = -right;
+ 
+                var a = (right + left) / (right - left);
+                var b = (top + bottom) / (top - bottom);
+                var c = (farPlane + nearPlane) / (farPlane - nearPlane);
+                var d = (2 * farPlane * nearPlane) / (farPlane - nearPlane);
+                var x = (2 * nearPlane) / (right - left);
+                var y = (2 * nearPlane) / (top - bottom);
+                var perspectiveMatrix = new Float32Array([
+                    x, 0, a, 0,
+                    0, y, b, 0,
+                    0, 0, c, d,
+                    0, 0, -1, 0
+                ]);
+                 
+                var modelViewMatrix = new Float32Array([
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                ]);
+                
+                var location = gl.getUniformLocation(gl.program, "proj");
+                gl.uniformMatrix4fv(location, false, perspectiveMatrix);
+                console.log("location:"+location+", perspectiveMatrix:"+perspectiveMatrix);
+
+                location = gl.getUniformLocation(gl.program, "mv");
+                gl.uniformMatrix4fv(location, false, modelViewMatrix);
+                console.log("location:"+location+", modelViewMatrix:"+modelViewMatrix);
+
+
+                // gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "proj"), false, perspectiveMatrix);
+                // gl.uniformMatrix4fv(gl.getUniformLocation(gl.program, "mv"), false, modelViewMatrix);
+ 
+                gl.drawArrays(gl.TRIANGLES, 0, vertices.length / 3);
+            }
+        </script>
+    </head>
+     
+    <body onload="loadScene()">
+        <!--
+        <h1>WebGL Test</h1>
+        <h3>Vendor</h3>
+        <p id="vendor_info"></p>
+        <h3>Renderer</h3>
+        <p id="renderer_info"></p>
+        <h3>Version</h3>
+        <p id="version_info"></p>
+        <h3>Extensions</h3>
+        <p id="ext_info"></p>
+        <h3>Rendering</h3>
+        -->
+        <canvas id="webGLCanvas" width="640" height="480"></canvas>
+    </body>
+</html>

@@ -19,7 +19,6 @@
   }
 </style>
 <script>
-  //	var gcanvas = weex.requireModule('weex-gcanvas');
   var modal = weex.requireModule('modal')
 
   var GCanvas=require('../js/src/gcanvas');

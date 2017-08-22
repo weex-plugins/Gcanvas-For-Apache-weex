@@ -23,6 +23,7 @@
 </style>
 
 <script>
+	//var GCanvas=require('weex-gcanvas');
 	var GCanvas = require('../js/src/gcanvas'); //调试使用
 
 	module.exports = {

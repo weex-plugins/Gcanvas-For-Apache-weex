@@ -33,14 +33,15 @@
 
 <script>
   var timer = weex.requireModule('timer');
-  // var gcanvas=require('weex-gcanvas');
+  // var GCanvas=require('weex-gcanvas');
   var GCanvas = require('../js/src/gcanvas');
   var Image = require('../js/src/gcanvasimage');
   var getBaseURL = require('./include/base-url.js').getBaseURL
   var modal = weex.requireModule('modal')
   var event = weex.requireModule('event')
 
-  var gcanvas;
+  var gcanvas1;
+  var gcanvas2;
   module.exports = {
     data: function () {
       return {
@@ -75,21 +76,26 @@
         })
       },
       viewdisappear: function() {
-        gcanvas.reset();
+        gcanvas1.reset();
+        gcanvas2.reset();
+
       	modal.toast({
           'message': 'view disappear',
           'duration': 0.3
         })
       },
       cellappear: function () {
-        gcanvas.startLoop();
+        gcanvas1.startLoop();       
+        gcanvas2.startLoop();
+
         modal.toast({
           'message': 'gcanvas cell appear',
           'duration': 0.3
         })
       },
       celldisappear: function () {
-      	gcanvas.stopLoop();
+        gcanvas1.stopLoop();
+        gcanvas2.stopLoop();
         modal.toast({
           'message': 'gcanvas cell disappear',
           'duration': 0.3

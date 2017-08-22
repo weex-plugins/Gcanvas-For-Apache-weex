@@ -111,7 +111,7 @@ function GCanvas(componentId)
 }
 
 GCanvas.idCounter = 0;
-GCanvas.canvasMap = new GHashMap();
+// GCanvas.canvasMap = new GHashMap();
 
 //-----------------------------
 // GCanvas.start
@@ -124,7 +124,7 @@ GCanvas.start = function(el){
     } else if (typeof navigator === 'object' && /ios/i.test(navigator.userAgent)) {
         GCanvasPlatform = 1;
     } else {
-        GCanvasPlatform = 2;
+        GCanvasPlatform = GBridge.isBrowser() ? 0 : 2;
     }
 
     GBridge.setup( {platform:GCanvasPlatform} );
@@ -145,10 +145,10 @@ GCanvas.start = function(el){
         config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
         config.push(GSupport.clearColor);
         config.push(GSupport.sameLevel);
-        GBridge.callEnable(el.ref,config,function(e){});
 
+        GBridge.callEnable(el.ref, config);
         var canvas = new GCanvas(el.ref);
-        GCanvas.canvasMap.put(el.ref, canvas);
+        // GCanvas.canvasMap.put(el.ref, canvas);
         return canvas;
     }
 }
@@ -232,7 +232,7 @@ GCanvas.prototype.startLoop = function(fps){
         return;
     }
  
-    fps = parseFloat(fps) || 16;
+    fps = parseInt(fps) || 16;
     if(!this.context.timer){
         this.context.timer = setInterval(this.render.bind(this),fps);
     }

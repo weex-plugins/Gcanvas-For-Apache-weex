@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script>
-	// var gcanvas=require('weex-gcanvas'); //正式使用请用这个
+	// var GCanvas=require('weex-gcanvas'); //正式使用请用这个
 	var GCanvas=require('../js/src/gcanvas'); //调试使用
 	var Image=require('../js/src/gcanvasimage');
 
@@ -20,9 +20,9 @@
 			var image = new Image();
 			image.onload = function(){
 				ctx.drawImage(image, 200, 0);
-				ctx.drawImage(image, 200+210, 330, 210, 330);
+				ctx.drawImage(image, 200+210, 330, 225, 75);
 			}
-			image.src = 'https://img.alicdn.com/tps/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png';
+			image.src = 'https://www.khronos.org/assets/uploads/ceimg/made/assets/uploads/apis/OpenGL-ES_100px_May16_225_75.png';
 
 		}
 	};

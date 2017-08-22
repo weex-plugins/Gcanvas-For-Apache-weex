@@ -2,7 +2,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "WeexGcanvas"
-  s.version      = "0.0.1.11"
+  s.version      = "0.0.3.3"
   s.summary      = "Weex Plugin"
 
   s.description  = <<-DESC
@@ -22,9 +22,10 @@ Pod::Spec.new do |s|
   s.platform     = :ios
   s.ios.deployment_target = "7.0"
 
-  s.source       = { :git => 'https://github.com/weex-plugins/weex-plugin-gcanvas.git', :tag => '0.0.1.11' }
+  s.source       = { :git => 'https://github.com/weex-plugins/weex-plugin-gcanvas.git', :tag => '0.0.3.3' }
   #s.source =  { :path => '.' }
   s.source_files  = "ios/Sources/*.{h,m,mm}"
+  s.exclude_files  = "ios/Sources/WXGCanvasCallNative.{h,m,mm}"
   
   s.requires_arc = true
   s.dependency "WeexPluginLoader"

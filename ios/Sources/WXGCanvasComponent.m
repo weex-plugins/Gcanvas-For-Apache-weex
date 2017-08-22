@@ -110,7 +110,6 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         
         self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);
         self.componetFrame = self.frame;
-        self.componentId = ref;
     }
     
     return self;
@@ -139,8 +138,13 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         glkview.backgroundColor = [UIColor clearColor];
+        [glkview.context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)glkview.layer];
         
-        self.glkview = glkview;
+        self.glkview  = glkview;
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasCompLoadedNotificationName
+                                                            object:nil
+                                                          userInfo:@{@"componentId":self.ref}];
     }
     
     return self.glkview;
