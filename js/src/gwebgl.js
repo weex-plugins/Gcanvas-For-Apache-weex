@@ -33,7 +33,7 @@ if(typeof CmdType == "undefined"){
 }
 
 var G_UseGBridge = 1;
-var G_NeedRender = false;
+var G_NeedRender = true;
 
 function WebGLCallNative(componentId, cmdArgs)
 {
@@ -41,23 +41,29 @@ function WebGLCallNative(componentId, cmdArgs)
 
     var type = 0x60000000; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29
     GLog.d("WebGLCallNative command: " + cmdArgs);
+    	
+    if(GBridge.isIOS()) {
+    	if( G_UseGBridge )
+    	{
+	    var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
+	    if( result )
+	    {
+	        return result["result"];
+	    }
+	    return null;
+    	}
 
-    if( G_UseGBridge )
-    {
-        var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
-        if( result )
-        {
-            return result["result"];
-        }
-        return null;
+    	var result = extendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
+    	if( result )
+    	{
+	    return result["result"];
+    	}
+    	return null;
+    }else {
+    	var result = callGCanvasLinkNative(componentId,type,cmdArgs);
+	GLog.d("result in js is " + result);
+        return result;
     }
-
-    var result = extendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
-    if( result )
-    {
-        return result["result"];
-    }
-    return null;
 }
 
 function GContextWebGL(){
@@ -648,10 +654,14 @@ GContextWebGL.prototype.render = function()
 {
     if( G_NeedRender )
     {
-        G_NeedRender = true;
         var type = 0x60000001; //ContextType.ContextWebGL << 30 | MethodType.Sync << 29 | CmdType.Render
-        var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": this.componentId, "type":type});
-    }
+	
+	if(GBridge.isIOS()) {
+            var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": this.componentId, "type":type});
+    	} else{
+	    callGCanvasLinkNative(this.componentId,type,"render");
+	    G_NeedRender = false;
+	}
 };
 
 
@@ -1324,7 +1334,11 @@ GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
         {
             var cmd = (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," + 
                       format + "," + type + "," + imageData.src + ";");
-            WebGLCallNative(this.componentId, cmd);  
+            if(!GBridge.isIOS()) {
+    	        GBridge.texImage2D(this.componentId,target, level, internalformat, format,type, imageData.src);
+    	    } else {
+            	WebGLCallNative(this.componentId, cmd);
+            }  
         }
     }
     else if (9 == argc)
@@ -1368,9 +1382,13 @@ GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset
         //imageData is GCanvasImage
         if(imageData instanceof GCanvasImage)
         {
-            var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
+            if(!GBridge.isIOS()) {
+    	        GBridge.texSubImage2D(this.componentId,target, level, xoffset,yoffset,format,type, imageData.src);
+    	    }else {
+            	var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
                         yoffset + "," + type + "," + imageData.src + ";");
-            WebGLCallNative(this.componentId, cmd);
+            	WebGLCallNative(this.componentId, cmd);
+            }
         }
     }
     else if( argc == 9)
