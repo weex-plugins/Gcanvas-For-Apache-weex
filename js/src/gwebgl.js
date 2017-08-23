@@ -1369,7 +1369,7 @@ GContextWebGL.prototype.texSubImage2D = function(target, level, xoffset, yoffset
         if(imageData instanceof GCanvasImage)
         {
             var cmd = (this.texSubImage2DId + argc + "," + target + "," + level + "," + xoffset + "," + 
-                        yoffset + "," + type + "," + imageData.src + ";");
+                        yoffset + "," + format + "," + type + "," + imageData.src + ";");
             WebGLCallNative(this.componentId, cmd);
         }
     }
