@@ -62,30 +62,30 @@ WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
-static NSMutableDictionary *staticCompModuleMap;
-
-+ (void)setModule:(WXGCanvasModule*)module forComponentId:(NSString*)componentId
-{
-    static dispatch_once_t token;
-    dispatch_once(&token, ^{
-        staticCompModuleMap =  NSMutableDictionary.dictionary;
-    });
-    
-    staticCompModuleMap[componentId] = module;
-}
-
-+ (WXGCanvasModule*)getModuleByComponentId:(NSString*)componentId
-{
-    return staticCompModuleMap[componentId];
-}
-
-+ (void)removeModuleByComponentId:(NSString*)componentId
-{
-    if(staticCompModuleMap)
-    {
-        [staticCompModuleMap removeObjectForKey:componentId];
-    }
-}
+//static NSMutableDictionary *staticCompModuleMap;
+//
+//+ (void)setModule:(WXGCanvasModule*)module forComponentId:(NSString*)componentId
+//{
+//    static dispatch_once_t token;
+//    dispatch_once(&token, ^{
+//        staticCompModuleMap =  NSMutableDictionary.dictionary;
+//    });
+//    
+//    staticCompModuleMap[componentId] = module;
+//}
+//
+//+ (WXGCanvasModule*)getModuleByComponentId:(NSString*)componentId
+//{
+//    return staticCompModuleMap[componentId];
+//}
+//
+//+ (void)removeModuleByComponentId:(NSString*)componentId
+//{
+//    if(staticCompModuleMap)
+//    {
+//        [staticCompModuleMap removeObjectForKey:componentId];
+//    }
+//}
 
 
 - (void)dealloc
@@ -124,7 +124,7 @@ static NSMutableDictionary *staticCompModuleMap;
     self.pluginDict[componentId] = plugin;
     
     //save
-    [WXGCanvasModule setModule:self forComponentId:componentId];
+//    [WXGCanvasModule setModule:self forComponentId:componentId];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onGCanvasCompLoadedNotify:)
@@ -493,33 +493,33 @@ static NSMutableDictionary *staticCompModuleMap;
 
 }
 
-+ (id)excuteCallNative:(NSDictionary *)dict
-{
-    NSString *componentId = dict[@"contextId"];
-    
-    WXGCanvasModule *module = [WXGCanvasModule getModuleByComponentId:componentId];
-    if( !module ) return nil;
-    
-    WXGCanvasComponent *component = [module gcanvasComponentById:componentId];
-    CFTimeInterval startTime = CACurrentMediaTime();
-    while (!component.glkview)
-    {
-        CFTimeInterval current = CACurrentMediaTime();
-        if( current- startTime > 1 )  //1s超时退出
-            break;
-        component = [module gcanvasComponentById:componentId];
-    }
-    
-    __block NSDictionary *retDict;
-    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
-    dispatch_async(dispatch_get_main_queue(), ^{
-        retDict = [module callGCanvasNative:dict];
-        dispatch_semaphore_signal(_semaphore);
-    });
-    
-    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-    return retDict;
-}
+//+ (id)excuteCallNative:(NSDictionary *)dict
+//{
+//    NSString *componentId = dict[@"contextId"];
+//    
+//    WXGCanvasModule *module = [WXGCanvasModule getModuleByComponentId:componentId];
+//    if( !module ) return nil;
+//    
+//    WXGCanvasComponent *component = [module gcanvasComponentById:componentId];
+//    CFTimeInterval startTime = CACurrentMediaTime();
+//    while (!component.glkview)
+//    {
+//        CFTimeInterval current = CACurrentMediaTime();
+//        if( current- startTime > 1 )  //1s超时退出
+//            break;
+//        component = [module gcanvasComponentById:componentId];
+//    }
+//    
+//    __block NSDictionary *retDict;
+//    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        retDict = [module callGCanvasNative:dict];
+//        dispatch_semaphore_signal(_semaphore);
+//    });
+//    
+//    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+//    return retDict;
+//}
 
 - (NSDictionary*)callGCanvasNative:(NSDictionary*)dict
 {
