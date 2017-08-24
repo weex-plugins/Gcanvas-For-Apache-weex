@@ -47,8 +47,8 @@
 
             var loader = new Hilo3d.BasicLoader();
             loader.load({
-                src: 'http://ossgw.alicdn.com/tmall-c3/tmx/71c8098c62c7b9615d375b710583183f.png',
-                // src: 'https://img.alicdn.com/tfs/TB1QoJhXDZRMeJjSspoXXcCOFXa-512-512.png',
+                // src: 'http://ossgw.alicdn.com/tmall-c3/tmx/71c8098c62c7b9615d375b710583183f.png',
+                src: 'https://img.alicdn.com/tfs/TB1J2xrXyERMeJjy0FcXXc7opXa-512-512.jpg',
                 crossOrigin: 'anonymous'
             }).then(function(image) {
                 console.log( image );   
@@ -62,8 +62,6 @@
                     geometry: new Hilo3d.BoxGeometry(),
                     material: new Hilo3d.BasicMaterial({
                         diffuse: diffuse
-                        // diffuse: new Hilo3d.Color(1.0, 0, 0)
-
                     })  
                 });
                 stage.addChild( mesh );
