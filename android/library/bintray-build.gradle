@@ -1,0 +1,185 @@
+//def deployVersion = System.getProperty('deployVersion')
+//if (null != deployVersion) {
+//    version = deployVersion
+//}
+buildscript {
+    repositories {
+        mavenLocal()
+        maven {
+            url "http://mvnrepo.alibaba-inc.com/mvn/repository"
+        }
+        jcenter()
+    }
+    dependencies {
+        classpath('com.android.tools.build:gradle:2.1.2')
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0'
+        classpath("com.taobao.android:weexplugin-gradle-plugin:1.0.6.1")
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
+
+    }
+}
+allprojects {
+    repositories {
+        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/repository' }
+        mavenLocal()
+        mavenCentral()
+    }
+}
+apply plugin: 'com.android.library'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+apply plugin: 'com.github.dcendents.android-maven'
+
+apply plugin: 'com.taobao.android.weex.plugin.gradle'
+repositories {
+    mavenLocal()
+    jcenter()
+    maven {
+        url "http://mvnrepo.alibaba-inc.com/mvn/repository"
+    }
+
+}
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    lintOptions {
+        abortOnError false
+    }
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDir(['libs'])
+        }
+    }
+}
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testCompile 'junit:junit:4.12'
+    provided "com.taobao.android:phenix_compat:2.5.1"
+    provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.41@aar'
+    provided 'com.taobao.android:weexplugin-annotation:1+'
+    provided "com.taobao.android:weex_sdk:0.11.2.17"
+}
+
+
+def siteUrl='https://github.com/weex-plugins/weex-plugin-gcanvas'
+def gitUrl='https://github.com/weex-plugins/weex-plugin-gcanvas.git'
+def userId = System.getProperty('userId')
+def userKey = System.getProperty('userKey')
+def developerId = "alibaba"
+def developerName = "alibaba"
+def developerEmail = "&developerEmail&"
+def shouldPublish = false
+version =  System.getProperty('deployVersion')
+//group = "&group&"
+
+// DO NOT EDIT ABOVE THIS LINE
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'weexplugin-gcanvas'
+                url siteUrl
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id developerId
+                        name developerName
+                        email developerEmail
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+bintray {
+    user = userId
+    key = userKey
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "weexplugin-gcanvas"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = shouldPublish
+    }
+}
+
+android.libraryVariants.all { variant ->
+    def name = variant.name.capitalize()
+    println variant.javaCompile.classpath.files
+    if(variant.name == 'release') {
+        task("generate${variant.name.capitalize()}Javadoc", type: Javadoc) {
+            // title = ''
+            // description = ''
+            source = variant.javaCompile.source
+            classpath = files(variant.javaCompile.classpath.files, project.android.getBootClasspath())
+            options {
+                encoding "utf-8"
+                links "http://docs.oracle.com/javase/7/docs/api/"
+                linksOffline "http://d.android.com/reference", "${android.sdkDirectory}/docs/reference"
+            }
+            exclude '**/BuildConfig.java'
+            exclude '**/R.java'
+        }
+        task("javadoc${variant.name.capitalize()}Jar", type: Jar, dependsOn: "generate${variant.name.capitalize()}Javadoc") {
+            classifier = 'javadoc'
+            from tasks.getByName("generate${variant.name.capitalize()}Javadoc").destinationDir
+        }
+        artifacts {
+            archives tasks.getByName("javadoc${variant.name.capitalize()}Jar")
+        }
+    }
+    task "metainf${name}"(type: Copy) {
+        from rootProject.file('LICENSE')
+        into "build/metainf-${name}/META-INF"
+    }
+
+    task "fatjar${name}"(type: Jar, dependsOn: [ "jar${name}", "tidyCommonsCli${name}", "metainf${name}" ]) {
+        classifier = 'fatjar'
+        from variant.javaCompile.destinationDir
+        from "build/commons-cli-tidy-${name}"
+        from "build/metainf-${name}"
+    }
+}

@@ -52,17 +52,26 @@ android {
     lintOptions {
         abortOnError false
     }
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+            jniLibs.srcDir(['libs'])
+        }
+    }
 }
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     provided "com.taobao.android:phenix_compat:2.5.1"
     provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.41@aar'
-    //provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.40-SNAPSHOT@aar'
     provided 'com.taobao.android:weexplugin-annotation:1.0.6'
     provided "com.taobao.android:weex_sdk:0.11.2.17"
-//    provided "com.taobao.android:weexplugin-processor:1.0.4.3-SNAPSHOT"
-
 }
 publishing {
     publications {
