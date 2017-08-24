@@ -71,7 +71,7 @@ var Image = window.Image;
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 100);
+/******/ 	return __webpack_require__(__webpack_require__.s = 101);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -202,8 +202,8 @@ module.exports = math;
 "use strict";
 
 
-var glConstants = __webpack_require__(103);
-var extensionsConstants = __webpack_require__(104);
+var glConstants = __webpack_require__(104);
+var extensionsConstants = __webpack_require__(105);
 
 var constants = {};
 Object.assign(constants, glConstants, extensionsConstants);
@@ -1706,7 +1706,7 @@ module.exports = Vector3;
 
 
 var Class = __webpack_require__(0);
-var Vector4 = __webpack_require__(29);
+var Vector4 = __webpack_require__(28);
 var util = __webpack_require__(3);
 
 /**
@@ -1879,7 +1879,7 @@ var Vector3 = __webpack_require__(5);
 var Matrix3 = __webpack_require__(23);
 var Matrix4 = __webpack_require__(4);
 var Quaternion = __webpack_require__(19);
-var Sphere = __webpack_require__(132);
+var Sphere = __webpack_require__(131);
 var GeometryData = __webpack_require__(8);
 
 var _require = __webpack_require__(2),
@@ -2649,7 +2649,7 @@ var Class = __webpack_require__(0);
 var math = __webpack_require__(1);
 var Vector2 = __webpack_require__(42);
 var Vector3 = __webpack_require__(5);
-var Vector4 = __webpack_require__(29);
+var Vector4 = __webpack_require__(28);
 var Matrix4 = __webpack_require__(4);
 
 var _require = __webpack_require__(3),
@@ -2923,7 +2923,7 @@ module.exports = GeometryData;
  * @mixin  EventMixin
  * @see {@link http://hiloteam.github.io/Hilo/docs/api-zh/symbols/EventMixin.html}
  */
-var EventMixin = __webpack_require__(101);
+var EventMixin = __webpack_require__(102);
 
 module.exports = EventMixin;
 
@@ -2938,7 +2938,7 @@ var Class = __webpack_require__(0);
 var EventMixin = __webpack_require__(9);
 var Matrix4 = __webpack_require__(4);
 var Vector3 = __webpack_require__(5);
-var Euler = __webpack_require__(30);
+var Euler = __webpack_require__(29);
 var Quaternion = __webpack_require__(19);
 var math = __webpack_require__(1);
 
@@ -3720,6 +3720,8 @@ module.exports = Node;
 "use strict";
 
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 var Class = __webpack_require__(0);
 
 /**
@@ -3754,6 +3756,9 @@ var Cache = Class.create( /** @lends Cache.prototype */{
      * @param {Object} obj
      */
     add: function add(id, obj) {
+        if ((typeof obj === 'undefined' ? 'undefined' : _typeof(obj)) === 'object') {
+            obj.__cacheId = id;
+        }
         this._cache[id] = obj;
     },
 
@@ -3795,7 +3800,7 @@ module.exports = Cache;
 
 var Class = __webpack_require__(0);
 var EventMixin = __webpack_require__(9);
-var Cache = __webpack_require__(137);
+var Cache = __webpack_require__(136);
 var util = __webpack_require__(3);
 
 var cache = new Cache();
@@ -3913,7 +3918,7 @@ var BasicLoader = Class.create( /** @lends BasicLoader.prototype */{
         if (/^data:(.+?);base64,/.test(url)) {
             var mime = RegExp.$1;
             var base64Str = url.slice(13 + mime.length);
-            var result = atob(base64Str);
+            var result = window.atob(base64Str);
             if (type === 'json') {
                 result = JSON.parse(result);
             } else if (type === 'buffer') {
@@ -4040,7 +4045,7 @@ var Class = __webpack_require__(0);
 var math = __webpack_require__(1);
 var capabilities = __webpack_require__(15);
 var Cache = __webpack_require__(11);
-var log = __webpack_require__(51);
+var log = __webpack_require__(52);
 
 var _require = __webpack_require__(2),
     TEXTURE_2D = _require.TEXTURE_2D,
@@ -4666,7 +4671,7 @@ module.exports = BasicMaterial;
 
 var Class = __webpack_require__(0);
 var Node = __webpack_require__(10);
-var Ray = __webpack_require__(45);
+var Ray = __webpack_require__(46);
 var Matrix4 = __webpack_require__(4);
 
 var tempRay = new Ray();
@@ -5948,7 +5953,7 @@ module.exports = Matrix3;
 
 
 /* eslint no-unused-vars: "off" */
-var DataTexture = __webpack_require__(32);
+var DataTexture = __webpack_require__(31);
 var Vector3 = __webpack_require__(5);
 var Matrix3 = __webpack_require__(23);
 var Matrix4 = __webpack_require__(4);
@@ -6907,7 +6912,9 @@ var extensions = {
     this.gl = gl;
     var usedExtensions = this._usedExtensions;
     for (var name in usedExtensions) {
-      this.get(name, usedExtensions[name]);
+      var alias = usedExtensions[name];
+      this[alias] = undefined;
+      this.get(name, alias);
     }
   },
 
@@ -6963,12 +6970,12 @@ module.exports = extensions;
 
 
 var Class = __webpack_require__(0);
-var Shader = __webpack_require__(33);
-var screenVert = __webpack_require__(125);
-var screenFrag = __webpack_require__(126);
+var Shader = __webpack_require__(32);
+var screenVert = __webpack_require__(77);
+var screenFrag = __webpack_require__(78);
 var Cache = __webpack_require__(11);
-var Program = __webpack_require__(40);
-var VertexArrayObject = __webpack_require__(41);
+var Program = __webpack_require__(39);
+var VertexArrayObject = __webpack_require__(40);
 var util = __webpack_require__(3);
 var math = __webpack_require__(1);
 var GeometryData = __webpack_require__(8);
@@ -7201,7 +7208,7 @@ var Framebuffer = Class.create( /** @lends Framebuffer.prototype */{
             var program = Program.getProgram(shader, state);
             program.useProgram();
 
-            var vaoId = x + '_' + y + '_' + width + '_' + height;
+            var vaoId = x + '_' + y + '_' + width + '_' + height + '_' + program.id;
             var vao = VertexArrayObject.getVao(gl, vaoId, {
                 useVao: this.useVao,
                 useInstanced: false,
@@ -7221,7 +7228,6 @@ var Framebuffer = Class.create( /** @lends Framebuffer.prototype */{
 
             state.activeTexture(gl.TEXTURE0);
             state.bindTexture(gl.TEXTURE_2D, this.texture);
-            vao.bind();
             vao.draw();
         }
     },
@@ -7684,8 +7690,7 @@ var Material = Class.create( /** @lends Material.prototype */{
 module.exports = Material;
 
 /***/ }),
-/* 28 */,
-/* 29 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8185,7 +8190,7 @@ Vector4.prototype.sqrLen = Vector4.prototype.squaredLength;
 module.exports = Vector4;
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8344,7 +8349,7 @@ var Euler = Class.create( /** @lends Euler.prototype */{
 module.exports = Euler;
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports) {
 
 module.exports = dot;
@@ -8361,7 +8366,7 @@ function dot(a, b) {
 }
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8495,7 +8500,7 @@ var DataTexture = Class.create( /** @lends DataTexture.prototype */{
 module.exports = DataTexture;
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8505,10 +8510,10 @@ var Class = __webpack_require__(0);
 var math = __webpack_require__(1);
 var Cache = __webpack_require__(11);
 var capabilities = __webpack_require__(15);
-var basicFragCode = __webpack_require__(114);
-var basicVertCode = __webpack_require__(115);
-var depthFragCode = __webpack_require__(118);
-var pbrFragCode = __webpack_require__(119);
+var basicFragCode = __webpack_require__(115);
+var basicVertCode = __webpack_require__(116);
+var depthFragCode = __webpack_require__(119);
+var pbrFragCode = __webpack_require__(120);
 
 var cache = new Cache();
 
@@ -8546,32 +8551,35 @@ var Shader = Class.create( /** @lends Shader.prototype */{
          * @type {Object}
          */
         shaders: {
-            'diffuse.frag': __webpack_require__(56),
-            'diffuse_main.frag': __webpack_require__(64),
-            'fog.frag': __webpack_require__(36),
-            'fog_main.frag': __webpack_require__(38),
-            'joint.vert': __webpack_require__(67),
-            'joint_main.vert': __webpack_require__(72),
-            'light.frag': __webpack_require__(34),
-            'lightFog.vert': __webpack_require__(70),
-            'lightFog_main.vert': __webpack_require__(75),
-            'phong.frag': __webpack_require__(61),
-            'phong_main.frag': __webpack_require__(65),
-            'normal.vert': __webpack_require__(69),
-            'normal_main.vert': __webpack_require__(74),
-            'precision.vert': __webpack_require__(39),
+            'diffuse.frag': __webpack_require__(57),
+            'diffuse_main.frag': __webpack_require__(65),
+            'fog.frag': __webpack_require__(35),
+            'fog_main.frag': __webpack_require__(37),
+            'joint.vert': __webpack_require__(68),
+            'joint_main.vert': __webpack_require__(73),
+            'light.frag': __webpack_require__(33),
+            'lightFog.vert': __webpack_require__(71),
+            'lightFog_main.vert': __webpack_require__(76),
+            'phong.frag': __webpack_require__(62),
+            'phong_main.frag': __webpack_require__(66),
+            'normal.vert': __webpack_require__(70),
+            'normal_main.vert': __webpack_require__(75),
+            'precision.vert': __webpack_require__(38),
             'precision.frag': __webpack_require__(20),
-            'transparency.frag': __webpack_require__(35),
-            'transparency_main.frag': __webpack_require__(37),
-            'unQuantize.vert': __webpack_require__(66),
-            'unQuantize_main.vert': __webpack_require__(71),
-            'uv.vert': __webpack_require__(68),
-            'uv_main.vert': __webpack_require__(73),
+            'transparency.frag': __webpack_require__(34),
+            'transparency_main.frag': __webpack_require__(36),
+            'unQuantize.vert': __webpack_require__(67),
+            'unQuantize_main.vert': __webpack_require__(72),
+            'uv.vert': __webpack_require__(69),
+            'uv_main.vert': __webpack_require__(74),
 
-            'getDiffuse.glsl': __webpack_require__(57),
-            'getPointAttenuation.glsl': __webpack_require__(59),
-            'getShadow.glsl': __webpack_require__(60),
-            'getSpecular.glsl': __webpack_require__(58)
+            'getDiffuse.glsl': __webpack_require__(58),
+            'getPointAttenuation.glsl': __webpack_require__(60),
+            'getShadow.glsl': __webpack_require__(61),
+            'getSpecular.glsl': __webpack_require__(59),
+
+            'screen.vert': __webpack_require__(77),
+            'screen.frag': __webpack_require__(78)
         },
 
         /**
@@ -8759,43 +8767,43 @@ var Shader = Class.create( /** @lends Shader.prototype */{
 module.exports = Shader;
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = "#define GLSLIFY 1\n#ifdef HILO_DIRECTIONAL_LIGHTS\n    uniform vec3 u_directionalLightsColor[HILO_DIRECTIONAL_LIGHTS];\n    uniform vec3 u_directionalLightsInfo[HILO_DIRECTIONAL_LIGHTS];\n    #ifdef HILO_DIRECTIONAL_LIGHTS_SMC\n        uniform sampler2D u_directionalLightsShadowMap[HILO_DIRECTIONAL_LIGHTS_SMC];\n        uniform vec2 u_directionalLightsShadowMapSize[HILO_DIRECTIONAL_LIGHTS_SMC];\n        uniform mat4 u_directionalLightSpaceMatrix[HILO_DIRECTIONAL_LIGHTS_SMC];\n        uniform vec2 u_directionalLightsShadowBias[HILO_DIRECTIONAL_LIGHTS_SMC];\n    #endif\n#endif\n\n#ifdef HILO_SPOT_LIGHTS\n    uniform vec3 u_spotLightsPos[HILO_SPOT_LIGHTS];\n    uniform vec3 u_spotLightsDir[HILO_SPOT_LIGHTS];\n    uniform vec3 u_spotLightsColor[HILO_SPOT_LIGHTS];\n    uniform vec2 u_spotLightsCutoffs[HILO_SPOT_LIGHTS];\n    uniform vec3 u_spotLightsInfo[HILO_SPOT_LIGHTS];\n    #ifdef HILO_SPOT_LIGHTS_SMC\n        uniform sampler2D u_spotLightsShadowMap[HILO_SPOT_LIGHTS_SMC];\n        uniform vec2 u_spotLightsShadowMapSize[HILO_SPOT_LIGHTS_SMC];\n        uniform mat4 u_spotLightSpaceMatrix[HILO_SPOT_LIGHTS_SMC];\n        uniform vec2 u_spotLightsShadowBias[HILO_SPOT_LIGHTS_SMC];\n    #endif\n#endif\n\n#ifdef HILO_POINT_LIGHTS\n    uniform vec3 u_pointLightsPos[HILO_POINT_LIGHTS];\n    uniform vec3 u_pointLightsColor[HILO_POINT_LIGHTS];\n    uniform vec3 u_pointLightsInfo[HILO_POINT_LIGHTS];\n#endif\n\n#ifdef HILO_AMBIENT_LIGHTS\n    uniform vec3 u_ambientLightsColor;\n#endif\n\n" + __webpack_require__(57) + "\n" + __webpack_require__(58) + "\n" + __webpack_require__(59) + "\n" + __webpack_require__(60) + ""
+module.exports = "#define GLSLIFY 1\n#ifdef HILO_DIRECTIONAL_LIGHTS\n    uniform vec3 u_directionalLightsColor[HILO_DIRECTIONAL_LIGHTS];\n    uniform vec3 u_directionalLightsInfo[HILO_DIRECTIONAL_LIGHTS];\n    #ifdef HILO_DIRECTIONAL_LIGHTS_SMC\n        uniform sampler2D u_directionalLightsShadowMap[HILO_DIRECTIONAL_LIGHTS_SMC];\n        uniform vec2 u_directionalLightsShadowMapSize[HILO_DIRECTIONAL_LIGHTS_SMC];\n        uniform mat4 u_directionalLightSpaceMatrix[HILO_DIRECTIONAL_LIGHTS_SMC];\n        uniform vec2 u_directionalLightsShadowBias[HILO_DIRECTIONAL_LIGHTS_SMC];\n    #endif\n#endif\n\n#ifdef HILO_SPOT_LIGHTS\n    uniform vec3 u_spotLightsPos[HILO_SPOT_LIGHTS];\n    uniform vec3 u_spotLightsDir[HILO_SPOT_LIGHTS];\n    uniform vec3 u_spotLightsColor[HILO_SPOT_LIGHTS];\n    uniform vec2 u_spotLightsCutoffs[HILO_SPOT_LIGHTS];\n    uniform vec3 u_spotLightsInfo[HILO_SPOT_LIGHTS];\n    #ifdef HILO_SPOT_LIGHTS_SMC\n        uniform sampler2D u_spotLightsShadowMap[HILO_SPOT_LIGHTS_SMC];\n        uniform vec2 u_spotLightsShadowMapSize[HILO_SPOT_LIGHTS_SMC];\n        uniform mat4 u_spotLightSpaceMatrix[HILO_SPOT_LIGHTS_SMC];\n        uniform vec2 u_spotLightsShadowBias[HILO_SPOT_LIGHTS_SMC];\n    #endif\n#endif\n\n#ifdef HILO_POINT_LIGHTS\n    uniform vec3 u_pointLightsPos[HILO_POINT_LIGHTS];\n    uniform vec3 u_pointLightsColor[HILO_POINT_LIGHTS];\n    uniform vec3 u_pointLightsInfo[HILO_POINT_LIGHTS];\n#endif\n\n#ifdef HILO_AMBIENT_LIGHTS\n    uniform vec3 u_ambientLightsColor;\n#endif\n\n" + __webpack_require__(58) + "\n" + __webpack_require__(59) + "\n" + __webpack_require__(60) + "\n" + __webpack_require__(61) + ""
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_TRANSPARENCY_MAP\n    uniform sampler2D u_transparency;\n#else\n    uniform float u_transparency;\n#endif\n\n#ifdef HILO_ALPHA_CUTOFF\n    uniform float u_alphaCutoff;\n#endif"
 
 /***/ }),
-/* 36 */
+/* 35 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_FOG\n    varying float v_dist;\n    uniform vec4 u_fogColor;\n    uniform vec2 u_fogInfo;\n#endif"
 
 /***/ }),
-/* 37 */
+/* 36 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\nfloat transparency = 1.0;\n#ifdef HILO_TRANSPARENCY_MAP\n    transparency = texture2D(u_transparency, v_texcoord0).r;\n#else\n    transparency = u_transparency;\n#endif\ncolor.a *= transparency;\n#ifdef HILO_ALPHA_CUTOFF\n    if (color.a < u_alphaCutoff) {\n        discard;\n    } else {\n        color.a = 1.0;\n    }\n#endif"
 
 /***/ }),
-/* 38 */
+/* 37 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_FOG\n    float fogFactor = (u_fogInfo.y - v_dist)/(u_fogInfo.y - u_fogInfo.x);\n    if(fogFactor < 0.0){\n        fogFactor = 0.0;\n    }\n    else if(fogFactor > 1.0){\n        fogFactor = 1.0;\n    }\n    color = fogFactor * color + (1.0 - fogFactor) * u_fogColor;\n#endif"
 
 /***/ }),
-/* 39 */
+/* 38 */
 /***/ (function(module, exports) {
 
 module.exports = "#ifdef GL_ES\nprecision HILO_MAX_VERTEX_PRECISION float;\n#define GLSLIFY 1\n#endif"
 
 /***/ }),
-/* 40 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8804,7 +8812,7 @@ module.exports = "#ifdef GL_ES\nprecision HILO_MAX_VERTEX_PRECISION float;\n#def
 var Class = __webpack_require__(0);
 var math = __webpack_require__(1);
 var Cache = __webpack_require__(11);
-var glType = __webpack_require__(76);
+var glType = __webpack_require__(79);
 var extensions = __webpack_require__(25);
 
 var cache = new Cache();
@@ -9152,7 +9160,7 @@ var Program = Class.create( /** @lends Program.prototype */{
 module.exports = Program;
 
 /***/ }),
-/* 41 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9160,8 +9168,8 @@ module.exports = Program;
 
 var Class = __webpack_require__(0);
 var extensions = __webpack_require__(25);
-var Buffer = __webpack_require__(77);
-var bufferUtil = __webpack_require__(124);
+var Buffer = __webpack_require__(41);
+var bufferUtil = __webpack_require__(125);
 var Cache = __webpack_require__(11);
 var GeometryData = __webpack_require__(8);
 
@@ -9214,7 +9222,9 @@ var VertexArrayObject = Class.create( /** @lends VertexArrayObject.prototype */{
             currentVao = null;
             globalStates = [];
             this.bindSystemVao();
-            cache.removeAll();
+            cache.each(function (vao) {
+                vao.destroy(gl);
+            });
         },
 
         /**
@@ -9344,17 +9354,16 @@ var VertexArrayObject = Class.create( /** @lends VertexArrayObject.prototype */{
             attribute.enable();
             attribute.pointer(geometryData);
             if (attributeObject.useInstanced) {
-                attribute.divisor();
+                attribute.divisor(1);
+            } else {
+                attribute.divisor(0);
             }
         });
 
         globalStates.forEach(function (globalAttributeObject, i) {
             var activeAttributeObject = activeStates[i];
-            if (activeAttributeObject) {
-                if (globalAttributeObject.useInstanced && !activeAttributeObject.useInstanced) {
-                    activeAttributeObject.attribute.divisor(0);
-                }
-            } else {
+            if (globalAttributeObject && !activeAttributeObject) {
+                globalAttributeObject.attribute.divisor(0);
                 gl.disableVertexAttribArray(i);
             }
         });
@@ -9382,6 +9391,7 @@ var VertexArrayObject = Class.create( /** @lends VertexArrayObject.prototype */{
         this.bind();
         var gl = this.gl,
             mode = this.mode;
+
 
         if (this.indexBuffer) {
             gl.drawElements(mode, this.vertexCount, this.indexType, 0);
@@ -9521,13 +9531,192 @@ var VertexArrayObject = Class.create( /** @lends VertexArrayObject.prototype */{
         }
 
         this.addAttribute(geometryData, attribute, gl.DYNAMIC_DRAW, function (attributeObject) {
-            attribute.divisor();
+            attribute.divisor(1);
             attributeObject.useInstanced = true;
         });
+    },
+    destroy: function destroy() {
+        var _this = this;
+
+        if (this.useVao) {
+            this.vaoExtension.deleteVertexArrayOES(this.vao);
+        }
+        this.gl = null;
+        this.indexBuffer = null;
+        this.attributes.forEach(function (attributeObject) {
+            var attribute = attributeObject;
+            _this[attribute.name] = null;
+        });
+        this.attributes = null;
+        this.activeStates = null;
+        cache.remove(this.__cacheId);
     }
 });
 
 module.exports = VertexArrayObject;
+
+/***/ }),
+/* 41 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var Class = __webpack_require__(0);
+var Cache = __webpack_require__(11);
+
+var cache = new Cache();
+/**
+ * 缓冲
+ * @class
+ */
+var Buffer = Class.create( /** @lends Buffer.prototype */{
+    Statics: /** @lends Buffer */{
+        /**
+         * 缓存
+         * @readOnly
+         * @return {Cache}
+         */
+        cache: {
+            get: function get() {
+                return cache;
+            }
+        },
+        /**
+         * 重置缓存
+         */
+        reset: function reset(gl) {
+            // eslint-disable-line no-unused-vars
+            cache.each(function (buffer) {
+                buffer.destroy();
+            });
+        },
+
+        /**
+         * 生成顶点缓冲
+         * @param  {WebGLRenderingContext} gl    
+         * @param  {GeometryData} geometryData  
+         * @param  {GLenum} [usage = gl.STATIC_DRAW] 
+         * @return {Buffer}       
+         */
+        createVertexBuffer: function createVertexBuffer(gl, geometryData) {
+            var usage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl.STATIC_DRAW;
+
+            return this.createBuffer(gl, gl.ARRAY_BUFFER, geometryData, usage);
+        },
+        createBuffer: function createBuffer(gl, target, geometryData, usage) {
+            var id = geometryData.bufferViewId;
+            var buffer = cache.get(id);
+            if (buffer) {
+                return buffer;
+            }
+            buffer = new Buffer(gl, target, geometryData.data, usage);
+            cache.add(id, buffer);
+            return buffer;
+        },
+
+
+        /**
+         * 生成索引缓冲
+         * @param  {WebGLRenderingContext} gl    
+         * @param  {GeometryData} geometryData  
+         * @param  {GLenum} [usage = gl.STATIC_DRAW] 
+         * @return {Buffer}       
+         */
+        createIndexBuffer: function createIndexBuffer(gl, geometryData) {
+            var usage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl.STATIC_DRAW;
+
+            return this.createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, geometryData, usage);
+        }
+    },
+
+    /**
+     * @default Buffer
+     * @type {String}
+     */
+    className: 'Buffer',
+
+    /**
+     * @default true
+     * @type {Boolean}
+     */
+    isBuffer: true,
+
+    /**
+     * @constructs
+     * @param  {WebGLRenderingContext} gl     
+     * @param  {GLenum} [target = gl.ARRAY_BUFFER] 
+     * @param  {TypedArray} data   
+     * @param  {GLenum} [usage = gl.STATIC_DRAW]  
+     */
+    constructor: function constructor(gl) {
+        var target = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : gl.ARRAY_BUFFER;
+        var data = arguments[2];
+        var usage = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : gl.STATIC_DRAW;
+
+        this.gl = gl;
+        /**
+         * target
+         * @type {GLenum}
+         */
+        this.target = target;
+
+        /**
+         * usage
+         * @type {GLenum}
+         */
+        this.usage = usage;
+
+        /**
+         * buffer
+         * @type {WebGLBuffer}
+         */
+        this.buffer = gl.createBuffer();
+
+        if (data) {
+            this.upload(data);
+        }
+    },
+
+    /**
+     * 绑定
+     */
+    bind: function bind() {
+        this.gl.bindBuffer(this.target, this.buffer);
+    },
+
+    /**
+     * 上传数据
+     * @param  {TypedArray} data   
+     * @param  {Number} [offset=0] 偏移值
+     */
+    upload: function upload(data) {
+        var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var gl = this.gl,
+            target = this.target,
+            usage = this.usage;
+
+
+        this.bind();
+        if (!this.data || this.data.byteLength < data.byteLength) {
+            gl.bufferData(target, data, usage);
+        } else {
+            gl.bufferSubData(target, offset, data);
+        }
+        this.data = data;
+    },
+
+    /**
+     * 销毁
+     */
+    destroy: function destroy() {
+        this.gl.deleteBuffer(this.buffer);
+        this.data = null;
+        cache.remove(this.__cacheId);
+    }
+});
+
+module.exports = Buffer;
 
 /***/ }),
 /* 42 */
@@ -10257,13 +10446,14 @@ var PerspectiveCamera = Class.create( /** @lends PerspectiveCamera.prototype */{
 module.exports = PerspectiveCamera;
 
 /***/ }),
-/* 45 */
+/* 45 */,
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Ray3d = __webpack_require__(105);
+var Ray3d = __webpack_require__(106);
 var Class = __webpack_require__(0);
 var Vector3 = __webpack_require__(5);
 
@@ -10505,7 +10695,7 @@ var Ray = Class.create( /** @lends Ray.prototype */{
 module.exports = Ray;
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports) {
 
 module.exports = subtract;
@@ -10526,7 +10716,7 @@ function subtract(out, a, b) {
 }
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports) {
 
 module.exports = add;
@@ -10547,7 +10737,7 @@ function add(out, a, b) {
 }
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports) {
 
 module.exports = scale;
@@ -10568,7 +10758,7 @@ function scale(out, a, b) {
 }
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports) {
 
 module.exports = copy;
@@ -10588,7 +10778,7 @@ function copy(out, a) {
 }
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10597,7 +10787,7 @@ function copy(out, a) {
 var Class = __webpack_require__(0);
 var Mesh = __webpack_require__(18);
 var Matrix4 = __webpack_require__(4);
-var DataTexture = __webpack_require__(32);
+var DataTexture = __webpack_require__(31);
 var capabilities = __webpack_require__(15);
 
 var tempMatrix1 = new Matrix4();
@@ -10786,7 +10976,7 @@ var SkinedMesh = Class.create( /** @lends SkinedMesh.prototype */{
 module.exports = SkinedMesh;
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10829,7 +11019,7 @@ var log = {
 module.exports = log;
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10838,17 +11028,18 @@ module.exports = log;
 var Class = __webpack_require__(0);
 var semantic = __webpack_require__(24);
 var Color = __webpack_require__(6);
-var Shader = __webpack_require__(33);
-var Program = __webpack_require__(40);
-var RenderInfo = __webpack_require__(122);
-var RenderList = __webpack_require__(123);
-var VertexArrayObject = __webpack_require__(41);
+var Shader = __webpack_require__(32);
+var Program = __webpack_require__(39);
+var RenderInfo = __webpack_require__(123);
+var RenderList = __webpack_require__(124);
+var VertexArrayObject = __webpack_require__(40);
+var Buffer = __webpack_require__(41);
 var Framebuffer = __webpack_require__(26);
 var extensions = __webpack_require__(25);
 var capabilities = __webpack_require__(15);
-var glType = __webpack_require__(76);
-var State = __webpack_require__(127);
-var LightManager = __webpack_require__(128);
+var glType = __webpack_require__(79);
+var State = __webpack_require__(126);
+var LightManager = __webpack_require__(127);
 var EventMixin = __webpack_require__(9);
 var Texture = __webpack_require__(14);
 
@@ -11174,17 +11365,18 @@ var WebGLRenderer = Class.create( /** @lends WebGLRenderer.prototype */{
         Program.reset(gl);
         Shader.reset(gl);
         Texture.reset(gl);
+        Buffer.reset(gl);
         VertexArrayObject.reset(gl);
         this.state.reset(gl);
+
         this._lastMaterial = null;
     },
     _onContextRestore: function _onContextRestore(e) {
         // eslint-disable-line no-unused-vars
         var gl = this.gl;
         this._isContextLost = false;
-
-        Framebuffer.reset(gl);
         extensions.reset(gl);
+        Framebuffer.reset(gl);
     },
 
     /**
@@ -11471,6 +11663,17 @@ var WebGLRenderer = Class.create( /** @lends WebGLRenderer.prototype */{
     },
 
     /**
+     * 清除深度
+     */
+    clearDepth: function clearDepth() {
+        var gl = this.gl,
+            state = this.state;
+
+        state.depthMask(true);
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+    },
+
+    /**
      * 将framebuffer渲染到屏幕
      * @param  {Framebuffer} framebuffer
      */
@@ -11531,145 +11734,157 @@ var WebGLRenderer = Class.create( /** @lends WebGLRenderer.prototype */{
 module.exports = WebGLRenderer;
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_TEXCOORD0\n    varying vec2 v_texcoord0;\n#endif\n\n#ifdef HILO_DIFFUSE_CUBE_MAP\n    varying vec3 v_position;\n#endif"
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_NORMAL\n    varying vec3 v_normal;\n    #ifdef HILO_HAS_NORMAL_MAP\n        uniform sampler2D u_normalMap;\n        varying mat3 v_TBN;\n    #endif\n#endif"
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_LIGHT\n    varying vec3 v_fragPos;\n#endif"
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#if defined(HILO_DIFFUSE_MAP)\n    uniform sampler2D u_diffuse;\n#elif defined(HILO_DIFFUSE_CUBE_MAP)\n    uniform samplerCube u_diffuse;\n#else\n    uniform vec4 u_diffuse;\n#endif"
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\nfloat getDiffuse(vec3 normal, vec3 lightDir){\n    return max(dot(normal, lightDir), 0.0);\n}\n\n"
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\nfloat getSpecular(vec3 cameraPos, vec3 fragPos, vec3 lightDir, vec3 normal, float shininess){\n    vec3 viewDir = normalize(cameraPos - fragPos);\n    vec3 reflectDir = reflect(-lightDir, normal);\n    return pow(max(dot(viewDir, reflectDir), 0.0), shininess);\n}\n\n"
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\nfloat getPointAttenuation(vec3 distanceVec, vec3 info){\n    float distance = length(distanceVec);\n    return 1.0/(info.x + info.y * distance + info.z * distance * distance);\n}\n\n"
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\nbool isOutOfRange(vec2 pos) {\n    if (pos.x < 0.0 || pos.x > 1.0 || pos.y < 0.0 || pos.y > 1.0) {\n        return true;\n    }\n    return false;\n}\n\nfloat getShadow(sampler2D shadowMap, vec2 shadowMapSize, float bias, vec3 fragPos, mat4 lightSpaceMatrix) {\n    vec4 fragPosLightSpace = lightSpaceMatrix * vec4(fragPos, 1.0);\n    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;\n    projCoords = projCoords * 0.5 + 0.5;\n    if (isOutOfRange(projCoords.xy)) {\n        return 1.0;\n    }\n    float currentDepth = projCoords.z;\n    float shadow = 0.0;\n    vec2 texelSize = 1.0 / shadowMapSize;\n    for (int x = -1; x <= 1; ++x) {\n        for (int y = -1; y <= 1; ++y) {\n            vec2 pos = projCoords.xy + vec2(x, y) * texelSize;\n            if (isOutOfRange(pos)) {\n                shadow += 1.0;\n            } else {\n                float pcfDepth = texture2D(shadowMap, pos).r;\n                shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;\n            }\n        }\n    }\n    return 1.0 - shadow / 9.0;\n}\n\n"
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_LIGHT\n    #ifdef HILO_HAS_SPECULAR\n        uniform float u_shininess;\n        #ifdef HILO_SPECULAR_MAP\n            uniform sampler2D u_specular;\n        #else\n            uniform vec4 u_specular;\n        #endif\n    #endif\n    #ifdef HILO_EMISSION_MAP\n        uniform sampler2D u_emission;\n    #else\n        uniform vec4 u_emission;\n    #endif\n    #ifdef HILO_AMBIENT_MAP\n        uniform sampler2D u_ambient;\n    #endif\n    #ifdef HILO_SKYBOX_MAP\n        uniform samplerCube u_skyboxMap;\n        uniform mat4 u_skyboxMatrix;\n        uniform float u_reflectivity;\n        uniform float u_refractRatio;\n        uniform float u_refractivity;\n    #endif\n#endif"
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_NORMAL_MAP\n    vec3 normal = texture2D(u_normalMap, v_texcoord0).rgb * 2.0 - 1.0;\n    normal = normalize(v_TBN * normal);\n#elif defined(HILO_HAS_NORMAL)\n    vec3 normal = normalize(v_normal);\n#else\n    vec3 normal = vec3(0, 0, 1);\n#endif\n\n#if HILO_SIDE == HILO_BACK_SIDE\n    normal = -normal;\n#endif"
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_LIGHT\n    #if HILO_SIDE == HILO_FRONT_AND_BACK_SIDE\n        if(dot(-v_fragPos, normal) < 0.0){\n            normal = -normal;\n        }\n    #endif\n#endif"
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#if defined(HILO_DIFFUSE_MAP)\n    diffuse = texture2D(u_diffuse, v_texcoord0);\n#elif defined(HILO_DIFFUSE_CUBE_MAP)\n    diffuse = textureCube(u_diffuse, v_position);\n#else\n    diffuse = u_diffuse;\n#endif\ncolor.a = diffuse.a;"
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_LIGHT\n    vec3 lightDiffuse = vec3(0, 0, 0);\n    vec3 lightAmbient = vec3(0, 0, 0);\n    vec3 viewPos = vec3(0, 0, 0);\n\n    #ifdef HILO_AMBIENT_MAP\n        lightAmbient = texture2D(u_ambient, v_texcoord0).rgb;\n    #else\n        lightAmbient = diffuse.rgb;\n    #endif\n\n    #ifdef HILO_HAS_SPECULAR\n        vec3 lightSpecular = vec3(0, 0, 0);\n        #ifdef HILO_SPECULAR_MAP\n            vec4 specular = texture2D(u_specular, v_texcoord0);\n        #else\n            vec4 specular = u_specular;\n        #endif\n    #endif\n    \n    #ifdef HILO_EMISSION_MAP\n        vec4 emission = texture2D(u_emission, v_texcoord0);\n    #else\n        vec4 emission = u_emission;\n    #endif\n\n    #ifdef HILO_DIRECTIONAL_LIGHTS\n        for(int i = 0;i < HILO_DIRECTIONAL_LIGHTS;i++){\n            vec3 lightDir = -u_directionalLightsInfo[i];\n\n            float shadow = 1.0;\n            #ifdef HILO_DIRECTIONAL_LIGHTS_SMC\n                if (i < HILO_DIRECTIONAL_LIGHTS_SMC) {\n                    float bias = max(u_directionalLightsShadowBias[i][1] * (1.0 - dot(normal, lightDir)), u_directionalLightsShadowBias[i][0]);\n                    shadow = getShadow(u_directionalLightsShadowMap[i], u_directionalLightsShadowMapSize[i], bias, v_fragPos, u_directionalLightSpaceMatrix[i]);\n                }\n            #endif\n\n            float diff = getDiffuse(normal, lightDir);\n            lightDiffuse += diff * u_directionalLightsColor[i] * shadow;\n\n            #ifdef HILO_HAS_SPECULAR\n                float spec = getSpecular(viewPos, v_fragPos, lightDir, normal, u_shininess);\n                lightSpecular += spec * u_directionalLightsColor[i] * shadow;\n            #endif\n        }\n    #endif\n\n    #ifdef HILO_SPOT_LIGHTS\n        for(int i = 0; i < HILO_SPOT_LIGHTS; i++){\n            vec3 lightDir = -u_spotLightsDir[i];\n            vec3 distanceVec = u_spotLightsPos[i] - v_fragPos;\n\n            float shadow = 1.0;\n            #ifdef HILO_SPOT_LIGHTS_SMC\n                if (i < HILO_SPOT_LIGHTS_SMC) {\n                    float bias = max(u_spotLightsShadowBias[i][1] * (1.0 - dot(normal, lightDir)), u_spotLightsShadowBias[i][0]);\n                    shadow = getShadow(u_spotLightsShadowMap[i], u_spotLightsShadowMapSize[i], bias, v_fragPos, u_spotLightSpaceMatrix[i]);\n                }\n            #endif\n            \n            float diff = getDiffuse(normal, normalize(distanceVec));\n            float theta = dot(normalize(distanceVec), lightDir);\n            float epsilon = u_spotLightsCutoffs[i][0] - u_spotLightsCutoffs[i][1];\n            float intensity = clamp((theta - u_spotLightsCutoffs[i][1]) / epsilon, 0.0, 1.0);\n            float attenuation = getPointAttenuation(distanceVec, u_spotLightsInfo[i]);\n\n            lightDiffuse += intensity * attenuation * shadow * diff * u_spotLightsColor[i];\n\n            #ifdef HILO_HAS_SPECULAR\n                float spec = getSpecular(viewPos, v_fragPos, lightDir, normal, u_shininess);\n                lightSpecular += intensity * attenuation * shadow * spec * u_spotLightsColor[i];\n            #endif\n        }\n    #endif\n\n    #ifdef HILO_POINT_LIGHTS\n        for(int i = 0;i < HILO_POINT_LIGHTS;i++){\n            vec3 distanceVec = u_pointLightsPos[i] - v_fragPos;\n            vec3 lightDir = normalize(distanceVec);\n\n            float diff = getDiffuse(normal, lightDir);\n            float attenuation = getPointAttenuation(distanceVec, u_pointLightsInfo[i]);\n            lightDiffuse += diff * attenuation * u_pointLightsColor[i];\n\n            #ifdef HILO_HAS_SPECULAR\n                float spec = getSpecular(viewPos, v_fragPos, lightDir, normal, u_shininess);\n                lightSpecular += spec * attenuation * u_pointLightsColor[i];\n            #endif\n        }\n    #endif\n\n    #ifdef HILO_AMBIENT_LIGHTS\n        color.rgb += u_ambientLightsColor * lightAmbient;\n    #endif\n\n    #if defined(HILO_SKYBOX_MAP) && defined(HILO_HAS_SPECULAR)\n        vec3 I = normalize(v_fragPos - viewPos);\n        if (u_reflectivity > 0.0) {\n            vec3 R = reflect(I, normal);\n            R = normalize(vec3(u_skyboxMatrix * vec4(R, 1.0)));\n            lightSpecular += textureCube(u_skyboxMap, R).rgb * u_reflectivity;\n        }\n        if (u_refractivity > 0.0) {\n            vec3 R = refract(I, normal, u_refractRatio);\n            R = normalize(vec3(u_skyboxMatrix * vec4(R, 1.0)));\n            lightSpecular += textureCube(u_skyboxMap, R).rgb * u_refractivity;\n        }\n    #endif\n\n    color.rgb += lightDiffuse * diffuse.rgb;\n    #ifdef HILO_HAS_SPECULAR\n        color.rgb += lightSpecular * specular.rgb;\n    #endif\n\n    color.rgb += emission.rgb;\n#else\n    color = diffuse;\n#endif"
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_QUANTIZED\n    #ifdef HILO_POSITION_QUANTIZED\n        uniform mat4 u_positionDecodeMat;\n    #endif\n    #ifdef HILO_NORMAL_QUANTIZED\n        uniform mat4 u_normalDecodeMat;\n    #endif\n    #ifdef HILO_UV_QUANTIZED\n        uniform mat3 u_uvDecodeMat;\n    #endif\n\n    vec2 unQuantize(vec2 data, mat3 decodeMat) {\n        vec3 result = vec3(data, 1.0);\n        result = decodeMat * result;\n        return result.xy;\n    }\n\n    vec3 unQuantize(vec3 data, mat4 decodeMat) {\n        vec4 result = vec4(data, 1.0);\n        result = decodeMat * result;\n        return result.xyz;\n    }\n#endif"
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_JOINT_COUNT\n    attribute vec4 a_skinIndices;\n    attribute vec4 a_skinWeights;\n    #ifdef HILO_JOINT_MAT_MAP\n        uniform sampler2D u_jointMatTexture;\n        uniform vec2 u_jointMatTextureSize;\n        mat4 getJointMat(float index) {\n            index *= 4.0;\n            float x = float(mod(index, u_jointMatTextureSize.x));\n            float y = float(floor(index / u_jointMatTextureSize.x));\n            float dx = 1.0 / float(u_jointMatTextureSize.x);\n            float dy = 1.0 / float(u_jointMatTextureSize.y);\n            y = dy * (y + 0.5);\n            vec4 v1 = texture2D(u_jointMatTexture, vec2(dx * (x + 0.5), y));\n            vec4 v2 = texture2D(u_jointMatTexture, vec2(dx * (x + 1.5), y));\n            vec4 v3 = texture2D(u_jointMatTexture, vec2(dx * (x + 2.5), y));\n            vec4 v4 = texture2D(u_jointMatTexture, vec2(dx * (x + 3.5), y));\n            mat4 mat = mat4(v1, v2, v3, v4);\n            return mat;\n        }\n    #else\n        uniform mat4 u_jointMat[HILO_JOINT_COUNT];\n        mat4 getJointMat(float index) {\n            return u_jointMat[int(index)];\n        }\n    #endif\n\n    mat4 getJointMat(vec4 weights, vec4 indices) {\n        mat4 mat = weights.x * getJointMat(indices.x);\n        mat += weights.y * getJointMat(indices.y);\n        mat += weights.z * getJointMat(indices.z);\n        mat += weights.w * getJointMat(indices.w);\n        return mat;\n    }\n#endif"
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_TEXCOORD0\n    attribute vec2 a_texcoord0;\n    varying vec2 v_texcoord0;\n#endif\n\n#ifdef HILO_DIFFUSE_CUBE_MAP\n    varying vec3 v_position;\n#endif"
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_NORMAL\n    attribute vec3 a_normal;\n    uniform mat3 u_normalMatrix;\n    varying vec3 v_normal;\n\n    #ifdef HILO_HAS_NORMAL_MAP\n        attribute vec3 a_tangent;\n        varying mat3 v_TBN;\n    #endif\n#endif"
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#if defined(HILO_HAS_LIGHT) || defined(HILO_HAS_FOG)\n    uniform mat4 u_modelViewMatrix;\n    #ifdef HILO_HAS_FOG\n        varying float v_dist;\n    #endif\n\n    #ifdef HILO_HAS_LIGHT\n        varying vec3 v_fragPos;\n    #endif\n#endif"
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_QUANTIZED\n    #ifdef HILO_POSITION_QUANTIZED\n        pos.xyz = unQuantize(pos.xyz, u_positionDecodeMat);\n    #endif\n    #if defined(HILO_HAS_TEXCOORD0) && defined(HILO_UV_QUANTIZED)\n        uv = unQuantize(uv, u_uvDecodeMat);\n    #endif\n    #if defined(HILO_HAS_NORMAL) && defined(HILO_NORMAL_QUANTIZED)\n        normal = unQuantize(normal, u_normalDecodeMat);\n    #endif\n#endif"
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_JOINT_COUNT\n    mat4 skinMat = getJointMat(a_skinWeights, a_skinIndices);\n    pos = skinMat * pos;\n\n    #ifdef HILO_HAS_NORMAL\n        normal = mat3(skinMat) * normal;\n    #endif\n#endif"
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_TEXCOORD0\n    v_texcoord0 = uv;\n#endif\n#ifdef HILO_DIFFUSE_CUBE_MAP\n    v_position = pos.xyz;\n#endif"
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#ifdef HILO_HAS_NORMAL\n    #ifdef HILO_HAS_NORMAL_MAP\n        vec3 T = normalize(u_normalMatrix * tangent);\n        vec3 N = normalize(u_normalMatrix * normal);\n        T = normalize(T - dot(T, N) * N);\n        vec3 B = cross(T, N);\n        v_TBN = mat3(T, B, N);\n    #endif\n    v_normal = normalize(u_normalMatrix * normal);\n#endif"
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\n#if defined(HILO_HAS_LIGHT) || defined(HILO_HAS_FOG)\n    vec3 fragPos = (u_modelViewMatrix * pos).xyz;\n\n    #ifdef HILO_HAS_LIGHT\n        v_fragPos = fragPos;\n    #endif\n\n    #ifdef HILO_HAS_FOG\n        v_dist = length(fragPos);\n    #endif\n#endif"
 
 /***/ }),
-/* 76 */
+/* 77 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(38) + "\n\nattribute vec2 a_position;\nattribute vec2 a_texcoord0;\nvarying vec2 v_texcoord0;\n\n\nvoid main(void) {\n    vec4 pos = vec4(a_position, 0.0, 1.0);\n    gl_Position = pos;\n    v_texcoord0 = a_texcoord0;\n}"
+
+/***/ }),
+/* 78 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\nvarying vec2 v_texcoord0;\nuniform sampler2D u_diffuse;\n\nvoid main(void) {  \n    gl_FragColor = texture2D(u_diffuse, v_texcoord0);\n}"
+
+/***/ }),
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11852,159 +12067,7 @@ module.exports = glType;
  */
 
 /***/ }),
-/* 77 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var Class = __webpack_require__(0);
-var Cache = __webpack_require__(11);
-
-var cache = new Cache();
-/**
- * 缓冲
- * @class
- */
-var Buffer = Class.create( /** @lends Buffer.prototype */{
-    Statics: /** @lends Buffer */{
-        /**
-         * 缓存
-         * @readOnly
-         * @return {Cache}
-         */
-        cache: {
-            get: function get() {
-                return cache;
-            }
-        },
-        /**
-         * 重置缓存
-         */
-        reset: function reset(gl) {
-            // eslint-disable-line no-unused-vars
-            cache.removeAll();
-        },
-
-        /**
-         * 生成顶点缓冲
-         * @param  {WebGLRenderingContext} gl    
-         * @param  {GeometryData} geometryData  
-         * @param  {GLenum} [usage = gl.STATIC_DRAW] 
-         * @return {Buffer}       
-         */
-        createVertexBuffer: function createVertexBuffer(gl, geometryData) {
-            var usage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl.STATIC_DRAW;
-
-            return this.createBuffer(gl, gl.ARRAY_BUFFER, geometryData, usage);
-        },
-        createBuffer: function createBuffer(gl, target, geometryData, usage) {
-            var id = geometryData.bufferViewId;
-            var buffer = cache.get(id);
-            if (buffer) {
-                return buffer;
-            }
-            buffer = new Buffer(gl, target, geometryData.data, usage);
-            cache.add(id, buffer);
-            return buffer;
-        },
-
-
-        /**
-         * 生成索引缓冲
-         * @param  {WebGLRenderingContext} gl    
-         * @param  {GeometryData} geometryData  
-         * @param  {GLenum} [usage = gl.STATIC_DRAW] 
-         * @return {Buffer}       
-         */
-        createIndexBuffer: function createIndexBuffer(gl, geometryData) {
-            var usage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : gl.STATIC_DRAW;
-
-            return this.createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, geometryData, usage);
-        }
-    },
-
-    /**
-     * @default Buffer
-     * @type {String}
-     */
-    className: 'Buffer',
-
-    /**
-     * @default true
-     * @type {Boolean}
-     */
-    isBuffer: true,
-
-    /**
-     * @constructs
-     * @param  {WebGLRenderingContext} gl     
-     * @param  {GLenum} [target = gl.ARRAY_BUFFER] 
-     * @param  {TypedArray} data   
-     * @param  {GLenum} [usage = gl.STATIC_DRAW]  
-     */
-    constructor: function constructor(gl) {
-        var target = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : gl.ARRAY_BUFFER;
-        var data = arguments[2];
-        var usage = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : gl.STATIC_DRAW;
-
-        this.gl = gl;
-        /**
-         * target
-         * @type {GLenum}
-         */
-        this.target = target;
-
-        /**
-         * usage
-         * @type {GLenum}
-         */
-        this.usage = usage;
-
-        /**
-         * buffer
-         * @type {WebGLBuffer}
-         */
-        this.buffer = gl.createBuffer();
-
-        if (data) {
-            this.upload(data);
-        }
-    },
-
-    /**
-     * 绑定
-     */
-    bind: function bind() {
-        this.gl.bindBuffer(this.target, this.buffer);
-    },
-
-    /**
-     * 上传数据
-     * @param  {TypedArray} data   
-     * @param  {Number} [offset=0] 偏移值
-     */
-    upload: function upload(data) {
-        var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var gl = this.gl,
-            target = this.target,
-            usage = this.usage;
-
-
-        this.bind();
-        if (!this.data || this.data.byteLength < data.byteLength) {
-            gl.bufferData(target, data, usage);
-        } else {
-            gl.bufferSubData(target, offset, data);
-        }
-        this.data = data;
-    }
-});
-
-module.exports = Buffer;
-
-/***/ }),
-/* 78 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12106,7 +12169,7 @@ var OrthographicCamera = Class.create( /** @lends OrthographicCamera.prototype *
 module.exports = OrthographicCamera;
 
 /***/ }),
-/* 79 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12114,7 +12177,7 @@ module.exports = OrthographicCamera;
 
 var Class = __webpack_require__(0);
 var BasicLoader = __webpack_require__(12);
-var GLTFParser = __webpack_require__(138);
+var GLTFParser = __webpack_require__(137);
 
 /**
  * glTF模型加载类
@@ -12179,7 +12242,7 @@ module.exports = GLTFLoader;
  */
 
 /***/ }),
-/* 80 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12429,7 +12492,7 @@ var PBRMaterial = Class.create( /** @lends PBRMaterial.prototype */{
 module.exports = PBRMaterial;
 
 /***/ }),
-/* 81 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12538,7 +12601,7 @@ var LazyTexture = Class.create( /** @lends LazyTexture.prototype */{
 module.exports = LazyTexture;
 
 /***/ }),
-/* 82 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -12550,7 +12613,7 @@ var Class = __webpack_require__(0);
 var math = __webpack_require__(1);
 var Vector3 = __webpack_require__(5);
 var Quaternion = __webpack_require__(19);
-var Euler = __webpack_require__(30);
+var Euler = __webpack_require__(29);
 var util = __webpack_require__(3);
 
 var tempVector31 = new Vector3();
@@ -12859,7 +12922,7 @@ var AnimationStates = Class.create( /** @lends AnimationStates.prototype */{
 module.exports = AnimationStates;
 
 /***/ }),
-/* 83 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13128,7 +13191,7 @@ var Animation = Class.create( /** @lends Animation.prototype */{
 module.exports = Animation;
 
 /***/ }),
-/* 84 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13187,7 +13250,7 @@ var TextureLoader = Class.create( /** @lends TextureLoader.prototype */{
 module.exports = TextureLoader;
 
 /***/ }),
-/* 85 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13195,7 +13258,7 @@ module.exports = TextureLoader;
 
 var Class = __webpack_require__(0);
 var BasicLoader = __webpack_require__(12);
-var CubeTexture = __webpack_require__(86);
+var CubeTexture = __webpack_require__(88);
 
 /**
  * CubeTexture加载类
@@ -13276,7 +13339,7 @@ var CubeTextureLoader = Class.create( /** @lends CubeTextureLoader.prototype */{
 module.exports = CubeTextureLoader;
 
 /***/ }),
-/* 86 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13479,7 +13542,7 @@ var CubeTexture = Class.create( /** @lends CubeTexture.prototype */{
 module.exports = CubeTexture;
 
 /***/ }),
-/* 87 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13558,7 +13621,7 @@ var ShaderMaterial = Class.create( /** @lends ShaderMaterial.prototype */{
 module.exports = ShaderMaterial;
 
 /***/ }),
-/* 88 */
+/* 90 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13566,11 +13629,11 @@ module.exports = ShaderMaterial;
 
 var Class = __webpack_require__(0);
 var math = __webpack_require__(1);
-var OrthographicCamera = __webpack_require__(78);
+var OrthographicCamera = __webpack_require__(80);
 var PerspectiveCamera = __webpack_require__(44);
 var Framebuffer = __webpack_require__(26);
 var semantic = __webpack_require__(24);
-var ShadowMaterial = __webpack_require__(144);
+var ShadowMaterial = __webpack_require__(143);
 var Color = __webpack_require__(6);
 var Matrix4 = __webpack_require__(4);
 
@@ -13691,7 +13754,7 @@ var LightShadow = Class.create({
 module.exports = LightShadow;
 
 /***/ }),
-/* 89 */
+/* 91 */
 /***/ (function(module, exports) {
 
 /**
@@ -13861,8 +13924,6 @@ var browser = (function(){
 module.exports = browser;
 
 /***/ }),
-/* 90 */,
-/* 91 */,
 /* 92 */,
 /* 93 */,
 /* 94 */,
@@ -13871,7 +13932,8 @@ module.exports = browser;
 /* 97 */,
 /* 98 */,
 /* 99 */,
-/* 100 */
+/* 100 */,
+/* 101 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -13882,69 +13944,69 @@ module.exports = browser;
 var Hilo3d = {
     Class: __webpack_require__(0),
     EventMixin: __webpack_require__(9),
-    Fog: __webpack_require__(102),
+    Fog: __webpack_require__(103),
     Mesh: __webpack_require__(18),
     Node: __webpack_require__(10),
-    SkinedMesh: __webpack_require__(50),
-    Stage: __webpack_require__(113),
-    Tween: __webpack_require__(129),
+    SkinedMesh: __webpack_require__(51),
+    Stage: __webpack_require__(114),
+    Tween: __webpack_require__(128),
     Geometry: __webpack_require__(7),
     GeometryData: __webpack_require__(8),
-    PlaneGeometry: __webpack_require__(133),
-    BoxGeometry: __webpack_require__(134),
-    SphereGeometry: __webpack_require__(135),
+    PlaneGeometry: __webpack_require__(132),
+    BoxGeometry: __webpack_require__(133),
+    SphereGeometry: __webpack_require__(134),
     Camera: __webpack_require__(43),
     PerspectiveCamera: __webpack_require__(44),
-    OrthographicCamera: __webpack_require__(78),
-    WebGLRenderer: __webpack_require__(52),
+    OrthographicCamera: __webpack_require__(80),
+    WebGLRenderer: __webpack_require__(53),
     capabilities: __webpack_require__(15),
     extensions: __webpack_require__(25),
     Framebuffer: __webpack_require__(26),
-    VertexArrayObject: __webpack_require__(41),
-    Program: __webpack_require__(40),
-    Buffer: __webpack_require__(77),
-    LoadQueue: __webpack_require__(136),
+    VertexArrayObject: __webpack_require__(40),
+    Program: __webpack_require__(39),
+    Buffer: __webpack_require__(41),
+    LoadQueue: __webpack_require__(135),
     BasicLoader: __webpack_require__(12),
-    GLTFLoader: __webpack_require__(79),
-    TextureLoader: __webpack_require__(84),
-    CubeTextureLoader: __webpack_require__(85),
-    ShaderMaterialLoader: __webpack_require__(140),
+    GLTFLoader: __webpack_require__(81),
+    TextureLoader: __webpack_require__(86),
+    CubeTextureLoader: __webpack_require__(87),
+    ShaderMaterialLoader: __webpack_require__(139),
     Texture: __webpack_require__(14),
-    LazyTexture: __webpack_require__(81),
-    CubeTexture: __webpack_require__(86),
-    DataTexture: __webpack_require__(32),
-    Shader: __webpack_require__(33),
+    LazyTexture: __webpack_require__(83),
+    CubeTexture: __webpack_require__(88),
+    DataTexture: __webpack_require__(31),
+    Shader: __webpack_require__(32),
     math: __webpack_require__(1),
     Color: __webpack_require__(6),
-    Euler: __webpack_require__(30),
+    Euler: __webpack_require__(29),
     Vector2: __webpack_require__(42),
     Vector3: __webpack_require__(5),
-    Vector4: __webpack_require__(29),
+    Vector4: __webpack_require__(28),
     Matrix3: __webpack_require__(23),
     Matrix4: __webpack_require__(4),
     Quaternion: __webpack_require__(19),
-    Ray: __webpack_require__(45),
+    Ray: __webpack_require__(46),
     semantic: __webpack_require__(24),
     Material: __webpack_require__(27),
     BasicMaterial: __webpack_require__(17),
-    PBRMaterial: __webpack_require__(80),
-    ShaderMaterial: __webpack_require__(87),
-    AxisHelper: __webpack_require__(141),
-    AxisNetHelper: __webpack_require__(142),
+    PBRMaterial: __webpack_require__(82),
+    ShaderMaterial: __webpack_require__(89),
+    AxisHelper: __webpack_require__(140),
+    AxisNetHelper: __webpack_require__(141),
     Light: __webpack_require__(21),
-    DirectionalLight: __webpack_require__(143),
-    PointLight: __webpack_require__(145),
-    SpotLight: __webpack_require__(146),
-    AmbientLight: __webpack_require__(147),
-    Animation: __webpack_require__(83),
-    AnimationStates: __webpack_require__(82),
-    MeshPicker: __webpack_require__(148),
-    Ticker: __webpack_require__(149),
+    DirectionalLight: __webpack_require__(142),
+    PointLight: __webpack_require__(144),
+    SpotLight: __webpack_require__(145),
+    AmbientLight: __webpack_require__(146),
+    Animation: __webpack_require__(85),
+    AnimationStates: __webpack_require__(84),
+    MeshPicker: __webpack_require__(147),
+    Ticker: __webpack_require__(148),
     util: __webpack_require__(3),
-    log: __webpack_require__(51),
+    log: __webpack_require__(52),
     Cache: __webpack_require__(11),
-    browser: __webpack_require__(151),
-    WebGLSupport: __webpack_require__(152),
+    browser: __webpack_require__(150),
+    WebGLSupport: __webpack_require__(151),
     version: "1.4.1",
     constants: {}
 };
@@ -13957,7 +14019,7 @@ if (typeof window !== 'undefined') {
 module.exports = Hilo3d;
 
 /***/ }),
-/* 101 */
+/* 102 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -14113,7 +14175,7 @@ if(RawEvent){
 module.exports = EventMixin;
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14189,7 +14251,7 @@ var Fog = Class.create( /** @lends Fog.prototype */{
 module.exports = Fog;
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -14498,7 +14560,7 @@ module.exports = {
 
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14592,14 +14654,14 @@ var extensions = {
 module.exports = extensions;
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var intersectRayTriangle = __webpack_require__(106)
-var intersectRayPlane = __webpack_require__(108)
-var intersectRaySphere = __webpack_require__(109)
-var intersectRayBox = __webpack_require__(112)
-var copy3 = __webpack_require__(49)
+var intersectRayTriangle = __webpack_require__(107)
+var intersectRayPlane = __webpack_require__(109)
+var intersectRaySphere = __webpack_require__(110)
+var intersectRayBox = __webpack_require__(113)
+var copy3 = __webpack_require__(50)
 
 var tmpTriangle = [
   [0, 0, 0],
@@ -14657,12 +14719,12 @@ Ray.prototype.intersectsTriangleCell = function (cell, positions) {
 
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var cross = __webpack_require__(107);
-var dot = __webpack_require__(31);
-var sub = __webpack_require__(46);
+var cross = __webpack_require__(108);
+var dot = __webpack_require__(30);
+var sub = __webpack_require__(47);
 
 var EPSILON = 0.000001;
 var edge1 = [0,0,0];
@@ -14697,7 +14759,7 @@ function intersectTriangle (out, pt, dir, tri) {
 
 
 /***/ }),
-/* 107 */
+/* 108 */
 /***/ (function(module, exports) {
 
 module.exports = cross;
@@ -14721,13 +14783,13 @@ function cross(out, a, b) {
 }
 
 /***/ }),
-/* 108 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var dot = __webpack_require__(31)
-var add = __webpack_require__(47)
-var scale = __webpack_require__(48)
-var copy = __webpack_require__(49)
+var dot = __webpack_require__(30)
+var add = __webpack_require__(48)
+var scale = __webpack_require__(49)
+var copy = __webpack_require__(50)
 
 module.exports = intersectRayPlane
 
@@ -14751,15 +14813,15 @@ function intersectRayPlane(out, origin, direction, normal, dist) {
 
 
 /***/ }),
-/* 109 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var squaredDist = __webpack_require__(110)
-var dot = __webpack_require__(31)
-var sub = __webpack_require__(46)
-var scaleAndAdd = __webpack_require__(111)
-var scale = __webpack_require__(48)
-var add = __webpack_require__(47)
+var squaredDist = __webpack_require__(111)
+var dot = __webpack_require__(30)
+var sub = __webpack_require__(47)
+var scaleAndAdd = __webpack_require__(112)
+var scale = __webpack_require__(49)
+var add = __webpack_require__(48)
 
 var tmp = [0, 0, 0]
 
@@ -14784,7 +14846,7 @@ function intersectRaySphere (out, origin, direction, center, radius) {
 
 
 /***/ }),
-/* 110 */
+/* 111 */
 /***/ (function(module, exports) {
 
 module.exports = squaredDistance;
@@ -14804,7 +14866,7 @@ function squaredDistance(a, b) {
 }
 
 /***/ }),
-/* 111 */
+/* 112 */
 /***/ (function(module, exports) {
 
 module.exports = scaleAndAdd;
@@ -14826,7 +14888,7 @@ function scaleAndAdd(out, a, b, scale) {
 }
 
 /***/ }),
-/* 112 */
+/* 113 */
 /***/ (function(module, exports) {
 
 module.exports = intersection
@@ -14874,7 +14936,7 @@ function distance (ro, rd, aabb) {
 
 
 /***/ }),
-/* 113 */
+/* 114 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14882,7 +14944,7 @@ function distance (ro, rd, aabb) {
 
 var Class = __webpack_require__(0);
 var Node = __webpack_require__(10);
-var WebGLRenderer = __webpack_require__(52);
+var WebGLRenderer = __webpack_require__(53);
 
 /**
  * 舞台类
@@ -15054,55 +15116,55 @@ var Stage = Class.create( /** @lends Stage.prototype */{
 module.exports = Stage;
 
 /***/ }),
-/* 114 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\n" + __webpack_require__(53) + "\n" + __webpack_require__(54) + "\n" + __webpack_require__(55) + "\n" + __webpack_require__(56) + "\n" + __webpack_require__(34) + "\n" + __webpack_require__(61) + "\n" + __webpack_require__(35) + "\n" + __webpack_require__(36) + "\n\nvoid main(void) {\n    vec4 diffuse = vec4(0., 0., 0., 1.);\n    vec4 color = vec4(0., 0., 0., 1.);\n\n    " + __webpack_require__(62) + "\n    " + __webpack_require__(63) + "\n    " + __webpack_require__(64) + "\n    " + __webpack_require__(65) + "\n    " + __webpack_require__(37) + "\n    " + __webpack_require__(38) + "\n\n    color.rgb *= color.a;\n    gl_FragColor = color;\n}"
-
-/***/ }),
 /* 115 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(39) + "\n\nattribute vec3 a_position;\nuniform mat4 u_modelViewProjectionMatrix;\n\n" + __webpack_require__(66) + "\n" + __webpack_require__(67) + "\n" + __webpack_require__(68) + "\n" + __webpack_require__(69) + "\n" + __webpack_require__(70) + "\n" + __webpack_require__(116) + "\n\nvoid main(void) {\n    vec4 pos = vec4(a_position, 1.0);\n    #ifdef HILO_HAS_TEXCOORD0\n        vec2 uv = a_texcoord0;\n    #endif\n    #ifdef HILO_HAS_NORMAL\n        vec3 normal = a_normal;\n    #endif\n    #ifdef HILO_HAS_NORMAL_MAP\n        vec3 tangent = a_tangent;\n    #endif\n\n    " + __webpack_require__(71) + "\n    " + __webpack_require__(117) + "\n    " + __webpack_require__(72) + "\n    " + __webpack_require__(73) + "\n    " + __webpack_require__(74) + "\n    " + __webpack_require__(75) + "\n\n    gl_Position = u_modelViewProjectionMatrix * pos;\n}"
+module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\n" + __webpack_require__(54) + "\n" + __webpack_require__(55) + "\n" + __webpack_require__(56) + "\n" + __webpack_require__(57) + "\n" + __webpack_require__(33) + "\n" + __webpack_require__(62) + "\n" + __webpack_require__(34) + "\n" + __webpack_require__(35) + "\n\nvoid main(void) {\n    vec4 diffuse = vec4(0., 0., 0., 1.);\n    vec4 color = vec4(0., 0., 0., 1.);\n\n    " + __webpack_require__(63) + "\n    " + __webpack_require__(64) + "\n    " + __webpack_require__(65) + "\n    " + __webpack_require__(66) + "\n    " + __webpack_require__(36) + "\n    " + __webpack_require__(37) + "\n\n    color.rgb *= color.a;\n    gl_FragColor = color;\n}"
 
 /***/ }),
 /* 116 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
-module.exports = "#define GLSLIFY 1\n#ifdef HILO_MORPH_TARGET_COUNT\n    uniform float u_morphWeights[HILO_MORPH_TARGET_COUNT];\n\n    #if HILO_MORPH_TARGET_COUNT > 0\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition0;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal0;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent0;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 1\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition1;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal1;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent1;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 2\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition2;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal2;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent2;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 3\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition3;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal3;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent3;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 4\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition4;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal4;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent4;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 5\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition5;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal5;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent5;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 6\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition6;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal6;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent6;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 7\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition7;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal7;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent7;\n        #endif\n    #endif\n#endif"
+module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(38) + "\n\nattribute vec3 a_position;\nuniform mat4 u_modelViewProjectionMatrix;\n\n" + __webpack_require__(67) + "\n" + __webpack_require__(68) + "\n" + __webpack_require__(69) + "\n" + __webpack_require__(70) + "\n" + __webpack_require__(71) + "\n" + __webpack_require__(117) + "\n\nvoid main(void) {\n    vec4 pos = vec4(a_position, 1.0);\n    #ifdef HILO_HAS_TEXCOORD0\n        vec2 uv = a_texcoord0;\n    #endif\n    #ifdef HILO_HAS_NORMAL\n        vec3 normal = a_normal;\n    #endif\n    #ifdef HILO_HAS_NORMAL_MAP\n        vec3 tangent = a_tangent;\n    #endif\n\n    " + __webpack_require__(72) + "\n    " + __webpack_require__(118) + "\n    " + __webpack_require__(73) + "\n    " + __webpack_require__(74) + "\n    " + __webpack_require__(75) + "\n    " + __webpack_require__(76) + "\n\n    gl_Position = u_modelViewProjectionMatrix * pos;\n}"
 
 /***/ }),
 /* 117 */
 /***/ (function(module, exports) {
 
-module.exports = "#define GLSLIFY 1\n#ifdef HILO_MORPH_TARGET_COUNT\n    #if HILO_MORPH_TARGET_COUNT > 0\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition0 * u_morphWeights[0];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal0 * u_morphWeights[0];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent0 * u_morphWeights[0];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 1\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition1 * u_morphWeights[1];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal1 * u_morphWeights[1];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent1 * u_morphWeights[1];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 2\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition2 * u_morphWeights[2];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal2 * u_morphWeights[2];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent2 * u_morphWeights[2];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 3\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition3 * u_morphWeights[3];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal3 * u_morphWeights[3];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent3 * u_morphWeights[3];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 4\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition4 * u_morphWeights[4];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal4 * u_morphWeights[4];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent4 * u_morphWeights[4];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 5\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition5 * u_morphWeights[5];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal5 * u_morphWeights[5];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent5 * u_morphWeights[5];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 6\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition6 * u_morphWeights[6];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal6 * u_morphWeights[6];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent6 * u_morphWeights[6];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 7\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition7 * u_morphWeights[7];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal7 * u_morphWeights[7];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent7 * u_morphWeights[7];\n        #endif\n    #endif\n#endif"
+module.exports = "#define GLSLIFY 1\n#ifdef HILO_MORPH_TARGET_COUNT\n    uniform float u_morphWeights[HILO_MORPH_TARGET_COUNT];\n\n    #if HILO_MORPH_TARGET_COUNT > 0\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition0;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal0;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent0;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 1\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition1;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal1;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent1;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 2\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition2;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal2;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent2;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 3\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition3;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal3;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent3;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 4\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition4;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal4;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent4;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 5\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition5;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal5;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent5;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 6\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition6;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal6;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent6;\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 7\n        #ifdef HILO_MORPH_HAS_POSITION\n            attribute vec3 a_morphPosition7;\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            attribute vec3 a_morphNormal7;\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            attribute vec3 a_morphTangent7;\n        #endif\n    #endif\n#endif"
 
 /***/ }),
 /* 118 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\n// varying vec3 v_fragPos;\n\nvoid main(void) {\n    // gl_FragColor = vec4(gl_FragCoord.x, gl_FragCoord.y, gl_FragCoord.z, 1.0);\n    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n    // float z = (1.0 - gl_FragCoord.z) / 2.0;\n    // float z = 2.0 * gl_FragCoord.z - 1.0;\n    \n    float z = gl_FragCoord.z;\n    gl_FragColor = vec4(z, z, z, 1.0);\n}"
+module.exports = "#define GLSLIFY 1\n#ifdef HILO_MORPH_TARGET_COUNT\n    #if HILO_MORPH_TARGET_COUNT > 0\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition0 * u_morphWeights[0];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal0 * u_morphWeights[0];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent0 * u_morphWeights[0];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 1\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition1 * u_morphWeights[1];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal1 * u_morphWeights[1];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent1 * u_morphWeights[1];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 2\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition2 * u_morphWeights[2];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal2 * u_morphWeights[2];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent2 * u_morphWeights[2];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 3\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition3 * u_morphWeights[3];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal3 * u_morphWeights[3];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent3 * u_morphWeights[3];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 4\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition4 * u_morphWeights[4];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal4 * u_morphWeights[4];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent4 * u_morphWeights[4];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 5\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition5 * u_morphWeights[5];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal5 * u_morphWeights[5];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent5 * u_morphWeights[5];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 6\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition6 * u_morphWeights[6];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal6 * u_morphWeights[6];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent6 * u_morphWeights[6];\n        #endif\n    #endif\n\n    #if HILO_MORPH_TARGET_COUNT > 7\n        #ifdef HILO_MORPH_HAS_POSITION\n            pos.xyz += a_morphPosition7 * u_morphWeights[7];\n        #endif\n        #if defined(HILO_MORPH_HAS_NORMAL) && defined(HILO_HAS_NORMAL)\n            normal += a_morphNormal7 * u_morphWeights[7];\n        #endif\n        #if defined(HILO_MORPH_HAS_TANGENT) && defined(HILO_HAS_TANGENT)\n            tangent += a_morphTangent7 * u_morphWeights[7];\n        #endif\n    #endif\n#endif"
 
 /***/ }),
 /* 119 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\n" + __webpack_require__(53) + "\n" + __webpack_require__(54) + "\n" + __webpack_require__(55) + "\n" + __webpack_require__(120) + "\n" + __webpack_require__(34) + "\n" + __webpack_require__(35) + "\n" + __webpack_require__(36) + "\n\nvoid main(void) {\n    vec4 color = vec4(0., 0., 0., 1.);\n\n    " + __webpack_require__(62) + "\n    " + __webpack_require__(63) + "\n    " + __webpack_require__(121) + "\n    " + __webpack_require__(38) + "\n\n    color.rgb *= color.a;\n    gl_FragColor = color;\n}\n"
+module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\n// varying vec3 v_fragPos;\n\nvoid main(void) {\n    // gl_FragColor = vec4(gl_FragCoord.x, gl_FragCoord.y, gl_FragCoord.z, 1.0);\n    // gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n    // float z = (1.0 - gl_FragCoord.z) / 2.0;\n    // float z = 2.0 * gl_FragCoord.z - 1.0;\n    \n    float z = gl_FragCoord.z;\n    gl_FragColor = vec4(z, z, z, 1.0);\n}"
 
 /***/ }),
 /* 120 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\n" + __webpack_require__(54) + "\n" + __webpack_require__(55) + "\n" + __webpack_require__(56) + "\n" + __webpack_require__(121) + "\n" + __webpack_require__(33) + "\n" + __webpack_require__(34) + "\n" + __webpack_require__(35) + "\n\nvoid main(void) {\n    vec4 color = vec4(0., 0., 0., 1.);\n\n    " + __webpack_require__(63) + "\n    " + __webpack_require__(64) + "\n    " + __webpack_require__(122) + "\n    " + __webpack_require__(37) + "\n\n    color.rgb *= color.a;\n    gl_FragColor = color;\n}"
+
+/***/ }),
+/* 121 */
 /***/ (function(module, exports) {
 
 module.exports = "#define GLSLIFY 1\nuniform vec4 u_baseColor;\n#ifdef HILO_BASECOLOR_MAP\n    uniform sampler2D u_baseColorMap;\n#endif\nuniform float u_metallic;\n#ifdef HILO_METALLIC_MAP\n    uniform sampler2D u_metallicMap;\n#endif\n  uniform float u_roughness;\n#ifdef HILO_ROUGHNESS_MAP\n    uniform sampler2D u_roughnessMap;\n#endif\n#ifdef HILO_METALLIC_ROUGHNESS\n    uniform sampler2D u_metallicRoughness;\n#endif\n#ifdef HILO_AO_MAP\n    uniform sampler2D u_ao;\n#else\n    uniform float u_ao;\n#endif\n\n#ifdef HILO_DIFFUSE_ENV_MAP\n    uniform samplerCube u_diffuseEnvMap;\n#endif\n#ifdef HILO_SPECULAR_ENV_MAP\n    uniform sampler2D u_brdfLUT;\n    uniform samplerCube u_specularEnvMap;\n#endif\n\n#ifdef HILO_EMISSION_MAP\n    uniform sampler2D u_emission;\n#endif\n\n#ifdef HILO_PBR_SPECULAR_GLOSSINESS\n    uniform vec4 u_specular;\n    uniform float u_glossiness;\n    #ifdef HILO_SPECULAR_GLOSSINESS_MAP\n        uniform sampler2D u_specularGlossinessMap;\n    #endif\n#endif\n\n// PBR Based on https://github.com/KhronosGroup/glTF-WebGL-PBR\n\nstruct PBRInfo\n{\n  float NdotL;\n  float NdotV;\n  float NdotH;\n  float LdotH;\n  float VdotH;\n  float roughness;\n  float metalness;\n  vec3 baseColor;\n  vec3 reflectance0;\n  vec3 reflectance90;\n};\n\nconst float M_PI = 3.141592653589793;\nconst float c_MinRoughness = 0.04;\n\n// The following equations model the diffuse term of the lighting equation\n// Implementation of diffuse from \"Physically-Based Shading at Disney\" by Brent Burley\nvec3 disneyDiffuse(PBRInfo pbrInputs) {\n  float f90 = 2.*pbrInputs.LdotH*pbrInputs.LdotH*pbrInputs.roughness - 0.5;\n\n  return (pbrInputs.baseColor/M_PI)*(1.0+f90*pow((1.0-pbrInputs.NdotL),5.0))*(1.0+f90*pow((1.0-pbrInputs.NdotV),5.0));\n}\n\n// basic Lambertian diffuse, implementation from Lambert's Photometria https://archive.org/details/lambertsphotome00lambgoog\nvec3 lambertianDiffuse(PBRInfo pbrInputs) {\n  return pbrInputs.baseColor / M_PI;\n}\n\n// The following equations model the Fresnel reflectance term of the spec equation (aka F())\n// implementation of fresnel from “An Inexpensive BRDF Model for Physically based Rendering” by Christophe Schlick\nvec3 fresnelSchlick2(PBRInfo pbrInputs) {\n    return pbrInputs.reflectance0 + (pbrInputs.reflectance90 - pbrInputs.reflectance0) * pow(clamp(1.0 - pbrInputs.VdotH, 0.0, 1.0), 5.0);\n}\n\n// Simplified implementation of fresnel from “An Inexpensive BRDF Model for Physically based Rendering” by Christophe Schlick\nvec3 fresnelSchlick(PBRInfo pbrInputs) {\n  return pbrInputs.metalness + (vec3(1.0) - pbrInputs.metalness) * pow(1.0 - pbrInputs.VdotH, 5.0);\n}\n\n// The following equations model the geometric occlusion term of the spec equation  (aka G())\n// Implementation from “A Reflectance Model for Computer Graphics” by Robert Cook and Kenneth Torrance,\nfloat geometricOcclusionCookTorrance(PBRInfo pbrInputs) {\n  return min(min(2.*pbrInputs.NdotV*pbrInputs.NdotH/pbrInputs.VdotH, 2.*pbrInputs.NdotL*pbrInputs.NdotH/pbrInputs.VdotH),1.0);\n}\n\n// implementation of microfacet occlusion from “An Inexpensive BRDF Model for Physically based Rendering” by Christophe Schlick\nfloat geometricOcclusionSchlick(PBRInfo pbrInputs) {\n  float k = pbrInputs.roughness * 0.79788; // 0.79788 = sqrt(2.0/3.1415);\n  // alternately, k can be defined with\n  // float k = (pbrInputs.roughness + 1)*(pbrInputs.roughness + 1)/8;\n\n  float l = pbrInputs.LdotH / (pbrInputs.LdotH * (1.0 - k) + k);\n  float n = pbrInputs.NdotH / (pbrInputs.NdotH * (1.0 - k) + k);\n  return l * n;\n}\n\n// the following Smith implementations are from “Geometrical Shadowing of a Random Rough Surface” by Bruce G. Smith\nfloat geometricOcclusionSmith(PBRInfo pbrInputs) {\n  float NdotL2 = pbrInputs.NdotL * pbrInputs.NdotL;\n  float NdotV2 = pbrInputs.NdotV * pbrInputs.NdotV;\n  float v = ( -1. + sqrt ( pbrInputs.roughness * (1. - NdotL2 ) / NdotL2 + 1.)) * 0.5;\n  float l = ( -1. + sqrt ( pbrInputs.roughness * (1. - NdotV2 ) / NdotV2 + 1.)) * 0.5;\n  return (1. / max((1. + v + l ),0.000001));\n}\n\nfloat SmithG1_var2(float NdotV, float r) {\n    float tanSquared = (1.0 - NdotV * NdotV) / max((NdotV * NdotV),0.00001);\n    return 2.0 / (1.0 + sqrt(1.0 + r * r * tanSquared));\n}\n\nfloat SmithG1(float NdotV, float r) {\n  return 2.0 * NdotV / (NdotV + sqrt(r*r+(1.0-r*r)*(NdotV*NdotV)));\n}\n\nfloat geometricOcclusionSmithGGX(PBRInfo pbrInputs) {\n    return SmithG1_var2(pbrInputs.NdotL, pbrInputs.roughness) * SmithG1_var2(pbrInputs.NdotV, pbrInputs.roughness);\n}\n\n// The following equation(s) model the distribution of microfacet normals across the area being drawn (aka D())\n// implementation from “Average Irregularity Representation of a Roughened Surface for Ray Reflection” by T. S. Trowbridge, and K. P. Reitz\nfloat GGX(PBRInfo pbrInputs) {\n  float roughnessSq = pbrInputs.roughness*pbrInputs.roughness;\n  float f = (pbrInputs.NdotH * roughnessSq - pbrInputs.NdotH) * pbrInputs.NdotH + 1.0;\n  return roughnessSq / (M_PI * f * f);\n}\n\n\nvec3 calculateLo(vec3 N, vec3 V, vec3 L, float metallic, float roughness, vec3 diffuseColor, vec3 R0, vec3 R90) {\n    vec3 H = normalize(L + V);\n    float NdotL = clamp(dot(N, L), 0.001, 1.0);\n    float NdotV = abs(dot(N, V)) + 0.001;\n    float NdotH = clamp(dot(N, H), 0.0, 1.0);\n    float LdotH = clamp(dot(L, H), 0.0, 1.0);\n    float VdotH = clamp(dot(V, H), 0.0, 1.0);\n    PBRInfo pbrInputs = PBRInfo(\n        NdotL,\n        NdotV,\n        NdotH,\n        LdotH,\n        VdotH,\n        roughness,\n        metallic,\n        diffuseColor,\n        R0,\n        R90\n    );\n    vec3 F = fresnelSchlick2(pbrInputs);\n    float G = geometricOcclusionSmithGGX(pbrInputs);\n    float D = GGX(pbrInputs);\n    vec3 diffuseContrib = (1.0 - F) * lambertianDiffuse(pbrInputs);\n    vec3 specContrib = F * G * D / (4.0 * NdotL * NdotV);\n    return NdotL * (diffuseContrib + specContrib);\n}"
 
 /***/ }),
-/* 121 */
+/* 122 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = "#define GLSLIFY 1\nvec4 baseColor = u_baseColor;\n#ifdef HILO_BASECOLOR_MAP\n    baseColor = texture2D(u_baseColorMap, v_texcoord0) * u_baseColor;\n#endif\ncolor.a = baseColor.a;\n\n" + __webpack_require__(37) + "\n\n#ifdef HILO_HAS_LIGHT\n    vec3 viewPos = vec3(0, 0, 0);\n    vec3 N = normal;\n    vec3 V = normalize(viewPos - v_fragPos);\n\n    #ifdef HILO_AO_MAP\n        float ao  = texture2D(u_ao, v_texcoord0).r;\n    #else\n        float ao = u_ao;\n    #endif\n\n    #ifdef HILO_PBR_SPECULAR_GLOSSINESS\n        vec3 specular = u_specular.rgb;\n        float glossiness = u_glossiness;\n        #ifdef HILO_SPECULAR_GLOSSINESS_MAP\n            vec4 specularGlossiness = texture2D(u_specularGlossinessMap, v_texcoord0);\n            specular = specularGlossiness.rgb * specular;\n            glossiness = specularGlossiness.a * glossiness;\n        #endif\n        float roughness = 1.0 - glossiness;\n        float metallic = 0.0;\n        vec3 diffuseColor = baseColor.rgb * (1.0 - max(max(specular.r, specular.g), specular.b));\n        vec3 specularColor = specular;\n    #else\n        float metallic = u_metallic;\n        float roughness = u_roughness;\n        #ifdef HILO_METALLIC_MAP\n            metallic = texture2D(u_metallicMap, v_texcoord0).r * u_metallic;\n        #endif\n        #ifdef HILO_ROUGHNESS_MAP\n            roughness  = texture2D(u_roughnessMap, v_texcoord0).r * u_roughness;\n        #endif\n        #ifdef HILO_METALLIC_ROUGHNESS\n            vec4 metallicRoughness = texture2D(u_metallicRoughness, v_texcoord0);\n            #ifdef HILO_AO_IN_METALLIC_ROUGHNESS\n                ao = metallicRoughness.r;\n            #endif\n            roughness = metallicRoughness.g * u_roughness;\n            metallic = metallicRoughness.b * u_metallic;\n        #endif\n        roughness = clamp(roughness, 0.04, 1.0);\n        metallic = clamp(metallic, 0.0, 1.0);\n        vec3 f0 = vec3(0.04);\n        vec3 diffuseColor = mix(baseColor.rgb * (1.0 - f0), vec3(0., 0., 0.), metallic);\n        vec3 specularColor = mix(f0, baseColor.rgb, metallic);\n    #endif\n\n\n    float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);\n    // For typical incident reflectance range (between 4% to 100%) set the grazing reflectance to 100% for typical fresnel effect.\n    // For very low reflectance range on highly diffuse objects (below 4%), incrementally reduce grazing reflecance to 0%.\n    float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);\n    vec3 specularEnvironmentR0 = specularColor.rgb;\n    vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;\n\n    vec3 Lo = vec3(0.0);\n    #ifdef HILO_DIRECTIONAL_LIGHTS\n        for(int i = 0;i < HILO_DIRECTIONAL_LIGHTS;i++){\n            vec3 L = normalize(-u_directionalLightsInfo[i]);\n            vec3 radiance = u_directionalLightsColor[i];\n            float shadow = 1.0;\n            #ifdef HILO_DIRECTIONAL_LIGHTS_SMC\n                if (i < HILO_DIRECTIONAL_LIGHTS_SMC) {\n                    float bias = max(u_directionalLightsShadowBias[i][1] * (1.0 - dot(N, L)), u_directionalLightsShadowBias[i][0]);\n                    shadow = getShadow(u_directionalLightsShadowMap[i], u_directionalLightsShadowMapSize[i], bias, v_fragPos, u_directionalLightSpaceMatrix[i]);\n                }\n            #endif\n\n            Lo += shadow * radiance * calculateLo(N, V, L, metallic, roughness, diffuseColor, specularEnvironmentR0, specularEnvironmentR90);\n        }\n    #endif\n\n    #ifdef HILO_SPOT_LIGHTS\n        for(int i = 0; i < HILO_SPOT_LIGHTS; i++){\n            vec3 lightDir = normalize(-u_spotLightsDir[i]);\n            vec3 distanceVec = u_spotLightsPos[i] - v_fragPos;\n\n            float theta = dot(normalize(distanceVec), lightDir);\n            float epsilon = u_spotLightsCutoffs[i][0] - u_spotLightsCutoffs[i][1];\n            float intensity = clamp((theta - u_spotLightsCutoffs[i][1]) / epsilon, 0.0, 1.0);\n            float attenuation = getPointAttenuation(distanceVec, u_spotLightsInfo[i]);\n            vec3 radiance = intensity * attenuation * u_spotLightsColor[i];\n\n            float shadow = 1.0;\n            #ifdef HILO_SPOT_LIGHTS_SMC\n                if (i < HILO_SPOT_LIGHTS_SMC) {\n                    float bias = max(u_spotLightsShadowBias[i][1] * (1.0 - dot(N, lightDir)), u_spotLightsShadowBias[i][0]);\n                    shadow = getShadow(u_spotLightsShadowMap[i], u_spotLightsShadowMapSize[i], bias, v_fragPos, u_spotLightSpaceMatrix[i]);\n                }\n            #endif\n            Lo += shadow * radiance * calculateLo(N, V, lightDir, metallic, roughness, diffuseColor, specularEnvironmentR0, specularEnvironmentR90);\n        }\n    #endif\n\n    #ifdef HILO_POINT_LIGHTS\n        for(int i = 0; i < HILO_POINT_LIGHTS; i++){\n            vec3 distanceVec = u_pointLightsPos[i] - v_fragPos;\n            vec3 lightDir = normalize(distanceVec);\n\n            float attenuation = getPointAttenuation(distanceVec, u_pointLightsInfo[i]);\n            vec3 radiance = attenuation * u_pointLightsColor[i];\n\n            Lo += radiance * calculateLo(N, V, lightDir, metallic, roughness, diffuseColor, specularEnvironmentR0, specularEnvironmentR90);\n        }\n    #endif\n\n    #ifdef HILO_DIFFUSE_ENV_MAP\n        vec3 diffuseLight = textureCube(u_diffuseEnvMap, N).rgb;\n        color.rgb += ao * diffuseLight * diffuseColor;\n    #endif\n\n    #ifdef HILO_SPECULAR_ENV_MAP\n        vec3 R = -normalize(reflect(V, N));\n        float NdotV = abs(dot(N, V)) + 0.001;\n        vec3 brdf = texture2D(u_brdfLUT, vec2(NdotV, 1.0 - roughness)).rgb;\n        #ifdef HILO_USE_TEX_LOD\n            float mipCount = 9.0; // resolution of 512x512\n            float lod = (roughness * mipCount);\n            vec3 specularLight = textureCubeLodEXT(u_specularEnvMap, R, lod).rgb;\n        #else\n            vec3 specularLight = textureCube(u_specularEnvMap, R).rgb;\n        #endif\n        color.rgb += ao * specularLight * specularColor * (brdf.x + brdf.y);\n    #endif\n\n    #ifdef HILO_AMBIENT_LIGHTS\n        color.rgb += u_ambientLightsColor * baseColor.rgb * ao;\n    #endif\n\n    #ifdef HILO_EMISSION_MAP\n        color.rgb += texture2D(u_emission, v_texcoord0).rgb;\n    #endif\n\n    color.rgb += Lo;\n#else\n    color = baseColor;\n#endif"
+module.exports = "#define GLSLIFY 1\nvec4 baseColor = u_baseColor;\n#ifdef HILO_BASECOLOR_MAP\n    baseColor = texture2D(u_baseColorMap, v_texcoord0) * u_baseColor;\n#endif\ncolor.a = baseColor.a;\n\n" + __webpack_require__(36) + "\n\n#ifdef HILO_HAS_LIGHT\n    vec3 viewPos = vec3(0, 0, 0);\n    vec3 N = normal;\n    vec3 V = normalize(viewPos - v_fragPos);\n\n    #ifdef HILO_AO_MAP\n        float ao  = texture2D(u_ao, v_texcoord0).r;\n    #else\n        float ao = u_ao;\n    #endif\n\n    #ifdef HILO_PBR_SPECULAR_GLOSSINESS\n        vec3 specular = u_specular.rgb;\n        float glossiness = u_glossiness;\n        #ifdef HILO_SPECULAR_GLOSSINESS_MAP\n            vec4 specularGlossiness = texture2D(u_specularGlossinessMap, v_texcoord0);\n            specular = specularGlossiness.rgb * specular;\n            glossiness = specularGlossiness.a * glossiness;\n        #endif\n        float roughness = 1.0 - glossiness;\n        float metallic = 0.0;\n        vec3 diffuseColor = baseColor.rgb * (1.0 - max(max(specular.r, specular.g), specular.b));\n        vec3 specularColor = specular;\n    #else\n        float metallic = u_metallic;\n        float roughness = u_roughness;\n        #ifdef HILO_METALLIC_MAP\n            metallic = texture2D(u_metallicMap, v_texcoord0).r * u_metallic;\n        #endif\n        #ifdef HILO_ROUGHNESS_MAP\n            roughness  = texture2D(u_roughnessMap, v_texcoord0).r * u_roughness;\n        #endif\n        #ifdef HILO_METALLIC_ROUGHNESS\n            vec4 metallicRoughness = texture2D(u_metallicRoughness, v_texcoord0);\n            #ifdef HILO_AO_IN_METALLIC_ROUGHNESS\n                ao = metallicRoughness.r;\n            #endif\n            roughness = metallicRoughness.g * u_roughness;\n            metallic = metallicRoughness.b * u_metallic;\n        #endif\n        roughness = clamp(roughness, 0.04, 1.0);\n        metallic = clamp(metallic, 0.0, 1.0);\n        vec3 f0 = vec3(0.04);\n        vec3 diffuseColor = mix(baseColor.rgb * (1.0 - f0), vec3(0., 0., 0.), metallic);\n        vec3 specularColor = mix(f0, baseColor.rgb, metallic);\n    #endif\n\n\n    float reflectance = max(max(specularColor.r, specularColor.g), specularColor.b);\n    // For typical incident reflectance range (between 4% to 100%) set the grazing reflectance to 100% for typical fresnel effect.\n    // For very low reflectance range on highly diffuse objects (below 4%), incrementally reduce grazing reflecance to 0%.\n    float reflectance90 = clamp(reflectance * 25.0, 0.0, 1.0);\n    vec3 specularEnvironmentR0 = specularColor.rgb;\n    vec3 specularEnvironmentR90 = vec3(1.0, 1.0, 1.0) * reflectance90;\n\n    vec3 Lo = vec3(0.0);\n    #ifdef HILO_DIRECTIONAL_LIGHTS\n        for(int i = 0;i < HILO_DIRECTIONAL_LIGHTS;i++){\n            vec3 L = normalize(-u_directionalLightsInfo[i]);\n            vec3 radiance = u_directionalLightsColor[i];\n            float shadow = 1.0;\n            #ifdef HILO_DIRECTIONAL_LIGHTS_SMC\n                if (i < HILO_DIRECTIONAL_LIGHTS_SMC) {\n                    float bias = max(u_directionalLightsShadowBias[i][1] * (1.0 - dot(N, L)), u_directionalLightsShadowBias[i][0]);\n                    shadow = getShadow(u_directionalLightsShadowMap[i], u_directionalLightsShadowMapSize[i], bias, v_fragPos, u_directionalLightSpaceMatrix[i]);\n                }\n            #endif\n\n            Lo += shadow * radiance * calculateLo(N, V, L, metallic, roughness, diffuseColor, specularEnvironmentR0, specularEnvironmentR90);\n        }\n    #endif\n\n    #ifdef HILO_SPOT_LIGHTS\n        for(int i = 0; i < HILO_SPOT_LIGHTS; i++){\n            vec3 lightDir = normalize(-u_spotLightsDir[i]);\n            vec3 distanceVec = u_spotLightsPos[i] - v_fragPos;\n\n            float theta = dot(normalize(distanceVec), lightDir);\n            float epsilon = u_spotLightsCutoffs[i][0] - u_spotLightsCutoffs[i][1];\n            float intensity = clamp((theta - u_spotLightsCutoffs[i][1]) / epsilon, 0.0, 1.0);\n            float attenuation = getPointAttenuation(distanceVec, u_spotLightsInfo[i]);\n            vec3 radiance = intensity * attenuation * u_spotLightsColor[i];\n\n            float shadow = 1.0;\n            #ifdef HILO_SPOT_LIGHTS_SMC\n                if (i < HILO_SPOT_LIGHTS_SMC) {\n                    float bias = max(u_spotLightsShadowBias[i][1] * (1.0 - dot(N, lightDir)), u_spotLightsShadowBias[i][0]);\n                    shadow = getShadow(u_spotLightsShadowMap[i], u_spotLightsShadowMapSize[i], bias, v_fragPos, u_spotLightSpaceMatrix[i]);\n                }\n            #endif\n            Lo += shadow * radiance * calculateLo(N, V, lightDir, metallic, roughness, diffuseColor, specularEnvironmentR0, specularEnvironmentR90);\n        }\n    #endif\n\n    #ifdef HILO_POINT_LIGHTS\n        for(int i = 0; i < HILO_POINT_LIGHTS; i++){\n            vec3 distanceVec = u_pointLightsPos[i] - v_fragPos;\n            vec3 lightDir = normalize(distanceVec);\n\n            float attenuation = getPointAttenuation(distanceVec, u_pointLightsInfo[i]);\n            vec3 radiance = attenuation * u_pointLightsColor[i];\n\n            Lo += radiance * calculateLo(N, V, lightDir, metallic, roughness, diffuseColor, specularEnvironmentR0, specularEnvironmentR90);\n        }\n    #endif\n\n    #ifdef HILO_DIFFUSE_ENV_MAP\n        vec3 diffuseLight = textureCube(u_diffuseEnvMap, N).rgb;\n        color.rgb += ao * diffuseLight * diffuseColor;\n    #endif\n\n    #ifdef HILO_SPECULAR_ENV_MAP\n        vec3 R = -normalize(reflect(V, N));\n        float NdotV = abs(dot(N, V)) + 0.001;\n        vec3 brdf = texture2D(u_brdfLUT, vec2(NdotV, 1.0 - roughness)).rgb;\n        #ifdef HILO_USE_TEX_LOD\n            float mipCount = 9.0; // resolution of 512x512\n            float lod = (roughness * mipCount);\n            vec3 specularLight = textureCubeLodEXT(u_specularEnvMap, R, lod).rgb;\n        #else\n            vec3 specularLight = textureCube(u_specularEnvMap, R).rgb;\n        #endif\n        color.rgb += ao * specularLight * specularColor * (brdf.x + brdf.y);\n    #endif\n\n    #ifdef HILO_AMBIENT_LIGHTS\n        color.rgb += u_ambientLightsColor * baseColor.rgb * ao;\n    #endif\n\n    #ifdef HILO_EMISSION_MAP\n        color.rgb += texture2D(u_emission, v_texcoord0).rgb;\n    #endif\n\n    color.rgb += Lo;\n#else\n    color = baseColor;\n#endif"
 
 /***/ }),
-/* 122 */
+/* 123 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15187,7 +15249,7 @@ var RenderInfo = Class.create( /** @lends RenderInfo.prototype */{
 module.exports = RenderInfo;
 
 /***/ }),
-/* 123 */
+/* 124 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15293,7 +15355,7 @@ module.exports = RenderList;
  */
 
 /***/ }),
-/* 124 */
+/* 125 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15323,19 +15385,7 @@ var bufferUtil = {
 module.exports = bufferUtil;
 
 /***/ }),
-/* 125 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(39) + "\n\nattribute vec2 a_position;\nattribute vec2 a_texcoord0;\nvarying vec2 v_texcoord0;\n\n\nvoid main(void) {\n    vec4 pos = vec4(a_position, 0.0, 1.0);\n    gl_Position = pos;\n    v_texcoord0 = a_texcoord0;\n}"
-
-/***/ }),
 /* 126 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = "#define GLSLIFY 1\n" + __webpack_require__(16) + "\n" + __webpack_require__(20) + "\n\nvarying vec2 v_texcoord0;\nuniform sampler2D u_diffuse;\n\nvoid main(void) {  \n    gl_FragColor = texture2D(u_diffuse, v_texcoord0);\n}"
-
-/***/ }),
-/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15644,7 +15694,7 @@ var State = Class.create( /** @lends State.prototype */{
 module.exports = State;
 
 /***/ }),
-/* 128 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15956,7 +16006,7 @@ var LightManager = Class.create( /** @lends LightManager.prototype */{
 module.exports = LightManager;
 
 /***/ }),
-/* 129 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -15967,19 +16017,19 @@ module.exports = LightManager;
  * @class  Tween
  * @see {@link http://hiloteam.github.io/Hilo/docs/api-zh/symbols/Tween.html}
  */
-var Tween = __webpack_require__(130);
+var Tween = __webpack_require__(129);
 
 /**
  * Ease类包含为Tween类提供各种缓动功能的函数。
  * @memberOf Tween
  * @see  {@link http://hiloteam.github.io/Hilo/docs/api-zh/symbols/Ease.html}
  */
-Tween.Ease = __webpack_require__(131);
+Tween.Ease = __webpack_require__(130);
 
 module.exports = Tween;
 
 /***/ }),
-/* 130 */
+/* 129 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -16424,7 +16474,7 @@ return Class.create(/** @lends Tween.prototype */{
 module.exports = Tween;
 
 /***/ }),
-/* 131 */
+/* 130 */
 /***/ (function(module, exports) {
 
 /**
@@ -16697,7 +16747,7 @@ return {
 module.exports = Ease;
 
 /***/ }),
-/* 132 */
+/* 131 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16746,7 +16796,7 @@ var Sphere = Class.create({
 module.exports = Sphere;
 
 /***/ }),
-/* 133 */
+/* 132 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -16880,7 +16930,7 @@ var PlaneGeometry = Class.create( /** @lends PlaneGeometry.prototype */{
 module.exports = PlaneGeometry;
 
 /***/ }),
-/* 134 */
+/* 133 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17175,7 +17225,7 @@ var BoxGeometry = Class.create( /** @lends BoxGeometry.prototype */{
 module.exports = BoxGeometry;
 
 /***/ }),
-/* 135 */
+/* 134 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17308,7 +17358,7 @@ var SphereGeometry = Class.create( /** @lends SphereGeometry.prototype */{
 module.exports = SphereGeometry;
 
 /***/ }),
-/* 136 */
+/* 135 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17318,9 +17368,9 @@ var Class = __webpack_require__(0);
 var EventMixin = __webpack_require__(9);
 var util = __webpack_require__(3);
 var BasicLoader = __webpack_require__(12);
-var GLTFLoader = __webpack_require__(79);
-var TextureLoader = __webpack_require__(84);
-var CubeTextureLoader = __webpack_require__(85);
+var GLTFLoader = __webpack_require__(81);
+var TextureLoader = __webpack_require__(86);
+var CubeTextureLoader = __webpack_require__(87);
 
 var LoaderClassMap = {
     Texture: TextureLoader,
@@ -17563,7 +17613,7 @@ var LoadQueue = Class.create( /** @lends LoadQueue.prototype */{
 module.exports = LoadQueue;
 
 /***/ }),
-/* 137 */
+/* 136 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17641,7 +17691,7 @@ var Cache = Class.create( /** @lends Cache.prototype */{
 module.exports = Cache;
 
 /***/ }),
-/* 138 */
+/* 137 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -17652,19 +17702,19 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 var Class = __webpack_require__(0);
 var Node = __webpack_require__(10);
 var BasicMaterial = __webpack_require__(17);
-var PBRMaterial = __webpack_require__(80);
+var PBRMaterial = __webpack_require__(82);
 var Geometry = __webpack_require__(7);
-var MorphGeometry = __webpack_require__(139);
+var MorphGeometry = __webpack_require__(138);
 var GeometryData = __webpack_require__(8);
 var Mesh = __webpack_require__(18);
-var SkinedMesh = __webpack_require__(50);
-var LazyTexture = __webpack_require__(81);
+var SkinedMesh = __webpack_require__(51);
+var LazyTexture = __webpack_require__(83);
 var math = __webpack_require__(1);
 var Matrix4 = __webpack_require__(4);
 var Color = __webpack_require__(6);
 var util = __webpack_require__(3);
-var AnimationStates = __webpack_require__(82);
-var Animation = __webpack_require__(83);
+var AnimationStates = __webpack_require__(84);
+var Animation = __webpack_require__(85);
 var PerspectiveCamera = __webpack_require__(44);
 
 var _require = __webpack_require__(2),
@@ -18592,7 +18642,7 @@ var GLTFParser = Class.create( /** @lends GLTFParser.prototype */{
 module.exports = GLTFParser;
 
 /***/ }),
-/* 139 */
+/* 138 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18684,7 +18734,7 @@ var MorphGeometry = Class.create( /** @lends MorphGeometry.prototype */{
 module.exports = MorphGeometry;
 
 /***/ }),
-/* 140 */
+/* 139 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18692,7 +18742,7 @@ module.exports = MorphGeometry;
 
 var Class = __webpack_require__(0);
 var BasicLoader = __webpack_require__(12);
-var ShaderMaterial = __webpack_require__(87);
+var ShaderMaterial = __webpack_require__(89);
 
 /**
  * ShaderMaterial加载类
@@ -18766,7 +18816,7 @@ var ShaderMaterialLoader = Class.create({
 module.exports = ShaderMaterialLoader;
 
 /***/ }),
-/* 141 */
+/* 140 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18848,7 +18898,7 @@ var AxisHelper = Class.create( /** @lends AxisHelper.prototype */{
 module.exports = AxisHelper;
 
 /***/ }),
-/* 142 */
+/* 141 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18924,7 +18974,7 @@ var AxisNetHelper = Class.create( /** @lends AxisNetHelper.prototype */{
 module.exports = AxisNetHelper;
 
 /***/ }),
-/* 143 */
+/* 142 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -18932,7 +18982,7 @@ module.exports = AxisNetHelper;
 
 var Class = __webpack_require__(0);
 var Light = __webpack_require__(21);
-var LightShadow = __webpack_require__(88);
+var LightShadow = __webpack_require__(90);
 var Matrix4 = __webpack_require__(4);
 var Vector3 = __webpack_require__(5);
 
@@ -19015,7 +19065,7 @@ var DirectionalLight = Class.create( /** @lends DirectionalLight.prototype */{
 module.exports = DirectionalLight;
 
 /***/ }),
-/* 144 */
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19044,7 +19094,7 @@ var ShadowMaterial = Class.create({
 module.exports = ShadowMaterial;
 
 /***/ }),
-/* 145 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19113,7 +19163,7 @@ var PointLight = Class.create( /** @lends PointLight.prototype */{
 module.exports = PointLight;
 
 /***/ }),
-/* 146 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19121,7 +19171,7 @@ module.exports = PointLight;
 
 var Class = __webpack_require__(0);
 var Light = __webpack_require__(21);
-var LightShadow = __webpack_require__(88);
+var LightShadow = __webpack_require__(90);
 var math = __webpack_require__(1);
 var Matrix4 = __webpack_require__(4);
 var Vector3 = __webpack_require__(5);
@@ -19265,7 +19315,7 @@ var SpotLight = Class.create( /** @lends SpotLight.prototype */{
 module.exports = SpotLight;
 
 /***/ }),
-/* 147 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19303,7 +19353,7 @@ var AmbientLight = Class.create( /** @lends AmbientLight.prototype */{
 module.exports = AmbientLight;
 
 /***/ }),
-/* 148 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19449,7 +19499,7 @@ var MeshPicker = Class.create( /** @lends MeshPicker.prototype */{
 module.exports = MeshPicker;
 
 /***/ }),
-/* 149 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19460,12 +19510,12 @@ module.exports = MeshPicker;
  * @class  Ticker
  * @see  {@link http://hiloteam.github.io/Hilo/docs/api-zh/symbols/Ticker.html}
  */
-var Ticker = __webpack_require__(150);
+var Ticker = __webpack_require__(149);
 
 module.exports = Ticker;
 
 /***/ }),
-/* 150 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -19474,7 +19524,7 @@ module.exports = Ticker;
  * Licensed under the MIT License
  */
 var Class = __webpack_require__(22);
-var browser = __webpack_require__(89);
+var browser = __webpack_require__(91);
 
 
 
@@ -19694,7 +19744,7 @@ var Ticker = Class.create(/** @lends Ticker.prototype */{
 module.exports = Ticker;
 
 /***/ }),
-/* 151 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19705,12 +19755,12 @@ module.exports = Ticker;
  * @namespace 
  * @see  {@link http://hiloteam.github.io/Hilo/docs/api-zh/symbols/browser.html}
  */
-var browser = __webpack_require__(89);
+var browser = __webpack_require__(91);
 
 module.exports = browser;
 
 /***/ }),
-/* 152 */
+/* 151 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19778,36 +19828,57 @@ Hilo3d.resetGCanvas = function () {
 Hilo3d.Image = Image;
 Hilo3d.CanvasElement = require('./CanvasElement');
 
-function _gcv_string2ArrayBuffer( data ) {
-    var response = new ArrayBuffer( data.length );
-    var view = new Uint8Array( response );
-    for ( var i = 0; i < data.length; i ++ ) {
-        view[ i ] = data.charCodeAt( i );
+function _gcv_string2ArrayBuffer(data) {
+    var response = new ArrayBuffer(data.length);
+    var view = new Uint8Array(response);
+    for (var i = 0; i < data.length; i++) {
+        view[i] = data.charCodeAt(i);
     }
     return view.buffer;
-}   
+}
 
-Hilo3d.BasicLoader.prototype.request = function request ( opt ){
-    if( !opt.method ) opt.method = 'GET';
+Hilo3d.Ticker.prototype.start = function start() {
+    console.log('override');
+    if (this._intervalId) return;
+    this._lastTime = +new Date();
+    console.log('interval:', this._interval);
+
+    var self = this, interval = this._interval;
+    var startTime = +new Date();
+    var runLoop = function () {
+        var endTime = +new Date();
+        var duration = endTime - startTime;
+        startTime = endTime;
+        console.log('loop:', duration);
+        self._intervalId = window.setTimeout(runLoop, interval);
+        self._tick();
+    }
+
+    this._paused = false;
+    runLoop();
+};
+
+Hilo3d.BasicLoader.prototype.request = function request(opt) {
+    if (!opt.method) opt.method = 'GET';
     var responseType = (opt.type || '').toLowerCase();
-   
-    return new Promise((resolve, reject) => {  
-        stream.fetch( opt, function ( res ){
-            if( !res.ok ) return reject(new TypeError(`Network request failed for ${res.status}`));
+
+    return new Promise(function (resolve, reject) {
+        stream.fetch(opt, function (res) {
+            if (!res.ok) return reject(new TypeError(`Network request failed for ${res.status}`));
             var data = res.data;
             var response;
 
-            switch( responseType ){
-                case 'buffer': 
+            switch (responseType) {
+                case 'buffer':
                 case 'arraybuffer':
                     response = _gcv_string2ArrayBuffer(decodeURIComponent(data));
                     break;
                 default: // 'text' or other
-                    response = data;    
+                    response = data;
                     break;
             }
-            resolve( response );
-        }); 
+            resolve(response);
+        });
     });
 };
 

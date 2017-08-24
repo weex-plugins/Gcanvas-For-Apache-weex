@@ -1,4 +1,6 @@
+var timer = weex.requireModule('timer');
 var Image = require('./image');
+var base64shim = require('./base64shim');
 
 function initWindow() {
     var window = {
@@ -16,8 +18,18 @@ function initWindow() {
         Image: Image,
         ontouchstart: null,
         ontouchmove: null,
-        ontouchend: null
-    };
+        ontouchend: null,   
+
+        btoa: base64shim.btoa,
+        atob: base64shim.atob,
+        // ,
+        // TextDecoder: TextEncoding.TextDecoder,
+        // TextEncoder: TextEncoding.TextEncoder
+        setInterval: timer.setInterval,
+        clearInterval: timer.clearInterval,
+        setTimeout: timer.setTimeout,
+        clearTimeout: timer.clearTimeout
+    };      
 
     return window;
 }

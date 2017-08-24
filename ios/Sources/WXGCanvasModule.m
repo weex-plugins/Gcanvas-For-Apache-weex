@@ -569,7 +569,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             [plugin execCommands];
             
             NSString *ret = [plugin getSyncResult];
-            return @{@"result":ret};
+            if(ret){
+                return @{@"result":ret};
+            }
         }
     }
     return @{};
