@@ -659,9 +659,10 @@ GContextWebGL.prototype.render = function()
 	if(GBridge.isIOS()) {
             var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": this.componentId, "type":type});
     	} else{
-	    callGCanvasLinkNative(this.componentId,type,"render");
-	    G_NeedRender = false;
+	    	callGCanvasLinkNative(this.componentId,type,"render");
+	    	G_NeedRender = false;
 	}
+    }
 };
 
 
