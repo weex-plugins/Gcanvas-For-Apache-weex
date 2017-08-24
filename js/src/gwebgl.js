@@ -32,7 +32,6 @@ if(typeof CmdType == "undefined"){
     };
 }
 
-var G_UseGBridge = 1;
 var G_NeedRender = true;
 
 function WebGLCallNative(componentId, cmdArgs)
@@ -43,25 +42,23 @@ function WebGLCallNative(componentId, cmdArgs)
     GLog.d("WebGLCallNative command: " + cmdArgs);
     	
     if(GBridge.isIOS()) {
-    	if( G_UseGBridge )
-    	{
-	    var result = GBridge.callExtendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
+	    var result = GBridge.callExtendCallNative({"contextId": componentId, "type":type, "args":cmdArgs});
 	    if( result )
 	    {
+            GLog.d("WebGLCallNative result: " + result["result"]);            
 	        return result["result"];
 	    }
 	    return null;
-    	}
 
-    	var result = extendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
-    	if( result )
-    	{
-	    return result["result"];
-    	}
-    	return null;
+    	// var result = extendCallNative({"className":"WXGCanvasCallNative", "contextId": componentId, "type":type, "args":cmdArgs});
+    	// if( result )
+    	// {
+     //        return result["result"];
+    	// }
+    	// return null;
     }else {
     	var result = callGCanvasLinkNative(componentId,type,cmdArgs);
-	GLog.d("result in js is " + result);
+        GLog.d("WebGLCallNative result: " + result);
         return result;
     }
 }
