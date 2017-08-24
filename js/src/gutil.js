@@ -190,6 +190,15 @@ var GBridge = {
     },
     callExtendCallNative:function(dict){
       return  canvasModule && canvasModule.extendCallNative(dict);
+    },
+    
+    texImage2D: function (componentId,target,level,internalformat,format,type,path) {
+        GLog.d('bridge#texImage2D(): ' + path);
+        canvasModule.texImage2D && canvasModule.texImage2D(componentId,target,level,internalformat,format,type,path);
+    },
+    texSubImage2D: function (componentId,target, level, xoffset,yoffset,format,type,path) {
+    	GLog.d('bridge#texSubImage2D(): ' + path);
+        canvasModule.texSubImage2D && canvasModule.texSubImage2D(componentId,target,level,xoffset,yoffset,format,type,path);
     }
 };
 
