@@ -616,15 +616,18 @@ function GWebGLActiveInfo(){
 
 GWebGLActiveInfo.convertFormString = function(infoString)
 {
-    if( !infoString ) return null;
-
-    var infoArray = infoString.split(",");
-    if( infoArray.length < 3 ) return null;
-    
     var activeInfo = new GWebGLActiveInfo();
-    activeInfo.type = parseInt(infoArray[0]);
-    activeInfo.size = parseInt(infoArray[1]);
-    activeInfo.name = infoArray[2];
+    if( infoString )
+    {
+        var infoArray = infoString.split(",");
+        if(infoArray.length >= 3)
+        {
+            activeInfo.type = parseInt(infoArray[0]);
+            activeInfo.size = parseInt(infoArray[1]);
+            activeInfo.name = infoArray[2];
+        }
+    }
+
     return activeInfo;
 }
 
@@ -1102,15 +1105,16 @@ GContextWebGL.prototype.getShaderPrecisionFormat = function(shaderType, precisio
     var cmd = (this.getShaderPrecisionFormatId + shaderType + "," + precisionType + ";");
     var resultString = WebGLCallNative(this.componentId, cmd);
     var resultArray = resultString.split(",");
+
+    var precisionFormat= new GWebGLShaderPrecisionFormat();
+
     if( resultArray.length == 3 )
     {
-        var precisionFormat= new GWebGLShaderPrecisionFormat();
         precisionFormat.rangeMin = parseInt(resultArray[0]);
         precisionFormat.rangeMax = parseInt(resultArray[1]);
         precisionFormat.precision = parseInt(resultArray[2]);
-        return precisionFormat;
     }
-    return null; 
+    return precisionFormat;
 };
 
 GContextWebGL.prototype.getShaderSource = function(shader){
@@ -1293,7 +1297,7 @@ GContextWebGL.prototype.stencilMask = function(mask){
 
 //new
 GContextWebGL.prototype.stencilMaskSeparate = function(face, mask){
-    var cmd = (this.stencilMaskId + face + "," + mask + ";");
+    var cmd = (this.stencilMaskSeparateId + face + "," + mask + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1305,7 +1309,7 @@ GContextWebGL.prototype.stencilOp = function(fail, zfail, zpass){
 
 //new
 GContextWebGL.prototype.stencilOpSeparate = function(face, fail, zfail, zpass){
-    var cmd = (this.stencilOpId + face + "," + fail + "," + zfail + "," + zpass + ";");
+    var cmd = (this.stencilOpSeparateId + face + "," + fail + "," + zfail + "," + zpass + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
