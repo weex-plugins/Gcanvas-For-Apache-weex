@@ -240,12 +240,13 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                 if( textureId > 0 )
                 {
                     //clean image after bind success
-//                    imageCache.image = nil;
                     
                     [plugin addTextureId:textureId
                                withAppId:imageCache.jsTextreId
                                    width:imageCache.width
                                   height:imageCache.height];
+                    
+                    [[GCVCommon sharedInstance] removeLoadImage:src];
                 }
                 
                 GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
