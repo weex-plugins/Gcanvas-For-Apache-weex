@@ -24,35 +24,6 @@
 #import "WeexGcanvas.h"
 
 
-@interface WXGCanvasEAGLContext:NSObject
-
-+ (EAGLContext*)createEAGLContext;
-
-@end
-
-@implementation WXGCanvasEAGLContext
-
-+ (EAGLContext*)createEAGLContext
-{
-    static EAGLContext * firstContext = nil;
-    static dispatch_once_t onceToken;
-    
-    if( !firstContext )
-    {
-        dispatch_once(&onceToken, ^{
-            firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        });
-        return firstContext;
-    }
-    else
-    {
-        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
-        return newContext;
-    }
-}
-@end
-
-
 @interface WXGCanvasComponent()
 
 @property(nonatomic, assign) CGRect frame;
@@ -133,7 +104,22 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 {
     if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
-        glkview.context = [WXGCanvasEAGLContext createEAGLContext];
+        
+        static EAGLContext * firstContext = nil;
+        static dispatch_once_t onceToken;
+        
+        if( !firstContext )
+        {
+            dispatch_once(&onceToken, ^{
+                firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+            });
+            glkview.context = firstContext;
+        }
+        else
+        {
+            EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+            glkview.context = newContext;
+        }
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
