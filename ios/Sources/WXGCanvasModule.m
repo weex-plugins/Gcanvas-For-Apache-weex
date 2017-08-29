@@ -28,6 +28,10 @@
 //#import <WeexSDK/WXExtendCallNativeProtocol.h>
 //#import "WXGCanvasCallNative.h"
 
+#ifdef DEBUG
+#define WEBGL_FPS
+#endif
+
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
 
 //modify
@@ -36,6 +40,12 @@
 @property (strong, nonatomic) NSMutableDictionary *componentDict;
 
 @property (strong, nonatomic) NSMutableArray *bindCacheArray;   //cache bindTexture
+
+#ifdef WEBGL_FPS
+@property (nonatomic, assign) NSUInteger renderFrames;
+@property (nonatomic, assign) CGFloat renderFPS;
+@property (nonatomic, assign) CFTimeInterval renderLastTime;
+#endif
 
 @end
 
@@ -522,6 +532,8 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 //    return retDict;
 //}
 
+
+
 - (NSDictionary*)callGCanvasNative:(NSDictionary*)dict
 {
     NSString *componentId = dict[@"contextId"];
@@ -559,10 +571,30 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         if( isSync )
         {
             BOOL rendCmd = type & 0x01; //render per 16 ms
-
+            
+            
             if( rendCmd )
             {
                 [component.glkview setNeedsDisplay];
+                
+            #ifdef WEBGL_FPS
+                _renderFrames++;
+                CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+                if( _renderFrames > 60 )
+                {
+                    _renderFrames = 0;
+                    _renderLastTime = now;
+                }
+                
+                if (now > _renderLastTime)
+                {
+                    double delta = (now - _renderLastTime);
+                    _renderFPS = (float)((double)_renderFrames/delta);
+                }
+                
+                NSLog(@"WebGL Render FPS %f", _renderFPS);
+            #endif
+                
                 return @{};
             }
             
