@@ -25,8 +25,6 @@
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
-//#import <WeexSDK/WXExtendCallNativeProtocol.h>
-//#import "WXGCanvasCallNative.h"
 
 #ifdef DEBUG
 #define WEBGL_FPS
@@ -35,7 +33,6 @@
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
 
 //modify
-@property (nonatomic, assign) CGFloat devicePixelRatio;
 @property (strong, nonatomic) NSMutableDictionary *pluginDict;
 @property (strong, nonatomic) NSMutableDictionary *componentDict;
 
@@ -54,8 +51,6 @@
 
 WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 
-//WX_PlUGIN_EXPORT_HANDLER(WXGCanvasCallNative, WXExtendCallNativeProtocol)
-
 @synthesize weexInstance;
 
 //async
@@ -70,32 +65,6 @@ WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其�
 //sync
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
-
-
-//static NSMutableDictionary *staticCompModuleMap;
-//
-//+ (void)setModule:(WXGCanvasModule*)module forComponentId:(NSString*)componentId
-//{
-//    static dispatch_once_t token;
-//    dispatch_once(&token, ^{
-//        staticCompModuleMap =  NSMutableDictionary.dictionary;
-//    });
-//    
-//    staticCompModuleMap[componentId] = module;
-//}
-//
-//+ (WXGCanvasModule*)getModuleByComponentId:(NSString*)componentId
-//{
-//    return staticCompModuleMap[componentId];
-//}
-//
-//+ (void)removeModuleByComponentId:(NSString*)componentId
-//{
-//    if(staticCompModuleMap)
-//    {
-//        [staticCompModuleMap removeObjectForKey:componentId];
-//    }
-//}
 
 
 - (void)dealloc
@@ -132,10 +101,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         self.pluginDict = NSMutableDictionary.dictionary;
     }
     self.pluginDict[componentId] = plugin;
-    
-    //save
-//    [WXGCanvasModule setModule:self forComponentId:componentId];
-    
+        
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(onGCanvasCompLoadedNotify:)
                                                  name:KGCanvasCompLoadedNotificationName
@@ -414,15 +380,15 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     if (!component.gcanvasInitalized)
     {
         //设置gcanvas像素比率
-        self.devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
-        [plugin setDevicePixelRatio:self.devicePixelRatio];
+        CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
+        [plugin setDevicePixelRatio:devicePixelRatio];
         
         //设置gcanvas frame
         CGRect compFrame = component.componetFrame;
         CGRect gcanvasFrame = CGRectMake(compFrame.origin.x,
                                          compFrame.origin.y,
-                                         compFrame.size.width*self.devicePixelRatio,
-                                         compFrame.size.height*self.devicePixelRatio);
+                                         compFrame.size.width*devicePixelRatio,
+                                         compFrame.size.height*devicePixelRatio);
         [plugin setClearColor:component.glkview.backgroundColor];
         [plugin setFrame:gcanvasFrame];
 
@@ -504,36 +470,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 }
 
-//+ (id)excuteCallNative:(NSDictionary *)dict
-//{
-//    NSString *componentId = dict[@"contextId"];
-//    
-//    WXGCanvasModule *module = [WXGCanvasModule getModuleByComponentId:componentId];
-//    if( !module ) return nil;
-//    
-//    WXGCanvasComponent *component = [module gcanvasComponentById:componentId];
-//    CFTimeInterval startTime = CACurrentMediaTime();
-//    while (!component.glkview)
-//    {
-//        CFTimeInterval current = CACurrentMediaTime();
-//        if( current- startTime > 1 )  //1s超时退出
-//            break;
-//        component = [module gcanvasComponentById:componentId];
-//    }
-//    
-//    __block NSDictionary *retDict;
-//    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
-//    dispatch_async(dispatch_get_main_queue(), ^{
-//        retDict = [module callGCanvasNative:dict];
-//        dispatch_semaphore_signal(_semaphore);
-//    });
-//    
-//    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-//    return retDict;
-//}
-
-
-
 - (NSDictionary*)callGCanvasNative:(NSDictionary*)dict
 {
     NSString *componentId = dict[@"contextId"];
@@ -551,15 +487,15 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         [EAGLContext setCurrentContext:component.glkview.context];
         
         //设置gcanvas像素比率
-        self.devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
-        [plugin setDevicePixelRatio:self.devicePixelRatio];
+        CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
+        [plugin setDevicePixelRatio:devicePixelRatio];
         
         //设置gcanvas frame
         CGRect compFrame = component.componetFrame;
         CGRect gcanvasFrame = CGRectMake(compFrame.origin.x,
                                          compFrame.origin.y,
-                                         compFrame.size.width*self.devicePixelRatio,
-                                         compFrame.size.height*self.devicePixelRatio);
+                                         compFrame.size.width*devicePixelRatio,
+                                         compFrame.size.height*devicePixelRatio);
         [plugin setClearColor:component.glkview.backgroundColor];
         [plugin setFrame:gcanvasFrame];
         component.gcanvasInitalized = YES;
