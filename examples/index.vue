@@ -28,8 +28,12 @@
           // {name: root + '/webgl_api_test/wx_136_gl_viewport', title: 'API_136_gl_viewport'},
           // {name: root + '/webgl_api_test/wx_gl_clear', title: 'API_gl_clear'},
           
-          //test
-          {name: root + '/testcallNative', title: 'TestCallNative'},
+          //performance
+          {name: root + '/max_image_test', title: 'Context2d-Max-Image'},
+
+
+          //font
+          {name: root + '/context2d_font_01', title: 'Context2d-Font-01'},
           // common
           {name: root + '/singlecanvas', title: 'SingleGCanvas'},
           {name: root + '/multicanvas', title: 'MultiGCanvas'},
@@ -56,6 +60,10 @@
           {name: root + '/webgl/04_webgl_cube', title:'04-WebGL-Cube'},
           {name: root + '/webgl/05_webgl_triangle_texture', title:'05-WebGL-Triangle-Texture'},
           {name: root + '/webgl/06_webgl_texImage2D', title:'06-WebGL-texImage2D'},
+
+          {name: root + '/webgl/08_webgl_readpixel_1', title:'08-WebGL-readpixel-1'},
+          {name: root + '/webgl/08_webgl_readpixel_2', title:'08-WebGL-readpixel-2'},
+
 
 
         ]

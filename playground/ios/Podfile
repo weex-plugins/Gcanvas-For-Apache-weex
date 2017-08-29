@@ -7,8 +7,8 @@ inhibit_all_warnings!
 def common
 #    pod 'WeexSDK'
 #    pod 'WeexSDK', '0.15.1.7'
-#    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
-    pod 'WeexSDK', :git=>'git@gitlab.alibaba-inc.com:weex/weex.git', :branch=>'ios-native-0.16-dev'
+    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
+#    pod 'WeexSDK', :git=>'git@gitlab.alibaba-inc.com:weex/weex.git', :branch=>'ios-native-0.16-dev'
     pod 'WXDevtool', '0.15.24'
     pod 'SDWebImage', '3.7.5'
     pod 'SocketRocket', '0.4.2'

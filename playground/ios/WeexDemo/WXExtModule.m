@@ -25,6 +25,7 @@ WX_EXPORT_METHOD(@selector(generateCover:))
 
 - (void)generateCover:(WXModuleCallback)callback
 {
+#ifdef UITEST
 #if !TARGET_IPHONE_SIMULATOR
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
@@ -33,6 +34,7 @@ WX_EXPORT_METHOD(@selector(generateCover:))
 #endif
     extern void __gcov_flush(void);
     __gcov_flush();
+#endif
     
     if (callback) {
         NSDictionary * result = @{@"ok": @true};

@@ -6,8 +6,8 @@
 </template>
 <script>
 	// var gcanvas=require('weex-gcanvas'); //正式使用请用这个
-	var GCanvas=require('../js/gcanvas'); //调试使用
-	var Image=require('../js/gcanvasimage');
+	var GCanvas=require('../js/src/gcanvas'); //调试使用
+	var Image=require('../js/src/gcanvasimage');
 
 	module.exports = {
 	  data: {
