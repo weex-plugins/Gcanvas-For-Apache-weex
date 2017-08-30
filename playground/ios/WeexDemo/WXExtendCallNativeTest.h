@@ -18,7 +18,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "WXExtendCallNativeProtocol.h"
+#import <WeexSDK/WXExtendCallNativeProtocol.h>
 
 @interface WXExtendCallNativeTest : NSObject<WXExtendCallNativeProtocol>
 

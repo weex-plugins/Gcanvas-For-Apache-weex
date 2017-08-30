@@ -1,4 +1,4 @@
-source 'https://github.com/CocoaPods/Specs.git'
+#source 'https://github.com/CocoaPods/Specs.git'
 ali_source 'alibaba-specs'
 ali_source 'alibaba-specs-mirror'
 platform :ios, '8.0'
@@ -6,18 +6,19 @@ inhibit_all_warnings!
 
 def common
 #    pod 'WeexSDK'
-#    pod 'WeexSDK', '0.15.1.7'
-    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
+#    pod 'WeexSDK', '0.15.1.10'
+    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex'
+#    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
 #    pod 'WeexSDK', :git=>'git@gitlab.alibaba-inc.com:weex/weex.git', :branch=>'ios-native-0.16-dev'
-    pod 'WXDevtool', '0.15.24'
+    pod 'WXDevtool', '0.15.20'
     pod 'SDWebImage', '3.7.5'
     pod 'SocketRocket', '0.4.2'
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
     pod 'WeexPluginLoader'
 #    pod 'GCanvas'
-    pod 'GCanvas',  :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
-#    pod 'GCanvas',  :path=>'../../../../gitlab/groups/gcanvas_open/gcanvas'
+#    pod 'GCanvas',  :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
+    pod 'GCanvas',  :path=>'/Users/weixingjwx/Documents/gitlab/groups/gcanvas_open/gcanvas'
 end
 
 target 'WeexDemo' do

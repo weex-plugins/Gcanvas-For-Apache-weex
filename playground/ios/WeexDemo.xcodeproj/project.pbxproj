@@ -32,7 +32,6 @@
 		9A28F59B1F4AB2D400BC68F8 /* WXConfigCenterDefaultImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A28F59A1F4AB2D400BC68F8 /* WXConfigCenterDefaultImpl.m */; };
 		9A28F59E1F4AB2E000BC68F8 /* WXExtModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A28F59D1F4AB2E000BC68F8 /* WXExtModule.m */; };
 		9A28F5A11F4AB2F300BC68F8 /* WXScannerHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A28F5A01F4AB2F300BC68F8 /* WXScannerHistoryVC.m */; };
-		9A28F5A41F4AB38B00BC68F8 /* WXExtendCallNativeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A28F5A31F4AB38B00BC68F8 /* WXExtendCallNativeTest.m */; };
 		DC5E503E1D0D97130059F0EB /* weex.png in Resources */ = {isa = PBXBuildFile; fileRef = DC5E503C1D0D97130059F0EB /* weex.png */; };
 		DC5E503F1D0D97130059F0EB /* weex@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = DC5E503D1D0D97130059F0EB /* weex@2x.png */; };
 		DC65C4FA1CEB032F00B2F84F /* bundlejs in Resources */ = {isa = PBXBuildFile; fileRef = DC65C4F91CEB032F00B2F84F /* bundlejs */; };
@@ -94,8 +93,6 @@
 		9A28F59D1F4AB2E000BC68F8 /* WXExtModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXExtModule.m; sourceTree = "<group>"; };
 		9A28F59F1F4AB2F300BC68F8 /* WXScannerHistoryVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WXScannerHistoryVC.h; path = Scanner/WXScannerHistoryVC.h; sourceTree = "<group>"; };
 		9A28F5A01F4AB2F300BC68F8 /* WXScannerHistoryVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WXScannerHistoryVC.m; path = Scanner/WXScannerHistoryVC.m; sourceTree = "<group>"; };
-		9A28F5A21F4AB38B00BC68F8 /* WXExtendCallNativeTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXExtendCallNativeTest.h; sourceTree = "<group>"; };
-		9A28F5A31F4AB38B00BC68F8 /* WXExtendCallNativeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXExtendCallNativeTest.m; sourceTree = "<group>"; };
 		DC5E503C1D0D97130059F0EB /* weex.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = weex.png; sourceTree = "<group>"; };
 		DC5E503D1D0D97130059F0EB /* weex@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "weex@2x.png"; sourceTree = "<group>"; };
 		DC65C4F91CEB032F00B2F84F /* bundlejs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = bundlejs; sourceTree = "<group>"; };
@@ -239,8 +236,6 @@
 		D5ADF0861C77133B00597CA6 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				9A28F5A21F4AB38B00BC68F8 /* WXExtendCallNativeTest.h */,
-				9A28F5A31F4AB38B00BC68F8 /* WXExtendCallNativeTest.m */,
 				2AE88A291C8544D7003329DE /* scanner */,
 				DCABAFED1D029642001C8592 /* debug */,
 				74CC79E91C2B9E4700829368 /* UIViewController+WXDemoNaviBar.h */,
@@ -537,7 +532,6 @@
 				DCABAFF31D029685001C8592 /* WXATLoggerPlugin.m in Sources */,
 				2AE88A2C1C8544E6003329DE /* WXScannerVC.m in Sources */,
 				775BEE861C1E8ECC008D1629 /* WXDemoViewController.m in Sources */,
-				9A28F5A41F4AB38B00BC68F8 /* WXExtendCallNativeTest.m in Sources */,
 				74CC79EB1C2B9E4700829368 /* UIViewController+WXDemoNaviBar.m in Sources */,
 				DCABB0011D02975E001C8592 /* WXEventModule.m in Sources */,
 				9A28F59E1F4AB2E000BC68F8 /* WXExtModule.m in Sources */,
