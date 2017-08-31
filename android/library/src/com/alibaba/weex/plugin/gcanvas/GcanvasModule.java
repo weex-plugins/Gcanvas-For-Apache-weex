@@ -203,259 +203,77 @@
  */
 package com.alibaba.weex.plugin.gcanvas;
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Display;
 
 import com.alibaba.weex.plugin.annotation.WeexModule;
-import com.taobao.gcanvas.GCanvas;
-import com.taobao.gcanvas.GCanvasHelper;
-import com.taobao.gcanvas.GCanvasMessage;
-import com.taobao.gcanvas.GCanvasResult;
-import com.taobao.gcanvas.GCanvasView;
-import com.taobao.gcanvas.GLog;
-import com.taobao.phenix.intf.Phenix;
-import com.taobao.phenix.intf.event.FailPhenixEvent;
-import com.taobao.phenix.intf.event.IPhenixListener;
-import com.taobao.phenix.intf.event.SuccPhenixEvent;
-import com.taobao.weex.WXSDKManager;
+import com.alibaba.weex.plugin.gcanvas.g2dnative.G2DNativeModuleDelegate;
+import com.alibaba.weex.plugin.gcanvas.g3d.G3DModuleDelegate;
+import com.taobao.gcanvas.GCanvasJNI;
+import com.taobao.gcanvas.surface.GSurfaceView;
+import com.taobao.gcanvas.util.GLog;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.common.Destroyable;
 import com.taobao.weex.common.WXModule;
-import com.taobao.weex.ui.component.WXComponent;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.alibaba.weex.plugin.gcanvas.GcanvasModule.IGCanvasModuleDelegate.ContextType._2D;
+import static com.alibaba.weex.plugin.gcanvas.GcanvasModule.IGCanvasModuleDelegate.ContextType._3D;
 
 @WeexModule(name = "gcanvas")
-public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
+public class GcanvasModule extends WXModule implements Destroyable {
 
-    private Handler mUIHandler = new Handler(Looper.getMainLooper());
+    private IGCanvasModuleDelegate mModuleDelegate;
 
-    private static String TAG = "GcanvasModule";
+    private static final String TAG = "GCanvasModule";
 
-    private static final String CMD_RENDER = "render";
-    private static final String CMD_ENABLE = "enable";
-    private static final String CMD_BIND_TEXTURE = "bindTexture";
-    private static final String CMD_SET_CONTEXT_TYPE = "setContextType";
-    private static final String CMD_SET_HIGH_QUALITY = "setHiQuality";
-    private static final String CMD_SET_DEVICE_PIXEL = "setDevicePixelRatio";
-    private static final String CMD_RESET = "reset";
-
-    private HashMap<String, GComponentDelegate> mComponentMappings = new HashMap<>(1);
-
-    private final Object mLock = new Object();
-
-    private AtomicBoolean mIsDestroyed = new AtomicBoolean(false);
-
-    private HashMap<String, ImageInfo> mImageIdCache = new HashMap<>();
-
-    private HashMap<String, ArrayList<JSCallback>> mCallbacks = new HashMap<>();
+    public GcanvasModule() {
+        GCanvasJNI.init();
+    }
 
     @JSMethod
     public void bindImageTexture(String src, String refId, JSCallback callback) {
-        if (TextUtils.isEmpty(src) || TextUtils.isEmpty(refId)) {
-            return;
+        if (null != mModuleDelegate && !TextUtils.isEmpty(src)) {
+            mModuleDelegate.bindImageTexture(src, refId, callback);
         }
-        this.execGCanvasCMD(refId, CMD_BIND_TEXTURE, src, callback);
     }
 
     @JSMethod
     public void resetComponent(String refId) {
-        Iterator iter = mComponentMappings.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry entry = (Map.Entry) iter.next();
-            GComponentDelegate delegate = (GComponentDelegate) entry.getValue();
-            delegate.isDirty = true;
+        if (null != mModuleDelegate) {
+            mModuleDelegate.resetComponent(refId);
         }
     }
 
     @JSMethod
     public void setup(String args, String refId, JSCallback callback) {
-
-        if (TextUtils.isEmpty(args) || TextUtils.isEmpty(refId)) {
-            return;
-        }
-
-        GComponentDelegate mWXGCanvasCompMapping = mComponentMappings.get(refId);
-
-        if (null == mWXGCanvasCompMapping) {
-            return;
-        }
-
-        WXGcanvasComponent mWXGCanvasComp = mWXGCanvasCompMapping.gcanvasComponent;
-
-        if (null == mWXGCanvasComp) {
-            return;
-        }
-
-        JSONObject jo;
-        try {
-            jo = new JSONObject(args);
-            if (jo.has("renderMode")) {
-                mWXGCanvasComp.getCanvasConfig().renderMode = jo.getInt("renderMode");
-            }
-            if (jo.has("hybridLayerType")) {
-                mWXGCanvasComp.getCanvasConfig().hybridLayerType = jo.getInt("hybridLayerType");
-            }
-
-            if (jo.has("newCanvasMode")) {
-                mWXGCanvasComp.getCanvasConfig().newCanvasMode = jo.getBoolean("newCanvasMode");
-            }
-
-            if (jo.has("sameLevel")) {
-                mWXGCanvasComp.getCanvasConfig().sameLevel = jo.getBoolean("sameLevel");
-            }
-
-            if (jo.has("supportScroll")) {
-                mWXGCanvasComp.getCanvasConfig().supportScroll = jo.getBoolean("supportScroll");
-            }
-
-            if (jo.has("clearColor")) {
-                mWXGCanvasComp.getCanvasConfig().clearColor = jo.getString("clearColor");
-            }
-        } catch (Exception e) {
+        if (null != mModuleDelegate && !TextUtils.isEmpty(args)) {
+            mModuleDelegate.setup(args, refId, callback);
         }
     }
 
     @JSMethod
     public void registerRetachFunction(String refId, JSCallback callback) {
-//        GComponentDelegate mWXGCanvasCompMapping = mComponentMappings.get(refId);
-
-//        if (null != mWXGCanvasCompMapping && null != mWXGCanvasCompMapping.gcanvasComponent) {
-//            mWXGCanvasCompMapping.gcanvasComponent.setReattachJSCallback(callback);
-//        }
     }
 
 
     @JSMethod
     public void preLoadImage(String args, final JSCallback callBack) {
         GLog.d(TAG, "preLoadImage() args: " + args);
-        if (!TextUtils.isEmpty(args)) {
-            try {
-                JSONArray dataArray = new JSONArray(args);
-                final String url = dataArray.getString(0);
-                final int id = dataArray.getInt(1);
-                ImageInfo imgInfo = mImageIdCache.get(url);
-                final HashMap<String, Object> resultMap = new HashMap<>();
-                if (null == imgInfo) {
-                    imgInfo = new ImageInfo();
-                    mImageIdCache.put(url, imgInfo);
-                }
-                if (imgInfo.status.get() == ImageInfo.IDLE) {
-                    imgInfo.status.set(ImageInfo.LOADING);
-                    imgInfo.id = id;
-                    ArrayList<JSCallback> callbacks = mCallbacks.get(url);
-                    if (null == callbacks) {
-                        callbacks = new ArrayList<>();
-                        mCallbacks.put(url, callbacks);
-                    }
-                    callbacks.add(callBack);
-                    Phenix.instance().load(url).succListener(new IPhenixListener<SuccPhenixEvent>() {
-                        @Override
-                        public boolean onHappen(SuccPhenixEvent succPhenixEvent) {
-                            Bitmap bitmap = succPhenixEvent.getDrawable().getBitmap();
-                            if (null != bitmap) {
-                                ImageInfo imageInfo = mImageIdCache.get(url);
-                                imageInfo.width = bitmap.getWidth();
-                                imageInfo.height = bitmap.getHeight();
-                                resultMap.put("id", id);
-                                resultMap.put("url", url);
-                                resultMap.put("width", imageInfo.width);
-                                resultMap.put("height", imageInfo.height);
-                                imageInfo.status.set(ImageInfo.LOADED);
-                                try {
-                                    ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
-                                    if (null != callbackList) {
-                                        for (JSCallback callback : callbackList) {
-                                            callback.invoke(resultMap);
-                                        }
-                                    }
-                                } catch (Throwable throwable) {
-                                    imageInfo.status.set(ImageInfo.IDLE);
-                                    callBack.invoke(resultMap);
-                                }
-                            } else {
-                                resultMap.put("error", "bitmap load failed");
-                                try {
-                                    ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
-                                    if (null != callbackList) {
-                                        for (JSCallback callback : callbackList) {
-                                            callback.invoke(resultMap);
-                                        }
-                                    }
-                                } catch (Throwable throwable) {
-                                    callBack.invoke(resultMap);
-                                }
-                            }
-                            return true;
-                        }
-                    }).failListener(new IPhenixListener<FailPhenixEvent>() {
-                        @Override
-                        public boolean onHappen(FailPhenixEvent failPhenixEvent) {
-                            resultMap.put("error", "bitmap load failed");
-                            try {
-                                ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
-                                if (null != callbackList) {
-                                    for (JSCallback callback : callbackList) {
-                                        callback.invoke(resultMap);
-                                    }
-                                }
-                            } catch (Throwable throwable) {
-                                callBack.invoke(resultMap);
-                            }
-                            return true;
-                        }
-                    }).fetch();
-                } else if (ImageInfo.LOADING == imgInfo.status.get()) {
-                    ArrayList<JSCallback> callbacks = mCallbacks.get(url);
-                    if (null == callbacks) {
-                        callbacks = new ArrayList<>();
-                        mCallbacks.put(url, callbacks);
-                    }
-
-                    callbacks.add(callBack);
-                } else if (ImageInfo.LOADED == imgInfo.status.get()) {
-                    resultMap.put("id", id);
-                    resultMap.put("url", url);
-                    resultMap.put("width", imgInfo.width);
-                    resultMap.put("height", imgInfo.height);
-                    ArrayList<JSCallback> callbackList = mCallbacks.remove(url);
-                    if (null != callbackList) {
-                        for (JSCallback cb : callbackList) {
-                            cb.invoke(resultMap);
-                        }
-                    }
-                    callBack.invoke(resultMap);
-                }
-            } catch (Throwable e) {
-                GLog.e(TAG, e.getMessage(), e);
-            }
+        if (null != mModuleDelegate && !TextUtils.isEmpty(args)) {
+            mModuleDelegate.preLoadImage(args, callBack);
         }
-
     }
 
     @JSMethod
     public void setHiQuality(String args, String refId) {
-        GLog.d(TAG, "setHiQuality() args: " + args);
-        if (!TextUtils.isEmpty(args)) {
-            this.execGCanvasCMD(refId, CMD_SET_HIGH_QUALITY, args, null);
+        if (null != mModuleDelegate && !TextUtils.isEmpty(args)) {
+            mModuleDelegate.setHiQuality(args, refId);
         }
     }
 
@@ -468,60 +286,18 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
 
     @JSMethod
     public void enable(String args, JSCallback callBack) {
-        if (!TextUtils.isEmpty(args)) {
-            String refId;
-            JSONObject jo;
-            try {
-                jo = new JSONObject(args);
-                refId = jo.getString("componentId");
-                WXComponent myComponent = WXSDKManager.getInstance().getWXRenderManager().getWXComponent(mWXSDKInstance.getInstanceId(), refId);
-
-                synchronized (mLock) {
-                    if (myComponent instanceof WXGcanvasComponent) {
-                        WXGcanvasComponent mWXGCanvasComp = (WXGcanvasComponent) myComponent;
-                        GComponentDelegate componentMapping = new GComponentDelegate(this, mWXGCanvasComp);
-                        mComponentMappings.put(refId, componentMapping);
-                        this.execGCanvasCMD(refId, CMD_ENABLE, args, callBack);
-                    }
-                    mLock.notifyAll();
-                }
-
-            } catch (Throwable e) {
-            }
+        // do nothing here
+        if (null != callBack) {
+            callBack.invoke(null);
         }
     }
-
 
     @JSMethod(uiThread = false)
     public void render(String cmd, String refId, JSCallback callBack) {
-        if (!TextUtils.isEmpty(cmd) && !TextUtils.isEmpty(refId)) {
-            GComponentDelegate delegate = mComponentMappings.get(refId);
-            if ((null == delegate || (!delegate.isEnabled.get() && !delegate.isDestroyed())) && !mIsDestroyed.get()) {
-                try {
-                    long waitGap = 16;
-                    synchronized (mLock) {
-                        while ((null == delegate || (!delegate.isEnabled.get() && !delegate.isDestroyed())) && !mIsDestroyed.get()) {
-                            mLock.wait(waitGap);
-                            delegate = mComponentMappings.get(refId);
-                            if (null != delegate && delegate.isDestroyed()) {
-                                break;
-                            }
-                        }
-                    }
-                } catch (Throwable throwable) {
-                    GLog.e(TAG, "error when render " + refId, throwable);
-                }
-            }
-            if (null != delegate && !mIsDestroyed.get()) {
-//                if (delegate.isDirty) {
-//                    delegate.executeCmdImpl(CMD_RESET, null, null);
-//                    delegate.isDirty = false;
-//                }
-                delegate.render(cmd);
-            }
+        if (null != mModuleDelegate) {
+            mModuleDelegate.render(cmd, refId, callBack);
         }
     }
-
 
     @JSMethod
     public void getDeviceInfo(String args, JSCallback callBack) {
@@ -539,63 +315,49 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
         }
     }
 
-    @JSMethod
+    @JSMethod(uiThread = false)
     public void setContextType(String args, String refId, JSCallback callBack) {
-        if (!TextUtils.isEmpty(args)) {
-            this.execGCanvasCMD(refId, CMD_SET_CONTEXT_TYPE, args, callBack);
+        if (TextUtils.isEmpty(args)) {
+            return;
         }
+
+        IGCanvasModuleDelegate.ContextType type = _2D;
+
+        if ("3d".equals(args) || "1".equals(args)) {
+            type = IGCanvasModuleDelegate.ContextType._3D;
+        }
+
+        if (null != mModuleDelegate && !type.equals(mModuleDelegate.getContextType())) {
+            mModuleDelegate.destroy();
+            mModuleDelegate = null;
+        }
+
+        if (null == mModuleDelegate) {
+            if (_2D.equals(type)) {
+                mModuleDelegate = new G2DNativeModuleDelegate(this);
+            } else if (_3D.equals(type)) {
+                mModuleDelegate = new G3DModuleDelegate(this);
+            }
+        }
+        mModuleDelegate.enable(refId);
+        mModuleDelegate.setContextType(args, refId, callBack);
     }
 
 
     @JSMethod
     public void setDevicePixelRatio(String refId) {
-        Context ctx = (mWXSDKInstance.getContext());
-        if (ctx == null) {
-            GLog.e(TAG, "setDevicePixelRatio error ctx == null");
-            return;
-        }
-        Display display = ((Activity) ctx).getWindowManager().getDefaultDisplay();
-
-        int width = display.getWidth();
-        double devicePixelRatio = width / 750.0;
-
-        GLog.d(TAG, "enable width " + width);
-        GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
-
-        try {
-            execGCanvasCMD(refId, CMD_SET_DEVICE_PIXEL, String.valueOf(devicePixelRatio), null);
-        } catch (Exception e) {
-            GLog.e(TAG, "setDevicePixelRatio Exception: " + e);
+        if (null != mModuleDelegate) {
+            mModuleDelegate.setDevicePixelRatio(refId);
         }
     }
 
 
     @JSMethod(uiThread = false)
     public String execGcanvaSyncCMD(String refId, String action, String args) {
-        GComponentDelegate mapping = mComponentMappings.get(refId);
-        if (null == mapping) {
-            return "";
+        if (null != mModuleDelegate) {
+            return mModuleDelegate.execSyncCMD(refId, action, args);
         }
-        return mapping.executeSyncCmd(action, args);
-    }
-
-
-    private void execGCanvasCMD(final String refId,
-                                final String cmd,
-                                final String args,
-                                final JSCallback callback) {
-        GComponentDelegate delegate = mComponentMappings.get(refId);
-        if (null == delegate || delegate.isDestroyed()) {
-            GLog.i(TAG, "abandon cmd:" + cmd);
-            return;
-        }
-        if (delegate.addCmdCacheIfNotReady(cmd, args, callback)) {
-            return;
-        }
-
-        delegate.executeCacheCmd();
-
-        delegate.executeCmdImpl(cmd, args, callback);
+        return "";
     }
 
 
@@ -603,429 +365,48 @@ public class GcanvasModule extends WXModule implements Destroyable, WXGCanvasGLS
     public void destroy() {
         Log.i(TAG, "canvas module destroy!!!");
 
-        for (Map.Entry<String, GComponentDelegate> entry : mComponentMappings.entrySet()) {
-            entry.getValue().destroy();
-        }
-
-        mComponentMappings.clear();
-        mUIHandler.removeCallbacksAndMessages(null);
-        mIsDestroyed.set(true);
-    }
-
-    @Override
-    public void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView) {
-        GLog.i(TAG, "onGCanvasViewDestroy");
-    }
-
-    @Override
-    public void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView) {
-        GLog.d(TAG, "onGCanvasViewCreated");
-    }
-
-    @Override
-    public void onGCanvasViewReattached(WXGcanvasComponent component, GCanvasView canvasView) {
-        if (mIsDestroyed.get()) {
-            return;
-        }
-
-        GComponentDelegate delegate = mComponentMappings.get(component.getRef());
-
-        if (null == delegate) {
-            return;
-        }
-
-        if (delegate.isDestroyed()) {
-            return;
-        }
-
-        if (component.isGCanvasViewPrepared()) {
-            delegate.executeCmdImpl(CMD_SET_CONTEXT_TYPE, delegate.contextType, null);
-        }
-
-        if (!mImageIdCache.isEmpty()) {
-            Log.i("GCanvasModule", "start to rebind image texture.");
-            Iterator iter = mImageIdCache.entrySet().iterator();
-            while (iter.hasNext()) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                String url = (String) entry.getKey();
-                ImageInfo info = (ImageInfo) entry.getValue();
-                try {
-                    JSONArray ja = new JSONArray();
-                    ja.put(url);
-                    ja.put(info.id);
-                    component.getGCanvas().executeForWeex(CMD_BIND_TEXTURE, ja, null);
-                } catch (Throwable e) {
-                    GLog.e(TAG, e.getMessage(), e);
-                }
-                GLog.i("GCanvasModule", "rebind image url is " + url);
-            }
+        if (null != mModuleDelegate) {
+            mModuleDelegate.destroy();
         }
     }
 
-    @Override
-    public void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-    }
+    public interface IGCanvasModuleDelegate {
+        void bindImageTexture(String src, String refId, JSCallback callback);
 
-    @Override
-    public void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-        GLog.d(TAG, "onGCanvasViewDetachedFromWindow");
-        mUIHandler.removeCallbacksAndMessages(null);
-        // 清除texture map, 保障在重新attach图片重新加载
-    }
+        void resetComponent(String refId);
 
-    static class CommandCache {
-        public String cmd;
-        public String args;
-        public JSCallback callback;
+        void enable(String refId);
 
-        public CommandCache(String cmd, String args, JSCallback callback) {
-            this.cmd = cmd;
-            this.args = args;
-            this.callback = callback;
-        }
-    }
+        void setup(String args, String refId, JSCallback callback);
 
-    static class GComponentDelegate {
+        void preLoadImage(String args, final JSCallback callBack);
 
-        GcanvasModule canvasModule;
+        void setHiQuality(String args, String refId);
 
-        int sIdCounter = 0;
-        volatile WXGcanvasComponent gcanvasComponent;
-        CopyOnWriteArrayList<CommandCache> commandCaches = new CopyOnWriteArrayList<>();
-        Map<String, GCanvasImageCache> sPicToTextureMap = new HashMap<>();
-        CommandCacheRunner cacheRunner;
-        HashMap<String, ArrayList<JSCallback>> mBindCallbacks = new HashMap<>();
-        AtomicBoolean isEnabled = new AtomicBoolean(false);
-        String contextType;
-        boolean isDirty = false;
+        void render(String cmd, String refId, JSCallback callBack);
 
-        GComponentDelegate(GcanvasModule module, WXGcanvasComponent component) {
-            this.canvasModule = module;
-            this.gcanvasComponent = component;
-            this.cacheRunner = new CommandCacheRunner(this);
-            this.gcanvasComponent.setWXSurfaceViewLifeListener(module);
-        }
+        void setDevicePixelRatio(String refId);
 
-        boolean addCmdCacheIfNotReady(String cmd, String args, JSCallback callback) {
-            if (!gcanvasComponent.getCurrentState().isReady()) {
-                GLog.i(TAG, "add cmd to queue:" + cmd + ", args:" + args);
-                commandCaches.add(new CommandCache(cmd, args, callback));
-                canvasModule.mUIHandler.removeCallbacks(cacheRunner);
-                canvasModule.mUIHandler.postDelayed(cacheRunner, 16);
-                return true;
-            }
-            return false;
-        }
+        String execSyncCMD(String refId, String action, String args);
 
-        void destroy() {
-            gcanvasComponent.setWXSurfaceViewLifeListener(null);
-            gcanvasComponent = null;
-            canvasModule.mUIHandler.removeCallbacks(cacheRunner);
-            commandCaches.clear();
-            sIdCounter = 0;
-            sPicToTextureMap.clear();
-            isEnabled.set(false);
-            synchronized (this) {
-                mBindCallbacks.clear();
-            }
-        }
+        void setContextType(String args, String refId, JSCallback callBack);
 
-        synchronized void doUrlCallbacks(String url, Object resultData) {
-            ArrayList<JSCallback> callbacks = mBindCallbacks.get(url);
-            if (null != callbacks) {
-                for (JSCallback callback : callbacks) {
-                    callback.invoke(resultData);
-                }
-                callbacks.clear();
-            }
-            mBindCallbacks.remove(url);
-        }
+        void destroy();
 
-        synchronized void addUrlCallback(String url, JSCallback callback) {
-            ArrayList<JSCallback> callbacks = mBindCallbacks.get(url);
-            if (null != callbacks) {
-                callbacks.add(callback);
-            } else {
-                callbacks = new ArrayList<>();
-                callbacks.add(callback);
-                mBindCallbacks.put(url, callbacks);
-            }
-        }
+        ContextType getContextType();
 
-        void checkGCanvasView() {
-            if (gcanvasComponent != null && gcanvasComponent.isGCanvasViewPrepared()) {
-                return;
+        enum ContextType {
+            _2D(0), _3D(1);
+
+            private int value;
+
+            ContextType(int value) {
+                this.value = value;
             }
 
-            if (null != gcanvasComponent) {
-                gcanvasComponent.prepareGCanvasView();
-                canvasModule.setDevicePixelRatio(gcanvasComponent.getRef());
+            public int value() {
+                return value;
             }
-        }
-
-        boolean isDestroyed() {
-            //Log.i(TAG, "isDestroyed ===> component = " + gcanvasComponent + ", canvas = " + gcanvasComponent.getGCanvas() + ", state destroyed = " + gcanvasComponent.getCurrentState().isDestroyed());
-            return null == gcanvasComponent || gcanvasComponent.getCurrentState().isDestroyed();
-        }
-
-        String executeSyncCmd(String cmd, String args) {
-            if (gcanvasComponent == null || isDestroyed()) {
-                GLog.i(TAG, "abandon sync cmd:" + cmd);
-                return "";
-            }
-
-            return gcanvasComponent.getGCanvas().executeSyncCmd(cmd, args);
-        }
-
-        void render(String cmd) {
-            if (gcanvasComponent == null) {
-                GLog.i(TAG, "gcomponent is null. abandon render cmd:" + cmd);
-                return;
-            }
-
-
-            if (gcanvasComponent.getCurrentState().isDestroyed()) {
-                GLog.i(TAG, "destroyed! abandon render cmd = " + cmd);
-                return;
-            }
-
-            if (!isEnabled.get()) {
-                GLog.i(TAG, "not enable! abandon render cmd = " + cmd);
-                return;
-            }
-
-            /*
-            原始
-            ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,100,250,210,330,undefined,undefined,undefined,undefined;"]
-            替换后
-            ["d0,0,0,210,330,100,250,210,330;"]
-
-            原始
-            ["d5,https:\/\/img.alicdn.com\/tps\/TB1TFNdKVXXXXbeaXXXXXXXXXXX-210-330.png,0,0,105,165,100,250,210,330;"]
-            替换后
-            ["d0,0,0,105,165,100,250,210,330;"]
-            */
-            try {
-                gcanvasComponent.getGCanvas().executeRender(CMD_RENDER, cmd, null);
-            } catch (Throwable e) {
-            }
-        }
-
-        private void executeCacheCmd() {
-            if (!commandCaches.isEmpty()) {
-                CommandCache[] caches = new CommandCache[commandCaches.size()];
-                commandCaches.toArray(caches);
-                commandCaches.clear();
-                for (CommandCache cache : caches) {
-                    if (gcanvasComponent != null && gcanvasComponent.getCurrentState().isReady()) {
-                        executeCmdImpl(cache.cmd, cache.args, cache.callback);
-                    }
-                }
-            }
-        }
-
-        private void executeCmdImpl(String cmd, String args, JSCallback callback) {
-            if (null == gcanvasComponent || null == gcanvasComponent.getGCanvas()) {
-                return;
-            }
-
-            checkGCanvasView();
-
-            GCanvas fastCanvas = gcanvasComponent.getGCanvas();
-
-            if (cmd.equals(CMD_BIND_TEXTURE)) {
-
-                final String url = args;
-
-                GCanvasImageCache textureCache = sPicToTextureMap.get(url);
-                ImageInfo imgInfo = canvasModule.mImageIdCache.get(url);
-                if (null == textureCache) {
-                    JSONArray ja = new JSONArray();
-                    textureCache = new GCanvasImageCache();
-                    sPicToTextureMap.put(url, textureCache);
-                    try {
-                        ja.put(url);
-                        ja.put(imgInfo.id);
-                        addUrlCallback(url, callback);
-                        gcanvasComponent.getGCanvas().executeForWeex(CMD_BIND_TEXTURE, ja, new GCanvasResultCallback(url, imgInfo.id, this));
-                    } catch (Throwable e) {
-                        GLog.e(TAG, e.getMessage(), e);
-                    }
-                } else if (!textureCache.isBindingCompleted.get()) {
-                    addUrlCallback(url, callback);
-                } else {
-                    if (null != callback) {
-                        HashMap<String, Object> hm = new HashMap<>();
-                        hm.put("url", url);
-                        hm.put("id", textureCache.jsCacheId);
-                        hm.put("width", textureCache.width);
-                        hm.put("height", textureCache.height);
-
-                        callback.invoke(hm);
-                    }
-                }
-            } else if (cmd.equals(CMD_SET_CONTEXT_TYPE)) {
-                GLog.d(TAG, "cmd match setContextType, args: " + args);
-
-                try {
-                    JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_CONTEXT_TYPE, "[" + args + "]");
-                    contextType = args;
-                    fastCanvas.executeForWeex(CMD_SET_CONTEXT_TYPE, ja, null);
-                } catch (Exception e) {
-                    GLog.e(TAG, "cmd match setContextType, Exception: " + e.toString());
-                }
-            } else if (cmd.equals(CMD_SET_HIGH_QUALITY)) {
-                GLog.d(TAG, "cmd match setHighQuality");
-
-                try {
-
-                    JSONArray ja = GCanvasHelper.argsToJsonArrary(CMD_SET_HIGH_QUALITY, "[" + args + "]");
-                    fastCanvas.executeForWeex(CMD_SET_HIGH_QUALITY, ja, null);
-                } catch (Exception e) {
-                    GLog.e(TAG, "cmd match setHighQuality Exception: " + e);
-                }
-            } else if (cmd.equals(CMD_ENABLE)) {
-
-                GLog.d(TAG, "cmd match enable, args: " + args);
-
-                try {
-                    JSONObject jo = new JSONObject(args);
-
-                    JSONArray ja = GCanvasHelper.argsToJsonArrary("enable", jo.get("config").toString());
-
-                    fastCanvas.executeForWeex(CMD_ENABLE, ja, new EnableResult(this));
-
-                } catch (Exception e) {
-                    GLog.e(TAG, "match enable Exception: " + e);
-                    return;
-                }
-
-                if (null != callback) {
-                    callback.invoke(new HashMap<String, Object>());
-                }
-            } else if (cmd.equals(CMD_SET_DEVICE_PIXEL)) {
-                try {
-                    fastCanvas.executeForWeex(CMD_SET_DEVICE_PIXEL, GCanvasHelper.argsToJsonArrary(CMD_SET_DEVICE_PIXEL, "[" + args + "]"), null);
-                } catch (Throwable e) {
-                }
-            } else if (cmd.equals(CMD_RESET)) {
-                try {
-                    fastCanvas.executeForWeex(CMD_RESET, null, null);
-                } catch (Throwable e) {
-                }
-            }
-        }
-    }
-
-    static class EnableResult extends GCanvasResult {
-        private GComponentDelegate mGCanvasDelegate;
-
-        public EnableResult(GComponentDelegate mGCanvasDelegate) {
-            this.mGCanvasDelegate = mGCanvasDelegate;
-        }
-
-        @Override
-        protected void onResult(ResultCode resultCode, Object resultMessage) {
-            GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
-            if (ResultCode.OK.equals(resultCode)) {
-                this.mGCanvasDelegate.isEnabled.set(true);
-            }
-        }
-    }
-
-    static class ImageInfo {
-        static final int IDLE = -1;
-        static final int LOADING = 0x100;
-        static final int LOADED = 0x200;
-        public int width;
-        public int height;
-        public int id;
-        public AtomicInteger status = new AtomicInteger(IDLE);
-    }
-
-    static class GCanvasImageCache {
-        public String url;
-        public int width;
-        public int height;
-        public int jsCacheId;
-        public int textureId;
-        public AtomicBoolean isBindingCompleted = new AtomicBoolean(false);
-
-        @Override
-        public String toString() {
-            return "GCanvasImageCache{" +
-                    "url='" + url + '\'' +
-                    ", width='" + width + '\'' +
-                    ", height='" + height + '\'' +
-                    '}';
-        }
-    }
-
-    static class CommandCacheRunner implements Runnable {
-        private WeakReference<GComponentDelegate> mDelegateRef;
-
-        public CommandCacheRunner(GComponentDelegate delegate) {
-            this.mDelegateRef = new WeakReference<>(delegate);
-        }
-
-        @Override
-        public void run() {
-            GComponentDelegate delegate = mDelegateRef.get();
-            if (null == delegate || delegate.canvasModule == null || delegate.gcanvasComponent == null || delegate.gcanvasComponent.getGCanvas() == null) {
-                return;
-            }
-
-            if (delegate.gcanvasComponent.getCurrentState().isReady()) {
-                delegate.executeCacheCmd();
-            } else {
-                delegate.canvasModule.mUIHandler.postDelayed(this, 16);
-            }
-        }
-    }
-
-    static class GCanvasResultCallback extends GCanvasResult {
-
-        private GComponentDelegate delegate;
-        private String mUrl;
-        private int mId;
-
-        public GCanvasResultCallback(String url, int id, GComponentDelegate componentDelegate) {
-            this.delegate = componentDelegate;
-            this.mUrl = url;
-            this.mId = id;
-        }
-
-        @Override
-        protected void onResult(ResultCode resultCode, Object resultMessage) {
-            GLog.d("WeexGcanvasPluginResult", "onResult resultCode " + resultCode);
-            if (delegate.isDestroyed() || delegate.canvasModule.mIsDestroyed.get()) {
-                return;
-            }
-
-            HashMap<String, Object> resultData = new HashMap<>();
-
-            if (ResultCode.OK.equals(resultCode) && resultMessage instanceof GCanvasMessage) {
-                GCanvasMessage canvasMessage = (GCanvasMessage) resultMessage;
-                GCanvasImageCache cache = delegate.sPicToTextureMap.get(mUrl);
-                if (null == cache) {
-                    cache = new GCanvasImageCache();
-                    delegate.sPicToTextureMap.put(mUrl, cache);
-                }
-                cache.url = mUrl;
-                cache.jsCacheId = mId;
-                cache.textureId = canvasMessage.textureID;
-                cache.width = canvasMessage.width;
-                cache.height = canvasMessage.height;
-                cache.isBindingCompleted.set(true);
-                resultData.put("src", mUrl);
-                resultData.put("width", canvasMessage.width);
-                resultData.put("height", canvasMessage.height);
-                resultData.put("id", mId);
-            } else if (ResultCode.ERROR.equals(resultCode)) {
-                resultData.put("error", resultMessage);
-            }
-
-            delegate.doUrlCallbacks(mUrl, resultData);
         }
     }
 }

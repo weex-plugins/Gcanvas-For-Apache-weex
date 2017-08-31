@@ -2,17 +2,13 @@ package com.alibaba.weex.plugin.gcanvas;
 
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.alibaba.weex.plugin.annotation.WeexComponent;
-import com.taobao.gcanvas.GCanvas;
-import com.taobao.gcanvas.GCanvasView;
-import com.taobao.gcanvas.GLog;
+import com.taobao.gcanvas.surface.GSurfaceView;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
-import com.taobao.weex.bridge.JSCallback;
 import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.ComponentCreator;
 import com.taobao.weex.ui.component.WXComponent;
@@ -26,45 +22,15 @@ import java.lang.reflect.InvocationTargetException;
 @Component(lazyload = false)
 public class WXGcanvasComponent extends WXComponent<FrameLayout> {
 
-    private WXGCanvasGLSurfaceView mSurfaceView;
-
-    private final GCanvasState mState = new GCanvasState();
-
     private FrameLayout mContainer;
-
-    private GCanvas mCanvas;
-
-    private boolean mIsDetached = false;
-
-    WXCanvasComponentLifeListener mLifeListener = new WXCanvasComponentLifeListener();
-
-    private JSCallback detachCallback;
 
     private String mContextType = "2d";
 
-    private String mTransparency = "opaque";
+    private IWXGCanvasComponentDelegate mComponentDelegate;
 
     public static class PropName {
-        public static final String ContextType = "context-type";
+        public static final String ContextType = "contextType";
         public static final String Transparency = "Transparency";
-    }
-
-    public GCanvasView.GCanvasConfig getCanvasConfig() {
-        return mCanvas == null ? null : mCanvas.config;
-    }
-
-    private void initGCanvas(Context context) {
-//        GLog.setLevel("debug");
-        mCanvas = new GCanvas(getRef());
-        GCanvas.setDefaultViewMode(GCanvas.ViewMode.SINGLE_CANVAS_MODE);
-        mCanvas.initialize(context);
-        mCanvas.setViewMode(GCanvas.ViewMode.WEEX_MODE);
-    }
-
-    void setWXSurfaceViewLifeListener(WXGCanvasGLSurfaceView.WXCanvasLifecycleListener lifeListener) {
-        if (null != mLifeListener) {
-            mLifeListener.mDelegateListener = lifeListener;
-        }
     }
 
     @WXComponentProp(name = PropName.ContextType)
@@ -72,11 +38,10 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         mContextType = type;
     }
 
-    @WXComponentProp(name = PropName.Transparency)
-    public void setTransparency(String transparency){
-        mTransparency = transparency;
-    }
 
+    public ViewGroup getContainer() {
+        return mContainer;
+    }
 
     @Override
     protected boolean setProperty(String key, Object param) {
@@ -84,11 +49,14 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
             case PropName.ContextType:
                 setContextType(WXUtils.getString(param, "2d"));
                 return true;
-
-            case PropName.Transparency:
-                setTransparency(WXUtils.getString(param, "opaque"));
-                return true;
         }
+
+        if (null != mComponentDelegate) {
+            if (mComponentDelegate.setProperty(key, param)) {
+                return true;
+            }
+        }
+
         return super.setProperty(key, param);
     }
 
@@ -101,10 +69,6 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
             return new WXGcanvasComponent(instance, node, parent);
         }
-    }
-
-    public GCanvasState getCurrentState() {
-        return mState;
     }
 
     @Deprecated
@@ -122,203 +86,57 @@ public class WXGcanvasComponent extends WXComponent<FrameLayout> {
         super(instance, node, parent);
     }
 
-    GCanvas getGCanvas() {
-        return mCanvas;
-    }
-
-    void prepareGCanvasView() {
-        if (null != mCanvas) {
-            mCanvas.setCanvasView(mSurfaceView);
-            if (mCanvas.enableCanvas()) {
-                mSurfaceView.onResume();
-            }
-        }
-    }
-
-    void setReattachJSCallback(JSCallback callback) {
-        this.detachCallback = callback;
-    }
-
-    boolean isGCanvasViewPrepared() {
-        // Log.i("CANVAS", "isGCanvasViewPrepared===>" + (null != mCanvas && mCanvas.getCanvasView() == mSurfaceView));
-        return null != mCanvas && mCanvas.getCanvasView() == mSurfaceView;
-    }
-
     @Override
     protected FrameLayout initComponentHostView(Context context) {
         registerActivityStateListener();
-        initGCanvas(context);
-
-        String backgroundColor = getDomObject().getStyles().getBackgroundColor();
-        if (!TextUtils.isEmpty(backgroundColor)) {
-            mCanvas.config.clearColor = backgroundColor;
-        }
-
         mContainer = new FrameLayout(context);
-        mSurfaceView = new WXGCanvasGLSurfaceView(this, mCanvas, context);
-        mSurfaceView.setWXLifecycleListener(mLifeListener);
-        mContainer.addView(mSurfaceView,
-                new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mContainer.setBackground(null);
+        if (null != mComponentDelegate) {
+            mComponentDelegate.initViewIntoContainer(mContainer, context);
+        }
         return mContainer;
     }
 
+    public void setComponentDelegate(IWXGCanvasComponentDelegate delegate) {
+        this.mComponentDelegate = delegate;
+        if (null != mContainer && null != this.mComponentDelegate) {
+            mComponentDelegate.initViewIntoContainer(mContainer, getContext());
+        }
+    }
 
     @Override
     public void onActivityResume() {
         super.onActivityResume();
-        if (null != mSurfaceView) {
-            mSurfaceView.onResume();
+        if (null != mComponentDelegate) {
+            mComponentDelegate.onActivityResume();
         }
     }
 
     @Override
     public void onActivityPause() {
         super.onActivityPause();
-        if (null != mSurfaceView) {
-            mSurfaceView.onPause();
+        if (null != mComponentDelegate) {
+            mComponentDelegate.onActivityPause();
         }
     }
 
     @Override
     public void onActivityDestroy() {
         super.onActivityDestroy();
-        if (null != mSurfaceView) {
-            mSurfaceView.setOnCanvasLifecycleListener(null);
-        }
-        if (null != this.mCanvas) {
-            this.mCanvas.onDestroy();
-        }
-
-        if (null != mSurfaceView) {
-            mSurfaceView.setWXLifecycleListener(null);
-        }
-
-        this.mCanvas = null;
-        this.mSurfaceView = null;
-        this.mLifeListener.mDelegateListener = null;
-        this.mLifeListener = null;
-        this.detachCallback = null;
-    }
-
-    class WXCanvasComponentLifeListener implements WXGCanvasGLSurfaceView.WXCanvasLifecycleListener {
-
-        private WXGCanvasGLSurfaceView.WXCanvasLifecycleListener mDelegateListener;
-        GCanvasView.GCanvasConfig config;
-        int width = 0;
-        int height = 0;
-
-
-        @Override
-        public void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView) {
-            mState.destroy();
-            if (null != mDelegateListener) {
-                mDelegateListener.onGCanvasViewDestroy(component, canvasView);
-            }
-        }
-
-        @Override
-        public void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView) {
-            mState.ready();
-            if (null != mDelegateListener) {
-                mDelegateListener.onGCanvasViewCreated(component, canvasView);
-            }
-        }
-
-        @Override
-        public void onGCanvasViewReattached(WXGcanvasComponent component, GCanvasView canvasView) {
-
-        }
-
-        @Override
-        public void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-            if (null != mDelegateListener) {
-                mDelegateListener.onGCanvasViewAttachToWindow(component, canvasView);
-            }
-            if (mIsDetached) {
-                Context context = mContainer.getContext();
-
-
-                if (null != detachCallback) {
-                    detachCallback.invoke(null);
-                }
-
-                if (mSurfaceView != null) {
-                    width = mSurfaceView.getMeasuredWidth();
-                    height = mSurfaceView.getMeasuredHeight();
-                    mSurfaceView.setWXLifecycleListener(null);
-                    mContainer.removeView(mSurfaceView);
-                    mSurfaceView = null;
-                }
-
-                initGCanvas(context);
-                mCanvas.config = config;
-                mSurfaceView = new WXGCanvasGLSurfaceView(component, mCanvas, context);
-                mContainer.addView(mSurfaceView, new FrameLayout.LayoutParams(width, height));
-                mSurfaceView.setWXLifecycleListener(mLifeListener);
-                prepareGCanvasView();
-//                if (null != mModule && mModule.enableCache != null) {
-//                    mModule.enable(mModule.enableCache, null);
-//                }
-
-                mIsDetached = false;
-                if (null != mDelegateListener) {
-                    mDelegateListener.onGCanvasViewReattached(component, canvasView);
-                }
-            }
-        }
-
-        @Override
-        public void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView) {
-            if (mState.mReadyCount > 0 && ((System.currentTimeMillis() - mState.mFirstReadyTime) > 80)) {
-                mState.clear();
-                mIsDetached = true;
-                if (null != mDelegateListener) {
-                    mDelegateListener.onGCanvasViewDetachedFromWindow(component, canvasView);
-                }
-//
-                if(mCanvas != null) {
-                    config = mCanvas.config;
-                    mCanvas.onDestroy();
-                    mCanvas = null;
-                }
-            }
+        if (null != mComponentDelegate) {
+            mComponentDelegate.onActivityDestroy();
         }
     }
 
-    static class GCanvasState {
+    public interface IWXGCanvasComponentDelegate {
+        boolean setProperty(String key, Object param);
 
-        private int mDestroyCount, mReadyCount;
+        void onActivityResume();
 
-        private long mFirstReadyTime = 0;
+        void onActivityDestroy();
 
-        public GCanvasState() {
-            this.mDestroyCount = 0;
-            this.mReadyCount = 0;
-        }
+        void onActivityPause();
 
-        public synchronized void clear() {
-            this.mDestroyCount = 0;
-            this.mReadyCount = 0;
-            this.mFirstReadyTime = 0;
-        }
-
-        public synchronized void ready() {
-            this.mReadyCount++;
-            if (mFirstReadyTime == 0) {
-                mFirstReadyTime = System.currentTimeMillis();
-            }
-        }
-
-        public synchronized void destroy() {
-            this.mDestroyCount++;
-        }
-
-        public synchronized boolean isReady() {
-            return mReadyCount > 0 && mReadyCount > mDestroyCount && (System.currentTimeMillis() - mFirstReadyTime) > 80;
-        }
-
-        public synchronized boolean isDestroyed() {
-            return mDestroyCount > 0 && mDestroyCount > mReadyCount;
-        }
+        void initViewIntoContainer(ViewGroup container, Context context);
     }
 }

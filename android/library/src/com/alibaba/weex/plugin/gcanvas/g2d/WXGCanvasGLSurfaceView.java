@@ -1,4 +1,4 @@
-package com.alibaba.weex.plugin.gcanvas;
+package com.alibaba.weex.plugin.gcanvas.g2d;
 
 
 import android.content.Context;
@@ -17,9 +17,11 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
 
     protected WXCanvasLifecycleListener mWXLifecycleListener;
 
-    private WXGcanvasComponent mComponent;
+    private G2DWXGCanvasDelegate mComponent;
 
-    public WXGCanvasGLSurfaceView(WXGcanvasComponent component, GCanvas canvas, Context context) {
+    private boolean mIsDetached = false;
+
+    public WXGCanvasGLSurfaceView(G2DWXGCanvasDelegate component, GCanvas canvas, Context context) {
         super(canvas, context);
         this.mComponent = component;
     }
@@ -67,6 +69,13 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
         if (null != mWXLifecycleListener) {
             mWXLifecycleListener.onGCanvasViewAttachToWindow(mComponent, this);
         }
+
+        if(mIsDetached){
+            if(null != mWXLifecycleListener){
+                mWXLifecycleListener.onGCanvasViewReattached(mComponent, this);
+            }
+        }
+        mIsDetached = false;
     }
 
     @Override
@@ -75,6 +84,7 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
         if (null != mWXLifecycleListener) {
             mWXLifecycleListener.onGCanvasViewDetachedFromWindow(mComponent, this);
         }
+        mIsDetached = true;
     }
 
     @Override
@@ -105,15 +115,15 @@ public class WXGCanvasGLSurfaceView extends GCanvasView implements WXGestureObse
 
     public interface WXCanvasLifecycleListener {
 
-        void onGCanvasViewAttachToWindow(WXGcanvasComponent component, GCanvasView canvasView);
+        void onGCanvasViewAttachToWindow(G2DWXGCanvasDelegate component, GCanvasView canvasView);
 
-        void onGCanvasViewDetachedFromWindow(WXGcanvasComponent component, GCanvasView canvasView);
+        void onGCanvasViewDetachedFromWindow(G2DWXGCanvasDelegate component, GCanvasView canvasView);
 
-        void onGCanvasViewDestroy(WXGcanvasComponent component, GCanvasView canvasView);
+        void onGCanvasViewDestroy(G2DWXGCanvasDelegate component, GCanvasView canvasView);
 
-        void onGCanvasViewCreated(WXGcanvasComponent component, GCanvasView canvasView);
+        void onGCanvasViewCreated(G2DWXGCanvasDelegate component, GCanvasView canvasView);
 
-        void onGCanvasViewReattached(WXGcanvasComponent component, GCanvasView canvasView);
+        void onGCanvasViewReattached(G2DWXGCanvasDelegate component, GCanvasView canvasView);
     }
 }
 
