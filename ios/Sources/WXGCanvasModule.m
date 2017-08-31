@@ -178,17 +178,28 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             }
             return;
         }
-        
-        imageCache.jsTextreId = jsTextureId;
-                                         
+                                                 
         if(callback){
             callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
         }
     }];
 }
 
-- (void)bindImageTexture:(NSString*)src componentId:(NSString*)componentId callback:(WXModuleCallback)callback
+- (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
 {
+    if( ![data isKindOfClass:NSArray.class] )
+    {
+        return;
+    }
+    
+    if (!data || data.count != 2)
+    {
+        return;
+    }
+    
+    NSString *src = data[0];
+    NSUInteger jsTextureId = [data[1] integerValue];
+    
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     if( plugin )
     {
@@ -200,38 +211,55 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                 self.bindCacheArray = NSMutableArray.array;
             }
             
-            [self.bindCacheArray addObject:@{@"src":src,
+            [self.bindCacheArray addObject:@{@"data":data,
                                              @"componentId":componentId,
                                              @"callback":callback}];
             return;
         }
         
-        GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
-        if (imageCache )
+        
+        __block GLuint textureId = [plugin getTextureId:jsTextureId];
+        if( textureId == 0 )
         {
-            GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
-            if( textureId == 0 )
+            GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
+            void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
             {
-                textureId = [GCVCommon bindTexture:imageCache.image];
+                textureId = [GCVCommon bindTexture:cache.image];
                 if( textureId > 0 )
                 {
                     //clean image after bind success
-                    
                     [plugin addTextureId:textureId
-                               withAppId:imageCache.jsTextreId
-                                   width:imageCache.width
-                                  height:imageCache.height];
+                               withAppId:jsTextureId
+                                   width:cache.width
+                                  height:cache.height];
                     
                     [[GCVCommon sharedInstance] removeLoadImage:src];
                 }
-                
-                GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+            };
+            
+            if( !imageCache )
+            {
+                [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache, BOOL fromCache) {
+                    bindTextureBlock(imageCache);
+                    
+                    if( callback )
+                    {
+                        (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
+                    }
+                }];
+                return;
+            }
+            else
+            {
+                bindTextureBlock(imageCache);
             }
             
-            if( callback )
-            {
-                (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
-            }
+            GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+        }
+        
+        if( callback )
+        {
+            (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
         }
     }
 }
@@ -400,15 +428,16 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             NSMutableArray *removeIndexArray = NSMutableArray.array;
             [self.bindCacheArray enumerateObjectsUsingBlock:^(NSDictionary *dict, NSUInteger idx, BOOL * _Nonnull stop) {
                 
-                NSString *src = dict[@"src"];
+//                NSString *src = dict[@"src"];
+                NSArray *data = dict[@"data"];
                 NSString *componentId = dict[@"componentId"];
                 WXModuleCallback callback = dict[@"callback"];
                 
-                if( src && componentId && callback )
+                if( data && componentId && callback )
                 {
                     if( componentId == component.ref )
                     {
-                        [self bindImageTexture:src componentId:componentId callback:callback];
+                        [self bindImageTexture:data componentId:componentId callback:callback];
                         
                         [removeIndexArray addObject:@(idx)];
                     }

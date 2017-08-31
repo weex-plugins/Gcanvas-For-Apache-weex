@@ -679,7 +679,11 @@ GContext2D.prototype.drawImage = function(image, // image
     var that = this;
     var numArgs = arguments.length;
 
-    var imageCache = this._getImageTexture(image.src);
+    var cacheKey = image.id;
+
+    // var imageCache = this._getImageTexture(image.src);
+    var imageCache = this._getImageTexture(cacheKey);
+    
     if (imageCache) {
         this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
         return;
@@ -687,13 +691,15 @@ GContext2D.prototype.drawImage = function(image, // image
 
     if( GBridge.isIOS() )
     {
-        GBridge.bindImageTexture(that.componentId, image.src, function(){});
+        GBridge.bindImageTexture(that.componentId, [image.src, image.id], function(){});
         that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-        that._saveImageTexture(image.src, image);
+        // that._saveImageTexture(image.src, image);
+        that._saveImageTexture(cacheKey, image);
+        
     }
     else
     {
-        GBridge.bindImageTexture(that.componentId, image.src, function(e){
+        GBridge.bindImageTexture(that.componentId, [image.src, image.id], function(e){
             if( !e.error )
             {
                 if(image.width === 0 && e.width > 0){
@@ -704,7 +710,9 @@ GContext2D.prototype.drawImage = function(image, // image
                   image.height = e.height;
                 }
                 that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-                that._saveImageTexture(image.src, image);
+                // that._saveImageTexture(image.src, image);
+                that._saveImageTexture(cacheKey, image);
+
             }
         });
     }
