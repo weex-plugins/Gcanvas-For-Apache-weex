@@ -17,8 +17,8 @@ def common
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
     pod 'WeexPluginLoader'
-#    pod 'GCanvas'
-    pod 'GCanvas',  :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
+    pod 'GCanvas', '1.2.0.10'
+#    pod 'GCanvas',  :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
 #    pod 'GCanvas',  :path=>'/Users/weixingjwx/Documents/gitlab/groups/gcanvas_open/gcanvas'
 end
 
