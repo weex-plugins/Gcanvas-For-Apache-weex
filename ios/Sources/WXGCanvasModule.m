@@ -167,7 +167,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     }
     
     NSString *src = data[0];
-    NSUInteger jsTextureId = [data[1] integerValue];
+//    NSUInteger jsTextureId = [data[1] integerValue];
     
     [[GCVCommon sharedInstance] addPreLoadImage:src
                                      completion:^(GCVImageCache *imageCache, BOOL fromCache) {
