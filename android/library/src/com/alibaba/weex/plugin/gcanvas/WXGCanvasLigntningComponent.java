@@ -30,7 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
 //public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> implements SurfaceHolder.Callback {
-public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> implements TextureView.SurfaceTextureListener {
+public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> {
 
     private GSurfaceView mSurfaceView;
     private static final String TAG = WXGCanvasLigntningComponent.class.getSimpleName();
