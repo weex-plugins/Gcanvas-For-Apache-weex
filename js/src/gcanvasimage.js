@@ -106,7 +106,8 @@ Object.defineProperty(GCanvasImage.prototype, "src", {
       me.complete = true;
       me.width = data.width;
       me.height = data.height;
-      me.onload && me.onload();
+      var evt = {type:'load', target:me};
+      me.onload && me.onload(evt);
       return;
     }
 
@@ -121,13 +122,15 @@ Object.defineProperty(GCanvasImage.prototype, "src", {
       }
 
       if (data.error) {
-        me.onerror && me.onerror();
+        var evt = {type:'error', target:me};
+        me.onerror && me.onerror(evt);
       } else {
         me.complete = true;
         me.width = typeof data.width === 'number' ? data.width : 0;
         me.height = typeof data.height === 'number' ? data.height : 0;
 
-        me.onload && me.onload();
+        var evt = {type:'load', target:me};
+        me.onload && me.onload(evt);
         GCanvasImage.imageMap.put(src, data);
       }
     });
