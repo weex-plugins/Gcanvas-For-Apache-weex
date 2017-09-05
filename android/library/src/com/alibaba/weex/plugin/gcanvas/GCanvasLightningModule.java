@@ -128,7 +128,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                     }).fetch();
 
                     synchronized (sync) {
-                        sync.wait();
+                        sync.wait(2000);
                         callback.invoke(hm);
                         GLog.d("finish wait bindtexture in 2dmodule,end time = " + System.currentTimeMillis());
                     }
@@ -354,7 +354,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                     }).fetch();
 
                     synchronized (sync) {
-                        sync.wait();
+                        sync.wait(2000);
                         GLog.d("finish wait bindtexture in 3dmodule,end time = " + System.currentTimeMillis());
                     }
                 }
