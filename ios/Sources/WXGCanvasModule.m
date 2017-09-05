@@ -205,7 +205,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     
     NSString *src = nil;
     if( [data isKindOfClass:NSString.class] ){ //这个分支用来兼容老版本的接口
-        src = data;
+        src = (NSString*)data;
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         if (imageCache )
         {
