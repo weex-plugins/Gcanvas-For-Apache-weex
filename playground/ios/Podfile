@@ -5,11 +5,11 @@ platform :ios, '8.0'
 inhibit_all_warnings!
 
 def common
-    pod 'WeexSDK'
+#    pod 'WeexSDK'
 #    pod 'WeexSDK', '0.15.1.10'
 #    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex'
 #    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
-#    pod 'WeexSDK', :git=>'https://github.com/apache/incubator-weex.git', :branch=>'0.16-dev'
+    pod 'WeexSDK', :git=>'https://github.com/apache/incubator-weex.git', :branch=>'0.16-dev'
 #    pod 'WeexSDK', :git=>'git@gitlab.alibaba-inc.com:weex/weex.git', :branch=>'ios-native-0.16-dev'
     pod 'WXDevtool', '0.15.20'
     pod 'SDWebImage', '3.7.5'
