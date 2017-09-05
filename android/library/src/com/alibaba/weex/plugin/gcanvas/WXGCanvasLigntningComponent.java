@@ -88,6 +88,10 @@ public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> {
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         Log.i("luanxuan", "backgroundColor: " + backgroundColor);
         mSurfaceView = new GSurfaceView(getContext(), getRef());
+        if(backgroundColor.isEmpty()) {
+            backgroundColor = "rgba(0,0,0,0)";
+        }
+
         mSurfaceView.setBackgroundColor(backgroundColor);
         return mSurfaceView;
     }
