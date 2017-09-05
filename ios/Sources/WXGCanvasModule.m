@@ -167,7 +167,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     }
     
     NSString *src = data[0];
-//    NSUInteger jsTextureId = [data[1] integerValue];
+    NSUInteger jsTextureId = [data[1] integerValue];
     
     [[GCVCommon sharedInstance] addPreLoadImage:src
                                      completion:^(GCVImageCache *imageCache, BOOL fromCache) {
@@ -178,6 +178,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             }
             return;
         }
+        imageCache.jsTextreId = jsTextureId;
                                                  
         if(callback){
             callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
@@ -187,36 +188,52 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
 {
-    if( ![data isKindOfClass:NSArray.class] )
-    {
-        return;
-    }
-    
-    if (!data || data.count != 2)
-    {
-        return;
-    }
-    
-    NSString *src = data[0];
-    NSUInteger jsTextureId = [data[1] integerValue];
-    
     GCanvasPlugin *plugin = self.pluginDict[componentId];
-    if( plugin )
+    if( !plugin ){
+        return;
+    }
+    
+    if (!plugin.gcanvasInited)
     {
-        if (!plugin.gcanvasInited)
-        {
-            //gcanvas not ready, cache bindTexture
-            if( !self.bindCacheArray )
-            {
-                self.bindCacheArray = NSMutableArray.array;
-            }
-            
-            [self.bindCacheArray addObject:@{@"data":data,
-                                             @"componentId":componentId,
-                                             @"callback":callback}];
-            return;
+        //gcanvas not ready, cache bindTexture
+        if( !self.bindCacheArray ){
+            self.bindCacheArray = NSMutableArray.array;
         }
-        
+        [self.bindCacheArray addObject:@{@"data":data, @"componentId":componentId, @"callback":callback}];
+        return;
+    }
+    
+    NSString *src = nil;
+    if( [data isKindOfClass:NSString.class] ){ //这个分支用来兼容老版本的接口
+        src = data;
+        GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
+        if (imageCache )
+        {
+            GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
+            if( textureId == 0 )
+            {
+                textureId = [GCVCommon bindTexture:imageCache.image];
+                if( textureId > 0 )
+                {
+                    //clean image after bind success
+                    [plugin addTextureId:textureId
+                               withAppId:imageCache.jsTextreId
+                                   width:imageCache.width
+                                  height:imageCache.height];
+                    
+                    [[GCVCommon sharedInstance] removeLoadImage:src];
+                }
+                
+                GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+            }
+            if( callback )
+            {
+                (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
+            }
+        }
+    }else if([data isKindOfClass:NSArray.class] && data.count == 2){
+        src = data[0];
+        NSUInteger jsTextureId = [data[1] integerValue];
         
         __block GLuint textureId = [plugin getTextureId:jsTextureId];
         if( textureId == 0 )
@@ -241,7 +258,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             {
                 [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache, BOOL fromCache) {
                     bindTextureBlock(imageCache);
-                    
                     if( callback )
                     {
                         (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
