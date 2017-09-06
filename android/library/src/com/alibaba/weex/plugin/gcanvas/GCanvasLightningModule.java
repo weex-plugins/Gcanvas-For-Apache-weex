@@ -29,8 +29,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static android.R.attr.id;
 import static com.alibaba.weex.plugin.gcanvas.GCanvasLightningModule.ContextType._2D;
 
 /**
@@ -46,7 +49,6 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
 
     private GCanvasImageLoader mImageLoader = new GCanvasImageLoader();
 
-
     public GCanvasLightningModule() {
         GCanvasJNI.init();
 //        GLog.setLevel("debug");
@@ -56,86 +58,92 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
     public void bindImageTexture(final String src, final String refId, final JSCallback callback) {
         Log.i("luanxuan", "enter bindImageTexture: " + src);
         if (!TextUtils.isEmpty(src)) {
-            final Object sync = new Object();
+            final HashMap<String, Object> hm = new HashMap<>(5);
+            hm.put("url", src);
 
-            GLog.d("start to load texture in 2dmodule.start time = " + System.currentTimeMillis());
-            try {
-                if (src.startsWith("data:image")) {
+            if (src.startsWith("data:image")) {
+                try {
                     GLog.d("start to decode base64 texture in 2dmodule.start time = " + System.currentTimeMillis());
                     Bitmap bmp = mImageLoader.handleBase64Texture(src.substring(src.indexOf("base64,") + "base64,".length()));
                     int id = mImageLoader.getCache(src).id;
+                    hm.put("id", id);
                     GLog.d("start to decode base64 texture in 2dmodule.end time = " + System.currentTimeMillis());
                     if (bmp != null) {
                         GLog.d("start to bind base64 format texture in 2dmodule.");
+                        hm.put("error", 0);
+                        hm.put("width", bmp.getWidth());
+                        hm.put("height", bmp.getHeight());
                         GCanvasJNI.bindTexture(refId, bmp, 0, GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
                     } else {
                         GLog.d("decode base64 texture failed,bitmap is null.");
+                        hm.put("error", -1);
                     }
-
-                } else {
-                    final HashMap<String, Object> hm = new HashMap<>();
+                    if (null != callback) {
+                        callback.invoke(hm);
+                    }
+                } catch (Throwable ex) {
+                    hm.put("error", -1);
+                    hm.put("message", ex.getMessage());
+                    if (null != callback) {
+                        callback.invoke(hm);
+                    }
+                }
+            } else {
+                final CountDownLatch sync = new CountDownLatch(1);
+                try {
                     Phenix.instance().load(src).succListener(new IPhenixListener<SuccPhenixEvent>() {
                         @Override
                         public boolean onHappen(SuccPhenixEvent succPhenixEvent) {
                             Bitmap bitmap = succPhenixEvent.getDrawable().getBitmap();
                             if (null != bitmap) {
                                 Log.i("luanxuan", "start to bindtexture in 2dmodule.");
-                                int id = mImageLoader.getCache(src).id;
-                                GCanvasJNI.bindTexture(refId, bitmap, id,GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
-
-                            } else {
-                                GLog.d("bitmap is null in teximage2D.");
-                            }
-
-                            if (null != callback && bitmap != null) {
-                                hm.put("url", src);
-//                                hm.put("id", textureCache.jsCacheId);
+                                GCanvasJNI.bindTexture(refId, bitmap, id, GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
                                 hm.put("error", 0);
                                 hm.put("width", bitmap.getWidth());
                                 hm.put("height", bitmap.getHeight());
+                                int id = mImageLoader.getCache(src).id;
+                                hm.put("id", id);
+                            } else {
+                                GLog.d("bitmap is null in teximage2D.");
+                                int id = mImageLoader.getCache(src).id;
+                                hm.put("id", id);
+                                hm.put("error", -1);
                             }
-
-                            synchronized (sync) {
-                                GLog.d("finish bindtexture in 2dmodule.");
-                                sync.notifyAll();
-                            }
-
+                            sync.countDown();
                             return true;
                         }
                     }).failListener(new IPhenixListener<FailPhenixEvent>() {
                         @Override
                         public boolean onHappen(FailPhenixEvent failPhenixEvent) {
                             GLog.d("teximage2D load picture failed.");
-
-                            synchronized (sync) {
-                                GLog.d("finish bindtexture in 2dmodule.");
-                                sync.notifyAll();
-                            }
-
+                            int id = mImageLoader.getCache(src).id;
+                            hm.put("id", id);
+                            hm.put("error", -1);
+                            sync.countDown();
                             return true;
                         }
                     }).cancelListener(new IPhenixListener<PhenixEvent>() {
                         @Override
                         public boolean onHappen(PhenixEvent phenixEvent) {
+                            int id = mImageLoader.getCache(src).id;
+                            hm.put("id", id);
+                            hm.put("error", -1);
                             GLog.d("teximage2D load picture cancel.");
-
-                            synchronized (sync) {
-                                GLog.d("finish bindtexture in 2dmodule.");
-                                sync.notifyAll();
-                            }
+                            sync.countDown();
                             return true;
                         }
                     }).fetch();
 
-                    synchronized (sync) {
-                        sync.wait(2000);
+                    sync.await(5, TimeUnit.SECONDS);
+                    if (null != callback) {
                         callback.invoke(hm);
-                        GLog.d("finish wait bindtexture in 2dmodule,end time = " + System.currentTimeMillis());
                     }
+                } catch (Throwable e) {
+                    GLog.e(TAG, e.getMessage(), e);
+                    sync.countDown();
                 }
-            } catch (Throwable e) {
-                GLog.e(TAG, e.getMessage(), e);
             }
+
         }
     }
 
