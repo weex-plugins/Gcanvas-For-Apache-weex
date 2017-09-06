@@ -29,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.alibaba.weex.plugin.gcanvas.GCanvasLightningModule.ContextType._2D;
@@ -57,6 +58,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
         Log.i("luanxuan", "enter bindImageTexture: " + src);
         if (!TextUtils.isEmpty(src)) {
             final Object sync = new Object();
+            final AtomicBoolean finished = new AtomicBoolean(false);
 
             GLog.d("start to load texture in 2dmodule.start time = " + System.currentTimeMillis());
             try {
@@ -98,6 +100,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[bindImageTexture]finish bindtexture in 2dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[bindImageTexture]finish notify in 2dmodule.");
                             }
 
@@ -111,6 +114,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[bindImageTexture]finish bindtexture in 2dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[bindImageTexture]finish notify in 2dmodule.");
                             }
 
@@ -124,6 +128,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[bindImageTexture]finish bindtexture in 2dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[bindImageTexture]finish notify in 2dmodule.");
                             }
                             return true;
@@ -132,7 +137,10 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
 
                     synchronized (sync) {
                         GLog.d("start wait bindtexture in 2dmodule.");
-                        sync.wait();
+                        if(finished.get() != true) {
+                            sync.wait();
+                        }
+
                         callback.invoke(hm);
                         GLog.d("finish wait bindtexture in 2dmodule,end time = " + System.currentTimeMillis());
                     }
@@ -298,6 +306,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
         if (!TextUtils.isEmpty(path)) {
 
             final Object sync = new Object();
+            final AtomicBoolean finished = new AtomicBoolean(false);
 
             GLog.d("start to load texture in 3dmodule.start time = " + System.currentTimeMillis());
             try {
@@ -328,6 +337,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[texImage2D]finish bindtexture in 3dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[texImage2D]finish notify in 3dmodule.");
                             }
 
@@ -341,6 +351,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[texImage2D]finish bindtexture in 3dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[texImage2D]finish notify in 3dmodule.");
                             }
 
@@ -354,6 +365,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[texImage2D]finish bindtexture in 3dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[texImage2D]finish notify in 3dmodule.");
                             }
                             return true;
@@ -362,7 +374,10 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
 
                     synchronized (sync) {
                         GLog.d("[texImage2D] start wait bindtexture in 3dmodule");
-                        sync.wait();
+                        if(finished.get() != true) {
+                            sync.wait();
+                        }
+
                         GLog.d("finish wait bindtexture in 3dmodule,end time = " + System.currentTimeMillis());
                     }
                 }
@@ -378,6 +393,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
         if (!TextUtils.isEmpty(path)) {
 
             final Object sync = new Object();
+            final AtomicBoolean finished = new AtomicBoolean(false);
 
             GLog.d("start to texSubImage2D in 3dmodule.start time = " + System.currentTimeMillis());
             try {
@@ -408,6 +424,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[texSubImage2D] finish bindtexture in 3dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[texSubImage2D]finish notify in 3dmodule.");
                             }
 
@@ -421,6 +438,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("[texSubImage2D]finish bindtexture in 3dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[texSubImage2D]finish notify in 3dmodule.");
                             }
 
@@ -434,6 +452,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                             synchronized (sync) {
                                 GLog.d("finish bindtexture in 3dmodule.");
                                 sync.notifyAll();
+                                finished.set(true);
                                 GLog.d("[texSubImage2D]finish notify in 3dmodule.");
                             }
                             return true;
@@ -442,7 +461,10 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
 
                     synchronized (sync) {
                         GLog.d("[texSubImage2D] start wait bindtexture in 3dmodule");
-                        sync.wait();
+                        if(finished.get() != true) {
+                            sync.wait();
+                        }
+
                         GLog.d("[texSubImage2D] finish wait bindtexture in 3dmodule,end time = " + System.currentTimeMillis());
                     }
                 }
