@@ -49,19 +49,16 @@ public class GCanvasImageLoader {
     public void loadImage(final String url, final int id, final JSCallback callBack) {
         try {
             final HashMap<String, Object> resultMap = new HashMap<>();
-            if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-                if (url.startsWith("data:image")) {
-                    Bitmap bmp = handleBase64Texture(url.substring(url.indexOf("base64,")+"base64,".length()));
-                    if (bmp != null) {
-                        resultMap.put("id", id);
-                        resultMap.put("url", url);
-                        resultMap.put("width", bmp.getWidth());
-                        resultMap.put("height", bmp.getHeight());
-                    } else {
-                        resultMap.put("error", "process base64 failed,url=" + url);
-                    }
+//            if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+            if (url.startsWith("data:image")) {
+                Bitmap bmp = handleBase64Texture(url.substring(url.indexOf("base64,")+"base64,".length()));
+                if (bmp != null) {
+                    resultMap.put("id", id);
+                    resultMap.put("url", url);
+                    resultMap.put("width", bmp.getWidth());
+                    resultMap.put("height", bmp.getHeight());
                 } else {
-                    resultMap.put("error", "bad url address,url=" + url);
+                    resultMap.put("error", "process base64 failed,url=" + url);
                 }
 
                 callBack.invoke(resultMap);
