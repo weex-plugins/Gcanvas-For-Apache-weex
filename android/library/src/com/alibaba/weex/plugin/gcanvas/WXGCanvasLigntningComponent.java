@@ -34,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
 public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
+
     private GWXSurfaceView mSurfaceView;
 
     private FrameLayout mContainer;
@@ -42,15 +43,19 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     @Override
     public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
         if (null != mContainer) {
-            String backgroundColor = getDomObject().getStyles().getBackgroundColor();
-            mSurfaceView = new GWXSurfaceView(getContext(), getRef());
-            if (backgroundColor.isEmpty()) {
-                backgroundColor = "rgba(0,0,0,0)";
-            }
-            mSurfaceView.setBackgroundColor(backgroundColor);
-
-            mContainer.addView(mSurfaceView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            addGCanvasView();
         }
+    }
+
+    private void addGCanvasView() {
+        String backgroundColor = getDomObject().getStyles().getBackgroundColor();
+        mSurfaceView = new GWXSurfaceView(getContext(), getRef());
+        if (backgroundColor.isEmpty()) {
+            backgroundColor = "rgba(0,0,0,0)";
+        }
+        mSurfaceView.setBackgroundColor(backgroundColor);
+
+        mContainer.addView(mSurfaceView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     public static class Creator implements ComponentCreator {
@@ -112,44 +117,21 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     protected FrameLayout initComponentHostView(@NonNull Context context) {
         mContainer = new FrameLayout(context);
         mContainer.setBackground(null);
+        boolean isAliWeex = false;
         if (context instanceof FragmentActivity) {
             FragmentActivity fragmentAct = (FragmentActivity) context;
             Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag("WeexPageFragment");
             if (fragment instanceof WeexPageFragment) {
                 ((WeexPageFragment) fragment).setViewCreatedListener(this);
+                isAliWeex = true;
             }
+        }
+
+        if (!isAliWeex) {
+            addGCanvasView();
         }
         return mContainer;
     }
-
-//    @Override
-//    public void surfaceCreated(SurfaceHolder holder) {
-//
-//    }
-//
-//    @Override
-//    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-//        Context ctx = getContext();
-//        if (ctx == null) {
-//            GLog.e(TAG, "setDevicePixelRatio error ctx == null");
-//            return;
-//        }
-//
-//        Display display = ((Activity) ctx).getWindowManager().getDefaultDisplay();
-//
-//        int screenWidth = display.getWidth();
-//        double devicePixelRatio = screenWidth / 750.0;
-//
-//        GLog.d(TAG, "enable width " + screenWidth);
-//        GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
-//
-//        GCanvasJNI.setDevicePixelRatio(getRef(), devicePixelRatio);
-//    }
-//
-//    @Override
-//    public void surfaceDestroyed(SurfaceHolder holder) {
-//
-//    }
 
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
 
