@@ -120,7 +120,7 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
         boolean isAliWeex = false;
         if (context instanceof FragmentActivity) {
             FragmentActivity fragmentAct = (FragmentActivity) context;
-            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag("WeexPageFragment");
+            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
             if (fragment instanceof WeexPageFragment) {
                 ((WeexPageFragment) fragment).setViewCreatedListener(this);
                 isAliWeex = true;
