@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.support.annotation.NonNull;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.Display;
-import android.view.SurfaceHolder;
 import android.view.TextureView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
+import com.alibaba.aliweex.bundle.WeexPageFragment;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.surface.GSurfaceView;
@@ -29,11 +33,25 @@ import java.lang.reflect.InvocationTargetException;
 
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
-//public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> implements SurfaceHolder.Callback {
-public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> {
+public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
+    private GWXSurfaceView mSurfaceView;
 
-    private GSurfaceView mSurfaceView;
+    private FrameLayout mContainer;
     private static final String TAG = WXGCanvasLigntningComponent.class.getSimpleName();
+
+    @Override
+    public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
+        if (null != mContainer) {
+            String backgroundColor = getDomObject().getStyles().getBackgroundColor();
+            mSurfaceView = new GWXSurfaceView(getContext(), getRef());
+            if (backgroundColor.isEmpty()) {
+                backgroundColor = "rgba(0,0,0,0)";
+            }
+            mSurfaceView.setBackgroundColor(backgroundColor);
+
+            mContainer.addView(mSurfaceView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+    }
 
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -69,6 +87,13 @@ public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> {
 
     @Override
     public void onActivityDestroy() {
+        if (getInstance().getContext() instanceof FragmentActivity) {
+            FragmentActivity fragmentAct = (FragmentActivity) getInstance().getContext();
+            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag("WeexPageFragment");
+            if (fragment instanceof WeexPageFragment) {
+                ((WeexPageFragment) fragment).setViewCreatedListener(null);
+            }
+        }
         if (null != mSurfaceView) {
 //            mSurfaceView.getHolder().removeCallback(this);
             mSurfaceView.setSurfaceTextureListener(null);
@@ -84,16 +109,17 @@ public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> {
     }
 
     @Override
-    protected GSurfaceView initComponentHostView(@NonNull Context context) {
-        String backgroundColor = getDomObject().getStyles().getBackgroundColor();
-        Log.i("luanxuan", "backgroundColor: " + backgroundColor);
-        mSurfaceView = new GSurfaceView(getContext(), getRef());
-        if(backgroundColor.isEmpty()) {
-            backgroundColor = "rgba(0,0,0,0)";
+    protected FrameLayout initComponentHostView(@NonNull Context context) {
+        mContainer = new FrameLayout(context);
+        mContainer.setBackground(null);
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentAct = (FragmentActivity) context;
+            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag("WeexPageFragment");
+            if (fragment instanceof WeexPageFragment) {
+                ((WeexPageFragment) fragment).setViewCreatedListener(this);
+            }
         }
-
-        mSurfaceView.setBackgroundColor(backgroundColor);
-        return mSurfaceView;
+        return mContainer;
     }
 
 //    @Override
@@ -125,38 +151,35 @@ public class WXGCanvasLigntningComponent extends WXComponent<GSurfaceView> {
 //
 //    }
 
-//    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-//
-//    }
-//
-//    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-//        Context ctx = getContext();
-//        if (ctx == null) {
-//            GLog.e(TAG, "setDevicePixelRatio error ctx == null");
-//            return;
-//        }
-//
-//        Display display = ((Activity) ctx).getWindowManager().getDefaultDisplay();
-//
-//        int screenWidth = display.getWidth();
-//        double devicePixelRatio = screenWidth / 750.0;
-//
-//        GLog.d(TAG, "enable width " + screenWidth);
-//        GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
-//
-//        GCanvasJNI.setContextType(getRef(), GcanvasModule.IGCanvasModuleDelegate.ContextType._2D.value());
-//
-//        GCanvasJNI.setDevicePixelRatio(getRef(), devicePixelRatio);
-//    }
-//
-//    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-//
-//        return true;
-//    }
-//
-//    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-//
-//    }
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        Context ctx = getContext();
+        if (ctx == null) {
+            GLog.e(TAG, "setDevicePixelRatio error ctx == null");
+            return;
+        }
+
+        Display display = ((Activity) ctx).getWindowManager().getDefaultDisplay();
+
+        int screenWidth = display.getWidth();
+        double devicePixelRatio = screenWidth / 750.0;
+
+        GLog.d(TAG, "enable width " + screenWidth);
+        GLog.d(TAG, "enable devicePixelRatio " + devicePixelRatio);
+
+        GCanvasJNI.setDevicePixelRatio(getRef(), devicePixelRatio);
+    }
+
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        return true;
+    }
+
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
 
     public GSurfaceView getSurfaceView() {
         return mSurfaceView;
