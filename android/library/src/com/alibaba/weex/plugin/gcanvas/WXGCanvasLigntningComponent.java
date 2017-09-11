@@ -94,7 +94,7 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     public void onActivityDestroy() {
         if (getInstance().getContext() instanceof FragmentActivity) {
             FragmentActivity fragmentAct = (FragmentActivity) getInstance().getContext();
-            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag("WeexPageFragment");
+            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
             if (fragment instanceof WeexPageFragment) {
                 ((WeexPageFragment) fragment).setViewCreatedListener(null);
             }
