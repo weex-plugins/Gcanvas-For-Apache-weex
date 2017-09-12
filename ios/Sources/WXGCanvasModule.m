@@ -74,6 +74,14 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     [[GCVCommon sharedInstance] clearLoadImageDict];
 }
 
+- (dispatch_queue_t)targetExecuteQueue {
+    static dispatch_queue_t gcanvasQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        gcanvasQueue = dispatch_queue_create("com.taobao.gcanvas", DISPATCH_QUEUE_SERIAL);
+    });
+    return gcanvasQueue;
+}
 #pragma mark - Weex Export Method
 - (void)getDeviceInfo:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
@@ -383,7 +391,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             {
                 component.glkview.delegate = self;
             }
-            [component.glkview setNeedsDisplay];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [component.glkview setNeedsDisplay];
+            });
         }
         else
         {
@@ -444,7 +454,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             NSMutableArray *removeIndexArray = NSMutableArray.array;
             [self.bindCacheArray enumerateObjectsUsingBlock:^(NSDictionary *dict, NSUInteger idx, BOOL * _Nonnull stop) {
                 
-//                NSString *src = dict[@"src"];
                 NSArray *data = dict[@"data"];
                 NSString *componentId = dict[@"componentId"];
                 WXModuleCallback callback = dict[@"callback"];
