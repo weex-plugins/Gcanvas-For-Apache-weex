@@ -33,7 +33,7 @@ import java.lang.reflect.InvocationTargetException;
 
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
-public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
+public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
 
     private GWXSurfaceView mSurfaceView;
 
@@ -44,10 +44,10 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
 
     @Override
     public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
-        mIsFragmentReady = true;
-        if (null != mContainer) {
-            addGCanvasView();
-        }
+//        mIsFragmentReady = true;
+//        if (null != mContainer) {
+//            addGCanvasView();
+//        }
     }
 
     private void addGCanvasView() {
@@ -58,7 +58,7 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
         }
         mSurfaceView.setBackgroundColor(backgroundColor);
 
-        mContainer.addView(mSurfaceView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+//        mContainer.addView(mSurfaceView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     public static class Creator implements ComponentCreator {
@@ -79,7 +79,7 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
                                        WXVContainer parent, boolean lazy) {
         super(instance, node, parent, lazy);
-        registerViewCreateListener(instance.getContext());
+//        registerViewCreateListener(instance.getContext());
     }
 
 
@@ -97,7 +97,7 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
                                        WXVContainer parent) {
         super(instance, node, parent);
-        registerViewCreateListener(instance.getContext());
+//        registerViewCreateListener(instance.getContext());
     }
 
     @Override
@@ -131,14 +131,17 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     }
 
     @Override
-    protected FrameLayout initComponentHostView(@NonNull Context context) {
-        mContainer = new FrameLayout(context);
-        mContainer.setBackground(null);
+    protected GWXSurfaceView initComponentHostView(@NonNull Context context) {
+//        mContainer = new FrameLayout(context);
+//        mContainer.setBackground(null);
+//
+//        if (!mIsAliWeex || mIsFragmentReady) {
+//            addGCanvasView();
+//        }
+//        return mContainer;
+        addGCanvasView();
 
-        if (!mIsAliWeex || mIsFragmentReady) {
-            addGCanvasView();
-        }
-        return mContainer;
+        return mSurfaceView;
     }
 
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
