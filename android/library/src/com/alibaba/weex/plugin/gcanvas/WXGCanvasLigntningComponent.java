@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.alibaba.aliweex.AliWXSDKInstance;
 import com.alibaba.aliweex.bundle.WeexPageFragment;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvasJNI;
@@ -33,8 +34,8 @@ import java.lang.reflect.InvocationTargetException;
 
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
-public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
-
+//public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
+    public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener{
     private GWXSurfaceView mSurfaceView;
 
     private FrameLayout mContainer;
@@ -42,13 +43,13 @@ public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> imp
     private boolean mIsFragmentReady = false;
     private boolean mIsAliWeex = false;
 
-    @Override
-    public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
-//        mIsFragmentReady = true;
-//        if (null != mContainer) {
-//            addGCanvasView();
-//        }
-    }
+//    @Override
+//    public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
+////        mIsFragmentReady = true;
+////        if (null != mContainer) {
+////            addGCanvasView();
+////        }
+//    }
 
     private void addGCanvasView() {
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
@@ -84,14 +85,14 @@ public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> imp
 
 
     private void registerViewCreateListener(Context context) {
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentAct = (FragmentActivity) context;
-            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
-            if (fragment instanceof WeexPageFragment) {
-                ((WeexPageFragment) fragment).setViewCreatedListener(this);
-                mIsAliWeex = true;
-            }
-        }
+//        if (context instanceof FragmentActivity) {
+//            FragmentActivity fragmentAct = (FragmentActivity) context;
+//            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
+//            if (fragment instanceof WeexPageFragment) {
+//                ((WeexPageFragment) fragment).setViewCreatedListener(this);
+//                mIsAliWeex = true;
+//            }
+//        }
     }
 
     public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
@@ -109,13 +110,13 @@ public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> imp
 
     @Override
     public void onActivityDestroy() {
-        if (getInstance().getContext() instanceof FragmentActivity) {
-            FragmentActivity fragmentAct = (FragmentActivity) getInstance().getContext();
-            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
-            if (fragment instanceof WeexPageFragment) {
-                ((WeexPageFragment) fragment).setViewCreatedListener(null);
-            }
-        }
+//        if (getInstance().getContext() instanceof FragmentActivity) {
+//            FragmentActivity fragmentAct = (FragmentActivity) getInstance().getContext();
+//            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
+//            if (fragment instanceof WeexPageFragment) {
+//                ((WeexPageFragment) fragment).setViewCreatedListener(null);
+//            }
+//        }
         if (null != mSurfaceView) {
 //            mSurfaceView.getHolder().removeCallback(this);
             mSurfaceView.setSurfaceTextureListener(null);
@@ -140,6 +141,11 @@ public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> imp
 //        }
 //        return mContainer;
         addGCanvasView();
+
+        if(getInstance() instanceof AliWXSDKInstance){
+            AliWXSDKInstance instance = (AliWXSDKInstance)getInstance();
+            instance.addUserTrackParameter("gcanvas",true);
+        }
 
         return mSurfaceView;
     }
