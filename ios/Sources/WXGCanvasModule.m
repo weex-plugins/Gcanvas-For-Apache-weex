@@ -217,22 +217,24 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         if (imageCache )
         {
-            GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
+            __block GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
             if( textureId == 0 )
             {
-                textureId = [GCVCommon bindTexture:imageCache.image];
-                if( textureId > 0 )
-                {
-                    //clean image after bind success
-                    [plugin addTextureId:textureId
-                               withAppId:imageCache.jsTextreId
-                                   width:imageCache.width
-                                  height:imageCache.height];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    textureId = [GCVCommon bindTexture:imageCache.image];
+                    if( textureId > 0 )
+                    {
+                        //clean image after bind success
+                        [plugin addTextureId:textureId
+                                   withAppId:imageCache.jsTextreId
+                                       width:imageCache.width
+                                      height:imageCache.height];
+                        
+                        [[GCVCommon sharedInstance] removeLoadImage:src];
+                    }
                     
-                    [[GCVCommon sharedInstance] removeLoadImage:src];
-                }
-                
-                GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+                    GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+                });
             }
             if( callback )
             {
@@ -249,17 +251,19 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
             void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
             {
-                textureId = [GCVCommon bindTexture:cache.image];
-                if( textureId > 0 )
-                {
-                    //clean image after bind success
-                    [plugin addTextureId:textureId
-                               withAppId:jsTextureId
-                                   width:cache.width
-                                  height:cache.height];
-                    
-                    [[GCVCommon sharedInstance] removeLoadImage:src];
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    textureId = [GCVCommon bindTexture:cache.image];
+                    if( textureId > 0 )
+                    {
+                        //clean image after bind success
+                        [plugin addTextureId:textureId
+                                   withAppId:jsTextureId
+                                       width:cache.width
+                                      height:cache.height];
+                        
+                        [[GCVCommon sharedInstance] removeLoadImage:src];
+                    }
+                });
             };
             
             if( !imageCache )
