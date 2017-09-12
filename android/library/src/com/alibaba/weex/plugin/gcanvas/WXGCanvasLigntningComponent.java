@@ -39,9 +39,12 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
 
     private FrameLayout mContainer;
     private static final String TAG = WXGCanvasLigntningComponent.class.getSimpleName();
+    private boolean mIsFragmentReady = false;
+    private boolean mIsAliWeex = false;
 
     @Override
     public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
+        mIsFragmentReady = true;
         if (null != mContainer) {
             addGCanvasView();
         }
@@ -76,11 +79,25 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
                                        WXVContainer parent, boolean lazy) {
         super(instance, node, parent, lazy);
+        registerViewCreateListener(instance.getContext());
+    }
+
+
+    private void registerViewCreateListener(Context context) {
+        if (context instanceof FragmentActivity) {
+            FragmentActivity fragmentAct = (FragmentActivity) context;
+            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
+            if (fragment instanceof WeexPageFragment) {
+                ((WeexPageFragment) fragment).setViewCreatedListener(this);
+                mIsAliWeex = true;
+            }
+        }
     }
 
     public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
                                        WXVContainer parent) {
         super(instance, node, parent);
+        registerViewCreateListener(instance.getContext());
     }
 
     @Override
@@ -117,17 +134,8 @@ public class WXGCanvasLigntningComponent extends WXComponent<FrameLayout> implem
     protected FrameLayout initComponentHostView(@NonNull Context context) {
         mContainer = new FrameLayout(context);
         mContainer.setBackground(null);
-        boolean isAliWeex = false;
-        if (context instanceof FragmentActivity) {
-            FragmentActivity fragmentAct = (FragmentActivity) context;
-            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
-            if (fragment instanceof WeexPageFragment) {
-                ((WeexPageFragment) fragment).setViewCreatedListener(this);
-                isAliWeex = true;
-            }
-        }
 
-        if (!isAliWeex) {
+        if (!mIsAliWeex || mIsFragmentReady) {
             addGCanvasView();
         }
         return mContainer;
