@@ -54,9 +54,24 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
     }
 
     @JSMethod(uiThread = false)
-    public void bindImageTexture(final String src, final String refId, final int id,final JSCallback callback) {
-        Log.i("luanxuan", "enter bindImageTexture: " + src);
-        if (!TextUtils.isEmpty(src)) {
+    public void bindImageTexture(final String args, final String refId, final JSCallback callback) {
+        Log.i("luanxuan", "enter bindImageTexture.");
+        String url = null;
+        int rid = 0;
+        if (!TextUtils.isEmpty(args)) {
+            try {
+                JSONArray dataArray = new JSONArray(args);
+                url = dataArray.getString(0);
+                rid = dataArray.getInt(1);
+            } catch (Throwable e) {
+                GLog.e(TAG, e.getMessage(), e);
+            }
+        }
+
+        final String src = url;
+        final int id = rid;
+        if(!TextUtils.isEmpty(src)){
+
             final Object sync = new Object();
             final AtomicBoolean finished = new AtomicBoolean(false);
 
