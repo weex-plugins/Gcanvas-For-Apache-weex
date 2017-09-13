@@ -54,7 +54,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
     }
 
     @JSMethod(uiThread = false)
-    public void bindImageTexture(final String src, final String refId, final JSCallback callback) {
+    public void bindImageTexture(final String src, final String refId, final int id,final JSCallback callback) {
         Log.i("luanxuan", "enter bindImageTexture: " + src);
         if (!TextUtils.isEmpty(src)) {
             final Object sync = new Object();
@@ -65,7 +65,7 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                 if (src.startsWith("data:image")) {
                     GLog.d("start to decode base64 texture in 2dmodule.start time = " + System.currentTimeMillis());
                     Bitmap bmp = mImageLoader.handleBase64Texture(src.substring(src.indexOf("base64,") + "base64,".length()));
-                    int id = mImageLoader.getCache(src).id;
+//                    int id = mImageLoader.getCache(src).id;
                     GLog.d("start to decode base64 texture in 2dmodule.end time = " + System.currentTimeMillis());
                     if (bmp != null) {
                         GLog.d("start to bind base64 format texture in 2dmodule.");
@@ -81,8 +81,8 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                         public boolean onHappen(SuccPhenixEvent succPhenixEvent) {
                             Bitmap bitmap = succPhenixEvent.getDrawable().getBitmap();
                             if (null != bitmap) {
-                                Log.i("luanxuan", "start to bindtexture in 2dmodule.");
-                                int id = mImageLoader.getCache(src).id;
+//                                int id = mImageLoader.getCache(src).id;
+                                Log.i("luanxuan", "start to bindtexture in 2dmodule.id="+id+",componentId="+refId);
                                 GCanvasJNI.bindTexture(refId, bitmap, id,GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE);
 
                             } else {
