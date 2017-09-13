@@ -220,7 +220,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             __block GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
             if( textureId == 0 )
             {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_main_sync_safe(^{
                     textureId = [GCVCommon bindTexture:imageCache.image];
                     if( textureId > 0 )
                     {
@@ -251,7 +251,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
             void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
             {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                dispatch_main_sync_safe(^{
                     textureId = [GCVCommon bindTexture:cache.image];
                     if( textureId > 0 )
                     {
@@ -395,7 +395,8 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             {
                 component.glkview.delegate = self;
             }
-            dispatch_async(dispatch_get_main_queue(), ^{
+            
+            dispatch_main_async_safe(^{
                 [component.glkview setNeedsDisplay];
             });
         }
@@ -518,7 +519,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     __block NSDictionary *retDict;
     __weak typeof(self) weakSelf = self;
     dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_main_sync_safe(^{
         retDict = [weakSelf callGCanvasNative:dict];
         dispatch_semaphore_signal(_semaphore);
     });
