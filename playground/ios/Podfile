@@ -6,7 +6,7 @@ inhibit_all_warnings!
 
 def common
 #    pod 'WeexSDK'
-#    pod 'WeexSDK', '0.15.1.15'
+    pod 'WeexSDK', '0.15.1.16'
 #    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex'
 #    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
 #    pod 'WeexSDK', :git=>'https://github.com/apache/incubator-weex.git', :branch=>'0.16-dev'
