@@ -4,16 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.Display;
 import android.view.TextureView;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.alibaba.aliweex.AliWXSDKInstance;
-import com.alibaba.aliweex.bundle.WeexPageFragment;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.surface.GSurfaceView;
@@ -38,10 +32,10 @@ import java.lang.reflect.InvocationTargetException;
     public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener{
     private GWXSurfaceView mSurfaceView;
 
-    private FrameLayout mContainer;
+//    private FrameLayout mContainer;
     private static final String TAG = WXGCanvasLigntningComponent.class.getSimpleName();
-    private boolean mIsFragmentReady = false;
-    private boolean mIsAliWeex = false;
+//    private boolean mIsFragmentReady = false;
+//    private boolean mIsAliWeex = false;
 
 //    @Override
 //    public void onViewCreated(WXSDKInstance wxsdkInstance, View view) {
@@ -64,11 +58,11 @@ import java.lang.reflect.InvocationTargetException;
 
     public static class Creator implements ComponentCreator {
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXGcanvasComponent(instance, node, parent, lazy);
+            return new WXGCanvasLigntningComponent(instance, node, parent, lazy);
         }
 
         public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXGcanvasComponent(instance, node, parent);
+            return new WXGCanvasLigntningComponent(instance, node, parent);
         }
     }
 
@@ -84,16 +78,16 @@ import java.lang.reflect.InvocationTargetException;
     }
 
 
-    private void registerViewCreateListener(Context context) {
-//        if (context instanceof FragmentActivity) {
-//            FragmentActivity fragmentAct = (FragmentActivity) context;
-//            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
-//            if (fragment instanceof WeexPageFragment) {
-//                ((WeexPageFragment) fragment).setViewCreatedListener(this);
-//                mIsAliWeex = true;
-//            }
-//        }
-    }
+//    private void registerViewCreateListener(Context context) {
+////        if (context instanceof FragmentActivity) {
+////            FragmentActivity fragmentAct = (FragmentActivity) context;
+////            Fragment fragment = fragmentAct.getSupportFragmentManager().findFragmentByTag(WeexPageFragment.FRAGMENT_TAG);
+////            if (fragment instanceof WeexPageFragment) {
+////                ((WeexPageFragment) fragment).setViewCreatedListener(this);
+////                mIsAliWeex = true;
+////            }
+////        }
+//    }
 
     public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
                                        WXVContainer parent) {
