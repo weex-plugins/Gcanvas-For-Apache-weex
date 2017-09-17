@@ -49,7 +49,7 @@
 
 @implementation WXGCanvasModule
 
-WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
+WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule, 1.0)
 
 @synthesize weexInstance;
 
@@ -220,7 +220,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             __block GLuint textureId = [plugin getTextureId:imageCache.jsTextreId];
             if( textureId == 0 )
             {
-                dispatch_main_sync_safe(^{
+                dispatch_main_async_safe(^{
                     textureId = [GCVCommon bindTexture:imageCache.image];
                     if( textureId > 0 )
                     {
@@ -251,7 +251,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
             void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
             {
-                dispatch_main_sync_safe(^{
+                dispatch_main_async_safe(^{
                     textureId = [GCVCommon bindTexture:cache.image];
                     if( textureId > 0 )
                     {

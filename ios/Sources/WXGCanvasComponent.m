@@ -32,7 +32,8 @@
 
 @implementation WXGCanvasComponent
 
-WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
+WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent, 1.0)
+
 
 /**
  *  @abstract Initializes a new component using the specified  properties.
@@ -124,7 +125,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         glkview.backgroundColor = [UIColor clearColor];
-        [glkview.context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)glkview.layer];
+//        [glkview.context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)glkview.layer];
         
         self.glkview  = glkview;
         
