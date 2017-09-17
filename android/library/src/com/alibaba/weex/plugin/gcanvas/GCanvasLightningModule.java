@@ -29,9 +29,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.alibaba.analytics.core.filter.LogFilter.map;
 import static com.alibaba.weex.plugin.gcanvas.GCanvasLightningModule.ContextType._2D;
 
 /**
@@ -297,6 +300,14 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
     @Override
     public void destroy() {
         Log.i(TAG, "canvas module destroy!!!");
+        Iterator iter = mComponentMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry entry = (Map.Entry) iter.next();
+            WXGCanvasLigntningComponent val = (WXGCanvasLigntningComponent)entry.getValue();
+            GLog.d("component destroy id="+entry.getKey());
+            val.onActivityDestroy();
+        }
+
         mComponentMap.clear();
     }
 
