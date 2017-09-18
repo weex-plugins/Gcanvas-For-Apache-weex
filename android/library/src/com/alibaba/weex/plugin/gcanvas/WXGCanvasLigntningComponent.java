@@ -20,6 +20,8 @@ import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXVContainer;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author ertong
@@ -47,7 +49,7 @@ import java.lang.reflect.InvocationTargetException;
 
     private void addGCanvasView() {
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
-        mSurfaceView = new GWXSurfaceView(getContext(), getRef());
+        mSurfaceView = new GWXSurfaceView(getContext(),this);
         if (backgroundColor.isEmpty()) {
             backgroundColor = "rgba(0,0,0,0)";
         }
@@ -176,5 +178,14 @@ import java.lang.reflect.InvocationTargetException;
 
     public GSurfaceView getSurfaceView() {
         return mSurfaceView;
+    }
+
+    public void sendEvent(){
+        Map<String,Object> params = new HashMap<>();
+        params.put("ref",getRef());
+
+        GLog.d("send event in gcanvas component.params="+params.toString());
+
+        getInstance().fireGlobalEventCallback("GCanvasReady",params);
     }
 }

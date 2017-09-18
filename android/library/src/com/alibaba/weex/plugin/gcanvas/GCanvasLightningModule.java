@@ -273,6 +273,13 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
 
         GCanvasJNI.setContextType(refId, type.value());
         GCanvasJNI.setDevicePixelRatio(refId, devicePixelRatio);
+        if(GCanvasJNI.sendEvent(refId)){
+            GLog.d("start to send event in module.");
+            WXGCanvasLigntningComponent component = mComponentMap.get(refId);
+            if (component != null) {
+                component.sendEvent();
+            }
+        }
     }
 
     @JSMethod(uiThread = false)
