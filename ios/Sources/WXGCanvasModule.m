@@ -450,7 +450,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                                          compFrame.size.height*devicePixelRatio);
         [plugin setClearColor:component.glkview.backgroundColor];
         [plugin setFrame:gcanvasFrame];
-
+        
+        [weexInstance fireGlobalEvent:@"GCanvasReady" params:@{@"ref":component.ref}];
+        
         component.gcanvasInitalized = YES;
         
         //bindTexture after GCanvas Init
