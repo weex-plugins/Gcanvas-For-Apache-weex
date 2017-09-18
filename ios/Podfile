@@ -6,7 +6,7 @@ platform :ios, '8.0'
 
 def common
 	pod 'WeexSDK'
-	pod 'WeexPluginLoader', '0.0.1.18'
+	pod 'WeexPluginLoader'#, '0.0.1.18'
     pod 'GCanvas'
     pod 'SDWebImage', '3.7.5'
 end
