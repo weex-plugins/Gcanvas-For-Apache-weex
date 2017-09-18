@@ -128,19 +128,19 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
     
     GCanvasPlugin *plugin = self.pluginDict[componentId];
-    if (plugin)
-    {
-        [plugin addCommands:commands];
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+
+    if (!plugin || !component){
+        return;
     }
     
+    [plugin addCommands:commands];
     [self execCommandById:componentId];
     
-    
     //暂存命令
-    __weak typeof(self) weakSelf = self;
-    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     if( component )
     {
+        __weak typeof(self) weakSelf = self;
         component.renderCallBack =  ^(){
             __strong typeof(weakSelf) strongSelf = weakSelf;
             [plugin addCommands:commands];
