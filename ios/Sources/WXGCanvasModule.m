@@ -38,6 +38,9 @@
 
 @property (strong, nonatomic) NSMutableArray *bindCacheArray;   //cache bindTexture
 
+@property (assign, nonatomic) BOOL addObserveFlag;
+@property (assign, nonatomic) BOOL enterBackground;
+
 #ifdef WEBGL_FPS
 @property (nonatomic, assign) NSUInteger renderFrames;
 @property (nonatomic, assign) CGFloat renderFPS;
@@ -109,22 +112,41 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     if( !self.pluginDict )
     {
         self.pluginDict = NSMutableDictionary.dictionary;
+        self.addObserveFlag = NO;
     }
     self.pluginDict[componentId] = plugin;
+    
+    self.enterBackground = NO;
+    
+    if( !self.addObserveFlag)
+    {
+        self.addObserveFlag = YES;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(onGCanvasCompLoadedNotify:)
+                                                     name:KGCanvasCompLoadedNotificationName
+                                                   object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(onGCanvasResetNotify:)
+                                                     name:KGCanvasResetNotificationName
+                                                   object:nil];
         
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onGCanvasCompLoadedNotify:)
-                                                 name:KGCanvasCompLoadedNotificationName
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(onGCanvasResetNotify:)
-                                                 name:KGCanvasResetNotificationName
-                                               object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(onDidEnterBackgroundNotify:)
+                                                     name:UIApplicationWillResignActiveNotification
+                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(onWillEnterForegroundNotify:)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
+    }
     return @"";
 }
 
 - (void)render:(NSString *)commands componentId:(NSString*)componentId
 {
+    if( self.enterBackground ) return;
+    
     GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
     
     GCanvasPlugin *plugin = self.pluginDict[componentId];
@@ -338,6 +360,16 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     }];
 }
 
+- (void)onDidEnterBackgroundNotify:(NSNotification*)notification
+{
+    self.enterBackground = YES;
+}
+
+- (void)onWillEnterForegroundNotify:(NSNotification*)notification
+{
+    self.enterBackground = NO;
+}
+
 #pragma mark - Private
 - (WXGCanvasComponent*)gcanvasComponentById:(NSString*)componentId
 {
@@ -397,9 +429,12 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             {
                 component.glkview.delegate = self;
             }
-            
+            __weak typeof(self) weakSelf = self;
             dispatch_main_async_safe(^{
-                [component.glkview setNeedsDisplay];
+                if(!weakSelf.enterBackground){
+                    [component.glkview setNeedsDisplay];
+                    GCVLOG_METHOD(@"setNeedsDisplay(), execCommandById:, componentId:%@", componentId);
+                }
             });
         }
         else
