@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.TextureView;
 
-import com.alibaba.aliweex.AliWXSDKInstance;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.surface.GSurfaceView;
@@ -138,10 +137,10 @@ import java.util.Map;
 //        return mContainer;
         addGCanvasView();
 
-        if(getInstance() instanceof AliWXSDKInstance){
-            AliWXSDKInstance instance = (AliWXSDKInstance)getInstance();
-            instance.addUserTrackParameter("gcanvas",true);
-        }
+//        if(getInstance() instanceof AliWXSDKInstance){
+//            AliWXSDKInstance instance = (AliWXSDKInstance)getInstance();
+//            instance.addUserTrackParameter("gcanvas",true);
+//        }
 
         return mSurfaceView;
     }

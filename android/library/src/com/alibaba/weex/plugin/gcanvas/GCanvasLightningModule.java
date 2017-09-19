@@ -34,7 +34,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.alibaba.analytics.core.filter.LogFilter.map;
 import static com.alibaba.weex.plugin.gcanvas.GCanvasLightningModule.ContextType._2D;
 
 /**
