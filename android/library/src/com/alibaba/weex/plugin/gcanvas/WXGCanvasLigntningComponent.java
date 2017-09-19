@@ -50,7 +50,7 @@ import java.util.Map;
     private void addGCanvasView() {
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         mSurfaceView = new GWXSurfaceView(getContext(),this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (Build.VERSION.SDK_INT >= 24) {
                 String libraryPath = getContext().getApplicationInfo().nativeLibraryDir + "/libweexjsc.so";
                 GLog.w("start to load gcanvas library,path=" + libraryPath);
                 GCanvasJNI.registerCallback(libraryPath);
