@@ -3,6 +3,7 @@ package com.alibaba.weex.plugin.gcanvas;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.TextureView;
@@ -49,6 +50,14 @@ import java.util.Map;
     private void addGCanvasView() {
         String backgroundColor = getDomObject().getStyles().getBackgroundColor();
         mSurfaceView = new GWXSurfaceView(getContext(),this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                String libraryPath = getContext().getApplicationInfo().nativeLibraryDir + "/libweexjsc.so";
+                GLog.w("start to load gcanvas library,path=" + libraryPath);
+                GCanvasJNI.registerCallback(libraryPath);
+        } else {
+            GCanvasJNI.registerCallback(null);
+        }
+
         if (backgroundColor.isEmpty()) {
             backgroundColor = "rgba(0,0,0,0)";
         }
