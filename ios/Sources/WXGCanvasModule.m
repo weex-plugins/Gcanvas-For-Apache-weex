@@ -73,21 +73,6 @@ WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其�
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
-//static EAGLContext * firstContext = nil;
-
-//+(EAGLContext*)getEAGLContext
-//{
-//    if( !firstContext )
-//    {
-//       firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-//        return firstContext;
-//    }
-//    else
-//    {
-//        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
-//        return newContext;
-//    }
-//}
 
 - (EAGLContext*)getEAGLContext
 {
@@ -112,7 +97,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     [self.componentDict removeAllObjects];
     self.componentDict = nil;
     [[GCVCommon sharedInstance] clearLoadImageDict];
-//    firstContext = nil;
 }
 
 - (dispatch_queue_t)targetExecuteQueue
@@ -143,6 +127,11 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     NSString *componentId = args[@"componentId"];
     
     GCVLOG_METHOD(@"enable:callback:, componentId=%@", componentId);
+    
+    if( !self.componentDict )
+    {
+        self.componentDict = NSMutableDictionary.dictionary;
+    }
     
     //plugin
     GCanvasPlugin *plugin = [[GCanvasPlugin alloc] initWithComponentId:componentId];
@@ -276,7 +265,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     }
     
     NSString *src = nil;
-
     if( [data isKindOfClass:NSString.class] ){ //这个分支用来兼容老版本的接口
         src = (NSString*)data;
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
@@ -417,11 +405,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 #pragma mark - Private
 - (WXGCanvasComponent*)gcanvasComponentById:(NSString*)componentId
 {
-    if( !self.componentDict )
-    {
-        self.componentDict = NSMutableDictionary.dictionary;
-    }
-    
     __block WXGCanvasComponent *component = self.componentDict[componentId];
     if( !component )
     {
