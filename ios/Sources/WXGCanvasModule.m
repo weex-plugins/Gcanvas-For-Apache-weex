@@ -71,22 +71,46 @@ WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其�
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
+static EAGLContext * firstContext = nil;
+
++(EAGLContext*)getEAGLContext
+{
+    if( !firstContext )
+    {
+       firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        return firstContext;
+    }
+    else
+    {
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+        return newContext;
+    }
+}
 
 - (void)dealloc
 {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self.pluginDict removeAllObjects];
+    self.pluginDict = nil;
+    [self.componentDict removeAllObjects];
+    self.componentDict = nil;
     [[GCVCommon sharedInstance] clearLoadImageDict];
+    
+    firstContext = nil;
 }
 
-- (dispatch_queue_t)targetExecuteQueue {
-    static dispatch_queue_t gcanvasQueue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+static dispatch_queue_t gcanvasQueue;
+- (dispatch_queue_t)targetExecuteQueue
+{
+    if( !gcanvasQueue )
+    {
         gcanvasQueue = dispatch_queue_create("com.taobao.gcanvas", DISPATCH_QUEUE_SERIAL);
-    });
+
+    }
     return gcanvasQueue;
 }
+
 #pragma mark - Weex Export Method
 - (void)getDeviceInfo:(NSDictionary *)args callback:(WXModuleCallback)callback
 {
@@ -221,7 +245,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
 {
     GCanvasPlugin *plugin = self.pluginDict[componentId];
-    if( !plugin ){
+    WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
+
+    if( !plugin || !component){
         return;
     }
     
@@ -236,6 +262,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     }
     
     NSString *src = nil;
+
     if( [data isKindOfClass:NSString.class] ){ //这个分支用来兼容老版本的接口
         src = (NSString*)data;
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
@@ -245,6 +272,8 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
             if( textureId == 0 )
             {
                 dispatch_main_async_safe(^{
+                    [EAGLContext setCurrentContext:component.glkview.context];
+
                     textureId = [GCVCommon bindTexture:imageCache.image];
                     if( textureId > 0 )
                     {
@@ -256,9 +285,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                         
                         [[GCVCommon sharedInstance] removeLoadImage:src];
                     }
-                    
-                    GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
                 });
+                    
+                GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
             }
             if( callback )
             {
@@ -270,12 +299,15 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         NSUInteger jsTextureId = [data[1] integerValue];
         
         __block GLuint textureId = [plugin getTextureId:jsTextureId];
+
         if( textureId == 0 )
         {
             GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
             void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
             {
                 dispatch_main_async_safe(^{
+                    [EAGLContext setCurrentContext:component.glkview.context];
+
                     textureId = [GCVCommon bindTexture:cache.image];
                     if( textureId > 0 )
                     {
@@ -287,6 +319,9 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                         
                         [[GCVCommon sharedInstance] removeLoadImage:src];
                     }
+                
+                    GCVLOG_METHOD(@"2==>bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+
                 });
             };
             
@@ -306,7 +341,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                 bindTextureBlock(imageCache);
             }
             
-            GCVLOG_METHOD(@"bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
         }
         
         if( callback )
@@ -336,10 +370,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:KGCanvasCompLoadedNotificationName
-                                                  object:nil];
-    
     NSString *componentId = notification.userInfo[@"componentId"];
     [self gcanvasComponentById:componentId];
 }
@@ -468,7 +498,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         return;
     }
     
-    GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@", component.ref);
+    GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@, context:%p", component.ref, component.glkview.context);
     
     [EAGLContext setCurrentContext:component.glkview.context];
 

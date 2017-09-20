@@ -22,6 +22,7 @@
 #import <GCanvas/GCVCommon.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import "WeexGcanvas.h"
+#import "WXGCanvasModule.h"
 
 
 @interface WXGCanvasComponent()
@@ -107,26 +108,27 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
     if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
         
-        static EAGLContext * firstContext = nil;
-        static dispatch_once_t onceToken;
+//        static EAGLContext * firstContext = nil;
+//        static dispatch_once_t onceToken;
+//        
+//        if( !firstContext )
+//        {
+//            dispatch_once(&onceToken, ^{
+//                firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+//            });
+//            glkview.context = firstContext;
+//        }
+//        else
+//        {
+//            EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+//            glkview.context = newContext;
+//        }
         
-        if( !firstContext )
-        {
-            dispatch_once(&onceToken, ^{
-                firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-            });
-            glkview.context = firstContext;
-        }
-        else
-        {
-            EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
-            glkview.context = newContext;
-        }
+        glkview.context = [WXGCanvasModule getEAGLContext];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         glkview.backgroundColor = [UIColor clearColor];
-//        [glkview.context renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer*)glkview.layer];
         
         self.glkview  = glkview;
         

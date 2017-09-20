@@ -19,8 +19,11 @@
 
 #import <Foundation/Foundation.h>
 #import <WeexSDK/WXModuleProtocol.h>
+#import <GLKit/GLKit.h>
 
 @interface WXGCanvasModule : NSObject <WXModuleProtocol>
+
++(EAGLContext*)getEAGLContext;
 
 //+(id)excuteCallNative:(NSDictionary*)dict;
 
