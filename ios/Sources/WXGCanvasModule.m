@@ -41,6 +41,8 @@
 @property (assign, nonatomic) BOOL addObserveFlag;
 @property (assign, nonatomic) BOOL enterBackground;
 
+@property (strong, nonatomic) EAGLContext *firstContext;
+
 #ifdef WEBGL_FPS
 @property (nonatomic, assign) NSUInteger renderFrames;
 @property (nonatomic, assign) CGFloat renderFPS;
@@ -71,18 +73,32 @@ WX_EXPORT_METHOD(@selector(resetComponent:));   //viewdisapper调用, 通知其�
 WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
-static EAGLContext * firstContext = nil;
+//static EAGLContext * firstContext = nil;
 
-+(EAGLContext*)getEAGLContext
+//+(EAGLContext*)getEAGLContext
+//{
+//    if( !firstContext )
+//    {
+//       firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+//        return firstContext;
+//    }
+//    else
+//    {
+//        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+//        return newContext;
+//    }
+//}
+
+- (EAGLContext*)getEAGLContext
 {
-    if( !firstContext )
+    if( !_firstContext )
     {
-       firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        return firstContext;
+       _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        return _firstContext;
     }
     else
     {
-        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_firstContext.sharegroup];
         return newContext;
     }
 }
@@ -96,8 +112,7 @@ static EAGLContext * firstContext = nil;
     [self.componentDict removeAllObjects];
     self.componentDict = nil;
     [[GCVCommon sharedInstance] clearLoadImageDict];
-    
-    firstContext = nil;
+//    firstContext = nil;
 }
 
 - (dispatch_queue_t)targetExecuteQueue
@@ -423,6 +438,8 @@ static EAGLContext * firstContext = nil;
         });
         
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        
+        component.glkview.context = [self getEAGLContext];
     }
     return component;
 }
