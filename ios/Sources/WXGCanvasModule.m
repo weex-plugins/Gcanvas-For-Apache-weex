@@ -100,14 +100,13 @@ static EAGLContext * firstContext = nil;
     firstContext = nil;
 }
 
-static dispatch_queue_t gcanvasQueue;
 - (dispatch_queue_t)targetExecuteQueue
 {
-    if( !gcanvasQueue )
-    {
+    static dispatch_queue_t gcanvasQueue;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         gcanvasQueue = dispatch_queue_create("com.taobao.gcanvas", DISPATCH_QUEUE_SERIAL);
-
-    }
+    });
     return gcanvasQueue;
 }
 
