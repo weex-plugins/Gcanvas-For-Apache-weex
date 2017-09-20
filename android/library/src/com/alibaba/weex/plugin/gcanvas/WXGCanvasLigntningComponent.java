@@ -22,6 +22,7 @@ import com.taobao.weex.ui.component.WXVContainer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author ertong
@@ -33,6 +34,7 @@ import java.util.Map;
 //public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
     public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener{
     private GWXSurfaceView mSurfaceView;
+    public AtomicBoolean mSended;
 
 //    private FrameLayout mContainer;
     private static final String TAG = WXGCanvasLigntningComponent.class.getSimpleName();
@@ -144,6 +146,7 @@ import java.util.Map;
 //            addGCanvasView();
 //        }
 //        return mContainer;
+        mSended.set(false);
         addGCanvasView();
 
 //        if(getInstance() instanceof AliWXSDKInstance){
@@ -189,11 +192,19 @@ import java.util.Map;
     }
 
     public void sendEvent(){
-        Map<String,Object> params = new HashMap<>();
-        params.put("ref",getRef());
 
-        GLog.d("send event in gcanvas component.params="+params.toString());
+        synchronized (this) {
+            if (mSended.get() != true) {
+                Map<String, Object> params = new HashMap<>();
+                params.put("ref", getRef());
 
-        getInstance().fireGlobalEventCallback("GCanvasReady",params);
+                GLog.d("send event in gcanvas component.params=" + params.toString());
+
+                getInstance().fireGlobalEventCallback("GCanvasReady", params);
+                mSended.set(true);
+            } else {
+                GLog.d("event sended.");
+            }
+        }
     }
 }
