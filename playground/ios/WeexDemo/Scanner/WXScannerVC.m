@@ -23,7 +23,9 @@
 #import "UIViewController+WXDemoNaviBar.h"
 #import "WXDemoViewController.h"
 #import "WXDebugTool.h"
+#ifdef DEBUG
 #import <TBWXDevTool/WXDevTool.h>
+#endif
 #import <AudioToolbox/AudioToolbox.h>
 
 @interface WXScannerVC ()
