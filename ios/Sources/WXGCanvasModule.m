@@ -41,7 +41,7 @@
 @property (assign, nonatomic) BOOL addObserveFlag;
 @property (assign, nonatomic) BOOL enterBackground;
 
-@property (strong, nonatomic) EAGLContext *firstContext;
+//@property (strong, nonatomic) EAGLContext *firstContext;
 
 #ifdef WEBGL_FPS
 @property (nonatomic, assign) NSUInteger renderFrames;
@@ -74,16 +74,17 @@ WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
+static EAGLContext *firstContext;
 - (EAGLContext*)getEAGLContext
 {
-    if( !_firstContext )
+    if( !firstContext )
     {
-       _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        return _firstContext;
+       firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        return firstContext;
     }
     else
     {
-        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_firstContext.sharegroup];
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
         return newContext;
     }
 }
@@ -94,9 +95,17 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [self.pluginDict removeAllObjects];
     self.pluginDict = nil;
+    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString*compId, WXGCanvasComponent
+                                                            *comp, BOOL * _Nonnull stop) {
+        if (comp.glkview.delegate) {
+            comp.glkview.delegate = nil;
+        }
+    }];
     [self.componentDict removeAllObjects];
     self.componentDict = nil;
     [[GCVCommon sharedInstance] clearLoadImageDict];
+    
+    firstContext = nil;
 }
 
 - (dispatch_queue_t)targetExecuteQueue
@@ -118,7 +127,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 }
 
 - (NSString*)enable:(NSDictionary *)args
-{
+{//return @"";
     if (!args || !args[@"componentId"])
     {
         return @"";
@@ -171,7 +180,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 }
 
 - (void)render:(NSString *)commands componentId:(NSString*)componentId
-{
+{//return;
     if( self.enterBackground ) return;
     
     GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
@@ -208,7 +217,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
-{
+{//callback(@{});return;
     if( ![data isKindOfClass:NSArray.class] )
     {
         return;
@@ -246,7 +255,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 }
 
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
-{
+{//callback(@{});return;
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
 
@@ -354,7 +363,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 //设置Context类型
 - (void)setContextType:(NSUInteger)type componentId:(NSString*)componentId
-{
+{//return;
     GCVLOG_METHOD(@"setContextType %ld componentId:%@", (unsigned long)type, componentId);
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     if( plugin )
