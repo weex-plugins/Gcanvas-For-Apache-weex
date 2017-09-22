@@ -107,6 +107,7 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 {
     if(!self.glkview){
         GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
+        glkview.context = [WXGCanvasModule getEAGLContext];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;

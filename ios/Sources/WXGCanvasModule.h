@@ -21,4 +21,7 @@
 #import <WeexSDK/WXModuleProtocol.h>
 
 @interface WXGCanvasModule : NSObject <WXModuleProtocol>
+
++ (EAGLContext*)getEAGLContext;
+
 @end

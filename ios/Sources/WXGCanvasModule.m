@@ -75,7 +75,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
 static EAGLContext *firstContext;
-- (EAGLContext*)getEAGLContext
++ (EAGLContext*)getEAGLContext
 {
     if( !firstContext )
     {
@@ -429,9 +429,7 @@ static EAGLContext *firstContext;
             dispatch_semaphore_signal(semaphore);
         });
         
-        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-        
-        component.glkview.context = [self getEAGLContext];
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);        
     }
     return component;
 }
