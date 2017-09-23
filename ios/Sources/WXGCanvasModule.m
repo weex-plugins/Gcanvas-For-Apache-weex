@@ -106,7 +106,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
         if (comp.glkview.delegate) {
             comp.glkview.delegate = nil;
         }
-        comp.glkview.context = nil;
     }];
     [self.componentDict removeAllObjects];
     self.componentDict = nil;
