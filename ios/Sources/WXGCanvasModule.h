@@ -22,6 +22,4 @@
 
 @interface WXGCanvasModule : NSObject <WXModuleProtocol>
 
-+ (EAGLContext*)getEAGLContext;
-
 @end

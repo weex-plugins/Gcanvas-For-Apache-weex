@@ -41,7 +41,9 @@
 @property (assign, nonatomic) BOOL addObserveFlag;
 @property (assign, nonatomic) BOOL enterBackground;
 
-//@property (strong, nonatomic) EAGLContext *firstContext;
+//@property (strong, nonatomic) EAGLContext *moduleContext;
+
+@property (strong, nonatomic) EAGLContext *firstContext;
 
 #ifdef WEBGL_FPS
 @property (nonatomic, assign) NSUInteger renderFrames;
@@ -74,17 +76,21 @@ WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
-static EAGLContext *firstContext;
-+ (EAGLContext*)getEAGLContext
+- (EAGLContext*)getEAGLContext
 {
-    if( !firstContext )
+
+    if( !_firstContext )
     {
-       firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        return firstContext;
+
+       _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+
+        return _firstContext;
     }
     else
     {
-        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:firstContext.sharegroup];
+
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_firstContext.sharegroup];
+
         return newContext;
     }
 }
@@ -100,12 +106,12 @@ static EAGLContext *firstContext;
         if (comp.glkview.delegate) {
             comp.glkview.delegate = nil;
         }
+        comp.glkview.context = nil;
     }];
     [self.componentDict removeAllObjects];
     self.componentDict = nil;
     [[GCVCommon sharedInstance] clearLoadImageDict];
     
-    firstContext = nil;
 }
 
 - (dispatch_queue_t)targetExecuteQueue
@@ -461,13 +467,19 @@ static EAGLContext *firstContext;
     {
         if ([component isKindOfClass:[WXGCanvasComponent class]])
         {
-            if(!component.glkview.delegate)
-            {
-                component.glkview.delegate = self;
-            }
+//            if(!component.glkview.delegate)
+//            {
+//                component.glkview.delegate = self;
+//            }
             __weak typeof(self) weakSelf = self;
             dispatch_main_async_safe(^{
                 if(!weakSelf.enterBackground){
+                    
+                    if(!component.glkview.context){
+                        component.glkview.context = [weakSelf getEAGLContext];
+                        component.glkview.delegate = weakSelf;
+                    }
+                    
                     [component.glkview setNeedsDisplay];
                     GCVLOG_METHOD(@"setNeedsDisplay(), execCommandById:, componentId:%@", componentId);
                 }
