@@ -108,6 +108,7 @@ function GCanvas(componentId)
 {
     this.componentId = componentId;
     this.id = ++(GCanvas.idCounter);
+    this.style = {};
 }
 
 GCanvas.idCounter = 0;
@@ -116,6 +117,8 @@ GCanvas.idCounter = 0;
 //-----------------------------
 // GCanvas.start
 //-----------------------------
+GLog.d('gcanvas#=====>>>version: 0.5.32');
+
 GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');
 
@@ -134,7 +137,7 @@ GCanvas.start = function(el){
         currentEl = el
         return currentEl;
     }
-    else 
+    else
     {
         //bind canvas
         var config = [];
@@ -148,6 +151,8 @@ GCanvas.start = function(el){
 
         GBridge.callEnable(el.ref, config);
         var canvas = new GCanvas(el.ref);
+        canvas.width = el.style.width;
+        canvas.height = el.style.height;
         // GCanvas.canvasMap.put(el.ref, canvas);
         return canvas;
     }
@@ -185,7 +190,14 @@ GCanvas.prototype.getContext = function(contextID){
         context_type = 0;
     }
 
+    // if(context_type == 1) {
+    // 	GBridge3d.setLogLevel("debug");
+    // 	GBridge3d.callEnable(this.componentId);
+    // 	GBridge3d.setContextType(this.componentId, context_type);
+    // }else {
+//     GBridge.setLogLevel("debug");
     GBridge.setContextType(this.componentId, context_type);
+	// }
 
     context.componentId = this.componentId;
     // if (!context.timer) {
@@ -193,7 +205,10 @@ GCanvas.prototype.getContext = function(contextID){
     // }
 
     this.context = context;
+
+    // if(context_type == 0) {
     GBridge.callRegisterReattachJSCallback(this.componentId, context._clearImageTextures);
+	// }
 
     this.startLoop();
 
@@ -231,7 +246,7 @@ GCanvas.prototype.startLoop = function(fps){
     if(!this.context){
         return;
     }
- 
+
     fps = parseInt(fps) || 16;
     if(!this.context.timer){
         this.context.timer = setInterval(this.render.bind(this),fps);
@@ -245,7 +260,7 @@ GCanvas.prototype.stopLoop = function(){
     if(!this.context){
         return;
     }
- 
+
     if(this.context.timer){
         clearInterval(this.context.timer);
         this.context.timer = null;
@@ -327,17 +342,19 @@ GCanvas.setLogLevel = function(level){
         GBridge.setLogLevel(level);
     }
 }
-    
-GCanvas.toDataURL = function(type,options){
+
+GCanvas.prototype.toDataURL = function(type,options){
     //	GLog.d('gcanvas#toDataURL=====>>> ' + type + ',' + options);
-	var args;
-    if(typeof(options) == 'undefined'){
-        args = type + ';';
-    } else {
-         args = type + ',' + options + ';';
+
+    	var args;
+	    if(typeof(options) == 'undefined'){
+	        args = type + ';';
+	    } else {
+	         args = type + ',' + options + ';';
+	    }
+
+    	return GBridge.exeSyncCmd(this.componentId,'todataurl',args);
     }
-	return GBridge.exeSyncCmd('todataurl',args);
-}
 
 //-----------------------------
 // GCanvas.htmlPlugin

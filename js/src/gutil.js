@@ -2,6 +2,7 @@
 //GBridge
 /////////////////////////////////////////////////////////////////
 var GLog = require('./glog').GLog;
+var GCodec = require('./gcodec');
 
 var inWeex = typeof callNative !== 'undefined';
 var debug = true;
@@ -20,6 +21,16 @@ var GBridge = {
       return platform === 1;
     },
 
+    /**
+     * 判断是不是浏览器
+     *
+     **/
+     isBrowser: function () {
+         if(!canvasModule || !canvasModule.getDeviceInfo){
+             return true
+         }
+     },
+
     callRegisterReattachJSCallback: function(componentId, cb){
       if(!inWeex){
         return;
@@ -37,8 +48,27 @@ var GBridge = {
         if (!inWeex) {
             return;
         }
+        if(this.isIOS() || this.isBrowser()){
+           // GLog.d('bridge#callrender in iOS');
+           canvasModule.render && canvasModule.render( commands, componentId );
+        }else{
+           if(typeof callGCanvasLinkNative !== 'undefined') {
+           	   // GLog.d('bridge#callGCanvasLinkNative()');
+               callGCanvasLinkNative(componentId, 0x20000001, commands);
+           }  else {
+           	   // GLog.d('bridge#callRender()');
+           	   canvasModule.render && canvasModule.render( commands, componentId );
+           }
+        }
+    },
 
-        canvasModule.render && canvasModule.render( commands, componentId );
+    callGetImageData: function(componentId, x, y, w, h){
+      if(this.isIOS()){
+
+      }else{
+        var result = callGCanvasLinkNative(componentId, 0x20000001, "R" + x + "," + y + "," + w + "," + h + ";");
+        return {"data": GCodec.Gbase64ToArr(result)};
+      }
     },
 
     /**Android use**/
@@ -64,17 +94,17 @@ var GBridge = {
             GLog.d('bridge#preLoadImage() callback, e ' + JSON.stringify(e));
             e.url = image[0];
             e.id = image[1];
-            cb && cb(e);  
+            cb && cb(e);
         });
     },
 
     /**绑定纹理*/
-    bindImageTexture: function (componentId, src, callback) {
+    bindImageTexture: function (componentId,src,callback) {
         if (!inWeex) {
             return;
         }
 
-        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src, componentId, callback);
+        canvasModule.bindImageTexture && canvasModule.bindImageTexture(src,componentId,callback);
     },
 
     /**
@@ -131,17 +161,6 @@ var GBridge = {
     },
 
     /**
-     * 判断是不是浏览器
-     *
-     **/
-    isBrowser: function () {
-
-        if(!canvasModule||!canvasModule.getDeviceInfo){
-            return true
-        }
-    },
-
-    /**
      *
      * 设置context类型,2d或者webgl
      *
@@ -178,7 +197,6 @@ var GBridge = {
         canvasModule.setHiQuality(quality);
     },
 
-
     resetComponent: function(componentId){
         GLog.d('bridge#resetComponent(): componentId: ' + componentId);
         canvasModule.resetComponent && canvasModule.resetComponent(componentId);
@@ -186,12 +204,13 @@ var GBridge = {
 
     exeSyncCmd: function (componentId, action, args){
     	GLog.d('bridge#exeSyncCmd(): action: ' + action + ',args:' + args);
-    	return canvasModule.execGcanvaSyncCMD(action,args);
+    	return canvasModule.execGcanvaSyncCMD(componentId,action,args);
     },
+
     callExtendCallNative:function(dict){
       return  canvasModule && canvasModule.extendCallNative(dict);
     },
-    
+
     texImage2D: function (componentId,target,level,internalformat,format,type,path) {
         GLog.d('bridge#texImage2D(): ' + path);
         canvasModule.texImage2D && canvasModule.texImage2D(componentId,target,level,internalformat,format,type,path);
@@ -199,6 +218,10 @@ var GBridge = {
     texSubImage2D: function (componentId,target, level, xoffset,yoffset,format,type,path) {
     	GLog.d('bridge#texSubImage2D(): ' + path);
         canvasModule.texSubImage2D && canvasModule.texSubImage2D(componentId,target,level,xoffset,yoffset,format,type,path);
+    },
+    setAlpha: function (componentId,alpha) {
+    	GLog.d('bridge#setAlpha(): ' + alpha);
+    	canvasModule.setAlpha && canvasModule.setAlpha(componentId,alpha);
     }
 };
 
