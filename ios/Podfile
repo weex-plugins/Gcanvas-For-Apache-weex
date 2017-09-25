@@ -5,7 +5,7 @@ platform :ios, '8.0'
 #inhibit_all_warnings!
 
 def common
-	pod 'WeexSDK'
+	pod 'WeexSDK', '0.9.5-jsfm-SNAPSHOT'
 	pod 'WeexPluginLoader'#, '0.0.1.18'
     pod 'GCanvas'
     pod 'SDWebImage', '3.7.5'
