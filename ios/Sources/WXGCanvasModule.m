@@ -18,6 +18,7 @@
  */
 
 #import "WXGCanvasModule.h"
+#import <WeexSDK/WXDefine.h>
 #import "WXGCanvasComponent.h"
 #import "WeexGcanvas.h"
 #import <GCanvas/GCVCommon.h>
@@ -41,9 +42,7 @@
 @property (assign, nonatomic) BOOL addObserveFlag;
 @property (assign, nonatomic) BOOL enterBackground;
 
-//@property (strong, nonatomic) EAGLContext *moduleContext;
-
-@property (strong, nonatomic) EAGLContext *firstContext;
+//@property (strong, nonatomic) EAGLContext *firstContext;
 
 #ifdef WEBGL_FPS
 @property (nonatomic, assign) NSUInteger renderFrames;
@@ -76,41 +75,42 @@ WX_EXPORT_METHOD_SYNC(@selector(enable:));
 WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 
 
-- (EAGLContext*)getEAGLContext
-{
+static EAGLContext *_firstContext;
+static NSMutableDictionary *_instanceDict;
 
+//static NSMutableArray *_instance
+//- (EAGLContext*)getEAGLContext
++ (EAGLContext*)getEAGLContext:(NSString*)instacneId
+{
+    if(!_instanceDict){
+        _instanceDict = NSMutableDictionary.dictionary;
+    }
+    
+    if( !_instanceDict[instacneId] ){
+        _instanceDict[instacneId] = @(1);
+    }
+    
     if( !_firstContext )
     {
-
+//        NSLog(@"context--------------12");
        _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-
+//        NSLog(@"context--------------12 %p", _firstContext);
         return _firstContext;
     }
     else
     {
-
+//        NSLog(@"context--------------13");
         EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_firstContext.sharegroup];
-
+//        NSLog(@"context--------------13 %p -> %p", _firstContext, newContext);
         return newContext;
     }
 }
 
 - (void)dealloc
 {
+//    NSLog(@"context--------------WXGCanvasModule dealloc");
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self.pluginDict removeAllObjects];
-    self.pluginDict = nil;
-    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString*compId, WXGCanvasComponent
-                                                            *comp, BOOL * _Nonnull stop) {
-        if (comp.glkview.delegate) {
-            comp.glkview.delegate = nil;
-        }
-    }];
-    [self.componentDict removeAllObjects];
-    self.componentDict = nil;
-    [[GCVCommon sharedInstance] clearLoadImageDict];
-    
 }
 
 - (dispatch_queue_t)targetExecuteQueue
@@ -180,6 +180,11 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                                                  selector:@selector(onWillEnterForegroundNotify:)
                                                      name:UIApplicationDidBecomeActiveNotification
                                                    object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(onWeexInstanceWillDestroy:)
+                                                     name:WX_INSTANCE_WILL_DESTROY_NOTIFICATION
+                                                   object:nil];
     }
     return @"";
 }
@@ -188,7 +193,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 {//return;
     if( self.enterBackground ) return;
     
-    GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
+//    GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
     
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
@@ -386,6 +391,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
 {
+//    NSLog(@"-----onGCanvasCompLoadedNotify");
     NSString *componentId = notification.userInfo[@"componentId"];
     [self gcanvasComponentById:componentId];
 }
@@ -414,6 +420,37 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 - (void)onWillEnterForegroundNotify:(NSNotification*)notification
 {
     self.enterBackground = NO;
+}
+
+- (void)onWeexInstanceWillDestroy:(NSNotification*)notification
+{
+    NSString *instanceId = notification.userInfo[@"instanceId"];
+    if (![instanceId isEqualToString:weexInstance.instanceId]) {
+        return;
+    }
+    
+//    NSLog(@"context--------------WeexInstanceDestory Notification");
+    
+    [self.pluginDict removeAllObjects];
+    self.pluginDict = nil;
+    [self.componentDict enumerateKeysAndObjectsUsingBlock:^(NSString*compId, WXGCanvasComponent
+                                                            *comp, BOOL * _Nonnull stop) {
+        if (comp.glkview.delegate) {
+            comp.glkview.delegate = nil;
+        }
+//        NSLog(@"context--------------view context %p", comp.glkview.context);
+    }];
+    [self.componentDict removeAllObjects];
+    self.componentDict = nil;
+    [[GCVCommon sharedInstance] clearLoadImageDict];
+    
+//    NSLog(@"context--------------releases Module Instance:%p", _firstContext);
+
+    [_instanceDict removeObjectForKey:instanceId];
+    if( _instanceDict.count == 0 ){
+//        NSLog(@"context--------------releases Context:%p", _firstContext);
+        _firstContext = nil;
+    }
 }
 
 #pragma mark - Private
@@ -466,21 +503,15 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     {
         if ([component isKindOfClass:[WXGCanvasComponent class]])
         {
-//            if(!component.glkview.delegate)
-//            {
-//                component.glkview.delegate = self;
-//            }
             __weak typeof(self) weakSelf = self;
             dispatch_main_async_safe(^{
                 if(!weakSelf.enterBackground){
                     
                     if(!component.glkview.context){
-                        component.glkview.context = [weakSelf getEAGLContext];
+                        component.glkview.context = [WXGCanvasModule getEAGLContext:(weakSelf.weexInstance.instanceId)];
                         component.glkview.delegate = weakSelf;
                     }
-                    
                     [component.glkview setNeedsDisplay];
-                    GCVLOG_METHOD(@"setNeedsDisplay(), execCommandById:, componentId:%@", componentId);
                 }
             });
         }
@@ -495,8 +526,11 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
     }
     else
     {
+        //NSLog(@" ========== 1 delay viewLoaded=%@, component.glkview=%@", component.isViewLoaded?@"true":@"false", component.glkview);
         //gcanvasComponent组件未加载则延迟执行命令
         [self performSelector:@selector(execCommandById:) withObject:componentId afterDelay:0.05f];
+        //NSLog(@" ========== 2 delay viewLoaded=%@, component.glkview=%@", component.isViewLoaded?@"true":@"false", component.glkview);
+
     }
 }
 

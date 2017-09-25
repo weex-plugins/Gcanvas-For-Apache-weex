@@ -87,6 +87,14 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
     return self;
 }
 
+
+- (void)dealloc
+{
+    if( [EAGLContext currentContext] ==  self.glkview.context ){
+        [EAGLContext setCurrentContext:nil];
+    }
+}
+
 -(void)viewDidLoad
 {
     [super viewDidLoad];
@@ -95,11 +103,11 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
     }
 }
 
--(void)viewDidUnload
-{
-    [super viewDidUnload];
-    [EAGLContext setCurrentContext:nil];
-}
+//-(void)viewDidUnload
+//{
+//    [super viewDidUnload];
+//    [EAGLContext setCurrentContext:nil];
+//}
 
 - (UIView *)loadView
 {
