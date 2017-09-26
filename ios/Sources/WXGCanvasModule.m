@@ -27,9 +27,9 @@
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
 
-#ifdef DEBUG
-#define WEBGL_FPS
-#endif
+//#ifdef DEBUG
+//#define WEBGL_FPS
+//#endif
 
 @interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
 
@@ -42,13 +42,11 @@
 @property (assign, nonatomic) BOOL addObserveFlag;
 @property (assign, nonatomic) BOOL enterBackground;
 
-//@property (strong, nonatomic) EAGLContext *firstContext;
-
-#ifdef WEBGL_FPS
-@property (nonatomic, assign) NSUInteger renderFrames;
-@property (nonatomic, assign) CGFloat renderFPS;
-@property (nonatomic, assign) CFTimeInterval renderLastTime;
-#endif
+//#ifdef WEBGL_FPS
+//@property (nonatomic, assign) NSUInteger renderFrames;
+//@property (nonatomic, assign) CGFloat renderFPS;
+//@property (nonatomic, assign) CFTimeInterval renderLastTime;
+//#endif
 
 @end
 
@@ -506,7 +504,6 @@ static NSMutableDictionary *_instanceDict;
             __weak typeof(self) weakSelf = self;
             dispatch_main_async_safe(^{
                 if(!weakSelf.enterBackground){
-                    
                     if(!component.glkview.context){
                         component.glkview.context = [WXGCanvasModule getEAGLContext:(weakSelf.weexInstance.instanceId)];
                         component.glkview.delegate = weakSelf;
@@ -625,7 +622,6 @@ static NSMutableDictionary *_instanceDict;
 {
     NSString *componentId = dict[@"contextId"];
     
-    
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     CFTimeInterval startTime = CACurrentMediaTime();
     while (!component.glkview)
@@ -692,23 +688,23 @@ static NSMutableDictionary *_instanceDict;
             {
                 [component.glkview setNeedsDisplay];
                 
-            #ifdef WEBGL_FPS
-                _renderFrames++;
-                CFTimeInterval now = CFAbsoluteTimeGetCurrent();
-                if( _renderFrames > 60 )
-                {
-                    _renderFrames = 0;
-                    _renderLastTime = now;
-                }
-                
-                if (now > _renderLastTime)
-                {
-                    double delta = (now - _renderLastTime);
-                    _renderFPS = (float)((double)_renderFrames/delta);
-                }
-                
-                NSLog(@"WebGL Render FPS %f", _renderFPS);
-            #endif
+//            #ifdef WEBGL_FPS
+//                _renderFrames++;
+//                CFTimeInterval now = CFAbsoluteTimeGetCurrent();
+//                if( _renderFrames > 60 )
+//                {
+//                    _renderFrames = 0;
+//                    _renderLastTime = now;
+//                }
+//                
+//                if (now > _renderLastTime)
+//                {
+//                    double delta = (now - _renderLastTime);
+//                    _renderFPS = (float)((double)_renderFrames/delta);
+//                }
+//                
+//                NSLog(@"WebGL Render FPS %f", _renderFPS);
+//            #endif
                 
                 return @{};
             }
