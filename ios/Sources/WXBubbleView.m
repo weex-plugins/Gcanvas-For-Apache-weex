@@ -120,51 +120,34 @@
 #pragma mark - Event Handler
 - (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
 {
-    NSLog(@"onSwipeHandler.....");
     //TODO 回弹效果
     if( recognizer.direction == UISwipeGestureRecognizerDirectionLeft ){
+        NSLog(@"onSwipeHandler.....left");
+
         _cursor = _cursor + _rowNum;
         [self.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull v, NSUInteger idx, BOOL * _Nonnull stop) {
             
             CGRect newFrame = [self newFrameWithView:v atIndex:(idx-_cursor)];
-            [UIView animateWithDuration:1.0 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            
+            [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.4 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                 v.frame = CGRectMake(newFrame.origin.x, newFrame.origin.y, newFrame.size.width, newFrame.size.height);
-            } completion:nil];
+            } completion:^(BOOL finished) {
+                
+            }];
         }];
     }else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight ){
+        NSLog(@"onSwipeHandler.....right");
         _cursor = _cursor - _rowNum;
+        
         [self.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull v, NSUInteger idx, BOOL * _Nonnull stop) {
             
             CGRect newFrame = [self newFrameWithView:v atIndex:(idx-_cursor)];
-            [UIView animateWithDuration:1.0 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+            
+            [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.4 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
                 v.frame = CGRectMake(newFrame.origin.x, newFrame.origin.y, newFrame.size.width, newFrame.size.height);
-            } completion:nil];
+            } completion:^(BOOL finished) {
+            }];
         }];
-        
-//        [self.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull v, NSUInteger idx, BOOL * _Nonnull stop) {
-//            
-//            [v.layer removeAnimationForKey:@"move"];
-//
-//            CASpringAnimation *springAn = [CASpringAnimation animationWithKeyPath:@"position.x"];
-//            springAn.fromValue = @(v.layer.position.x);
-//            springAn.toValue = @(v.layer.position.x + 100);
-////            springAn.removedOnCompletion = NO;
-//            springAn.fillMode = kCAFillModeForwards;
-//            
-//            //    质量
-//            springAn.mass = 5;//30;
-//            //    刚度，刚度越大，运动速度越快
-//            springAn.stiffness = 100;//300;
-//            //    阻力，摩擦力
-//            springAn.damping = 6;
-//            //    初始速率
-//            springAn.initialVelocity = 0;
-//            //将获得弹簧的预估时间赋给持续时间
-//            springAn.duration = 2;//springAn.settlingDuration;
-//            //   将动画添加到图层
-//            [v.layer addAnimation:springAn forKey:@"move"];
-//            
-//        }];
     }
 }
 

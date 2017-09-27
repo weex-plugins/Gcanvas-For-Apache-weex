@@ -22,6 +22,9 @@
 WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
 
 
+
+WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
+
 /**
  *  @abstract Initializes a new component using the specified  properties.
  *
@@ -91,7 +94,8 @@ WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
 
 - (void)dealloc
 {
-    
+    _positions = nil;
+    _nails = nil;
 }
 
 @end
