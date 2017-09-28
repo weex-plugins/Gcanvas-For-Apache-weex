@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener{
     private GWXSurfaceView mSurfaceView;
     public AtomicBoolean mSended = new AtomicBoolean(false);
+    public GCanvasLightningModule.ContextType mType;
 
 //    private FrameLayout mContainer;
     private static final String TAG = WXGCanvasLigntningComponent.class.getSimpleName();

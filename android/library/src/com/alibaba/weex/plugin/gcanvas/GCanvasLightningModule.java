@@ -8,10 +8,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 
+import com.alibaba.mtl.appmonitor.model.DimensionValueSet;
+import com.alibaba.mtl.appmonitor.model.MeasureValueSet;
 import com.alibaba.weex.plugin.annotation.WeexModule;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.surface.GSurfaceView;
 import com.taobao.gcanvas.util.GLog;
+import com.taobao.gcanvas.util.GMonitor;
 import com.taobao.phenix.intf.Phenix;
 import com.taobao.phenix.intf.event.FailPhenixEvent;
 import com.taobao.phenix.intf.event.IPhenixListener;
@@ -279,6 +282,11 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
                 component.sendEvent();
             }
         }
+
+        WXGCanvasLigntningComponent component = mComponentMap.get(refId);
+        if (component != null) {
+            component.mType = type;
+        }
     }
 
     @JSMethod(uiThread = false)
@@ -311,6 +319,21 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
             Map.Entry entry = (Map.Entry) iter.next();
             WXGCanvasLigntningComponent val = (WXGCanvasLigntningComponent)entry.getValue();
             GLog.d("component destroy id="+entry.getKey());
+
+            //monitor point.
+            if(0 != GCanvasJNI.getNativeFps(val.getRef())) {
+                GLog.d("monitor start.");
+                MeasureValueSet measureValueSet = MeasureValueSet.create();
+                measureValueSet.setValue(GMonitor.MEASURE_FPS, GCanvasJNI.getNativeFps(val.getRef()));
+
+                DimensionValueSet dimensionValueSet = DimensionValueSet.create();
+                dimensionValueSet.setValue(GMonitor.DIMENSION_PLUGIN, "weex");
+                dimensionValueSet.setValue(GMonitor.DIMENSION_TYPE, String.valueOf(val.mType));
+
+                GMonitor.commitStat(GMonitor.MONITOR_POINT_FPS, dimensionValueSet, measureValueSet);
+                GLog.d("monitor end.");
+            }
+
             val.onActivityDestroy();
         }
 
