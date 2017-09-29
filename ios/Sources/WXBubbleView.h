@@ -13,6 +13,9 @@
 @interface WXBubbleView : UIView
 
 - (void)configPosition:(NSArray*)positions withNail:(NSArray*)nails withRow:(NSUInteger)row;
-- (CGRect)subViewFrameAtIndex:(NSUInteger)index;
+
+- (CGRect)subViewFrameAtIndex:(NSUInteger)idx;
+
+- (void)addChildView:(UIView*)view atIndex:(NSUInteger)idx;
 
 @end

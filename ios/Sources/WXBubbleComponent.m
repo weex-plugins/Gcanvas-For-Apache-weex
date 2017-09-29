@@ -78,17 +78,30 @@ WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
     if ([bubbleView isKindOfClass:[WXBubbleView class]]) {
         UIView *view = subcomponent.view;
         
+        subcomponent.isViewFrameSyncWithCalculated = NO;
+
         CGRect frame = [bubbleView subViewFrameAtIndex:index];
-        NSLog(@"subview frame:x=%f,y=%f,w=%f,h=%f", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
         if (!CGRectEqualToRect(frame, CGRectZero)){
-            view.frame = frame;
+            //设置为原始尺寸的0.6倍
+            CGFloat scale = 0.6;
+            CGRect scaleFrame = CGRectMake(frame.origin.x+0.2*frame.size.width,
+                                           frame.origin.y+0.2*frame.size.height,
+                                           frame.size.width*0.6,
+                                           frame.size.height*0.6);
+            view.frame = scaleFrame;
         }
         
         [bubbleView addSubview:view];
+        [bubbleView addChildView:view atIndex:index];
         
+        [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.5 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+            view.frame = frame;
+        } completion:^(BOOL finished) {
+            
+        }];
         
-//        [view ba_springAnmiation];
-        subcomponent.isViewFrameSyncWithCalculated = NO;
+        //TODO start moving
+        
     }
 }
 
@@ -96,6 +109,12 @@ WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
 {
     _positions = nil;
     _nails = nil;
+}
+
+
+- (void)onTouchHandler:(UIGestureRecognizer*)recognizer
+{
+    NSLog(@"subview Touched....");
 }
 
 @end
