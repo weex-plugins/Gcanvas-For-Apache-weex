@@ -20,9 +20,9 @@
     NSMutableArray  *_rightNailArray;   //最右边钉子坑位
     
     NSInteger       _cursor;            //游标始终指向_positonArray[0]对应的view对应的index
-    
-    NSMutableArray  *_positionViewArray;//坑位对应的View
-//    NSMutableArray  *_childViewArray;   //视图列表
+    NSInteger       _cursorColumnId;    //游标始终指向_positonArray[0]对应的view对应的index
+
+    NSMutableDictionary  *_childViewArrayDict;   //视图列表
 }
 
 
@@ -35,8 +35,7 @@
         _leftNailArray = NSMutableArray.array;
         _rightNailArray = NSMutableArray.array;
         
-//        _childViewArray = NSMutableArray.array;
-        _positionViewArray = NSMutableArray.array;
+        _childViewArrayDict = NSMutableDictionary.dictionary;
     }
     return self;
 }
@@ -48,8 +47,10 @@
     [_leftNailArray removeAllObjects];
     [_rightNailArray removeAllObjects];
     
-//    [_childViewArray removeAllObjects];
-    [_positionViewArray removeAllObjects];
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        [rowArray removeAllObjects];
+    }];
+    [_childViewArrayDict removeAllObjects];
 }
 
 - (void)configPosition:(NSArray*)positions withNail:(NSArray*)nails withRow:(NSUInteger)row
@@ -91,20 +92,41 @@
     _rowNum = row;
     _colNum = ceil(1.0*positions.count/_rowNum);
     _cursor = 0;
+    _cursorColumnId = 0;
     
     //add gesture recognizer
-    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
+    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler2:)];
     [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
     [self addGestureRecognizer:recognizer];
     
-    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
+    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler2:)];
     [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
     [self addGestureRecognizer:recognizer];
     
-    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapHandler:)];
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapHandler2:)];
     [self addGestureRecognizer:tapRecognizer];
 }
 
+- (void)addChildView:(UIView*)view atIndex:(NSUInteger)index
+{
+    NSUInteger rowId = index % _rowNum;
+    if( !_childViewArrayDict[@(rowId)] ){
+        _childViewArrayDict[@(rowId)] = NSMutableArray.array;
+    }
+    [_childViewArrayDict[@(rowId)] addObject:view];
+    
+    //tags
+    view.tag = index;
+}
+
+#pragma mark - Export Method
+- (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position
+{
+    [self switchBubble:bubbleId position:position];
+}
+
+
+#pragma mark - ViewFrame Utils
 - (CGRect)subViewFrameAtIndex:(NSUInteger)idx
 {
     CGRect frame;
@@ -126,196 +148,287 @@
     return frame;
 }
 
-- (void)addChildView:(UIView*)view atIndex:(NSUInteger)index
+//pos Frame
+- (CGRect)viewFrameWithColumn:(NSUInteger)colIndex withRow:(NSUInteger)rowIndex
 {
-    view.tag = index;
-//    [_childViewArray insertObject:view atIndex:index];
-    if( 0 <= index && index < _positionArray.count ){
-        _positionViewArray[index] = @(view.tag);
-//        [_positionViewArray insertObject:view atIndex:index];
+    CGRect frame = CGRectMake(-200, 0, 0, 0);
+    NSInteger newColumIndex = colIndex - _cursorColumnId;
+    if( newColumIndex < 0 ){
+//        NSLog(@"MOVE...Left %d=>%d", colIndex*_rowNum + rowIndex, rowIndex );
+        frame = [_leftNailArray[rowIndex] CGRectValue];
+    }else if( newColumIndex < _colNum ){
+//        NSLog(@"MOVE...POS %d=>%d", colIndex*_rowNum + rowIndex, newColumIndex * _rowNum + rowIndex );
+        frame = [_positionArray[ newColumIndex * _rowNum + rowIndex ] CGRectValue];
+    }else{
+//        NSLog(@"MOVE...Right %d=>%d", colIndex*_rowNum + rowIndex, rowIndex );
+        frame = [_rightNailArray[rowIndex] CGRectValue];
     }
+    return frame;
 }
 
-- (UIView*)viewWithPositionIndex:(NSUInteger)posIndex
+//scale Frame
+- (CGRect)scaleFrame:(CGRect)originFrame byScale:(CGFloat)scale
 {
-    UIView *view = nil;
-    if( posIndex < _positionViewArray.count ){
-        view = [self viewWithTag:[_positionViewArray[posIndex] integerValue]];
-    }
-    return view;
+    CGFloat posScale = (1 - scale) * 0.5;
+    CGRect scaleFrame = CGRectMake(originFrame.origin.x + originFrame.size.width*posScale,
+                                   originFrame.origin.y + originFrame.size.height*posScale,
+                                   originFrame.size.width * scale,
+                                   originFrame.size.height * scale);
+    return scaleFrame;
 }
 
-- (void)setView:(UIView*)view position:(NSUInteger)posIndex
+//squee Frame
+- (CGRect)squeeFrame:(CGRect)posFrame withTarget:(CGRect)targetFrame colIdx:(NSUInteger)colIdx
 {
-    if( posIndex < _positionViewArray.count )
-    {
-        _positionViewArray[posIndex] = @(view.tag);
-    }
+    CGFloat k = 16;
+    CGFloat width = targetFrame.size.width;
+    
+    CGFloat xDist = (posFrame.origin.x - targetFrame.origin.x);
+    CGFloat yDist = (posFrame.origin.y - targetFrame.origin.y);
+    CGFloat dis = sqrt((xDist * xDist) + (yDist * yDist));
+    
+    CGFloat widthFactor = k * width * width;
+    CGFloat disFactor = dis * dis * dis;
+    
+    CGFloat squeeX = widthFactor * (targetFrame.origin.x - posFrame.origin.x) / disFactor;
+    CGFloat squeeY = widthFactor * (targetFrame.origin.y - posFrame.origin.y) / disFactor;
+    
+    NSLog(@"====>colIdx:%d, offsetX:%f, offsetY:%f", colIdx, squeeX, squeeY);
+
+    return CGRectMake(targetFrame.origin.x - squeeX, targetFrame.origin.y - squeeY, width, targetFrame.size.height);
 }
 
-#pragma mark - Override
 
 
-#pragma mark - Event Handler
-- (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
+#pragma mark - Private
+/**
+ * bubbleId, viewIndex(tag) -> oldView
+ * posIndex, position位置 -> newView
+ 
+ //1、newView的frame根据oldView的frame设置一个缩小的scale,添加到oldView后面
+ //2、同时2个动画
+ //      (1)newView放大出现, 1.2scale
+ //      (2)oldView和右侧的view横向的往后移动[0<=index-cursor<=6]之间则需要移动，如果==7或==8则直接替换
+ //      (3)oldView左侧view，也向左移动一小段位置
+ //3、移动结束之后，newView从1.2scale->1.0scale， oldView左侧view恢复原来位置
+ */
+- (void)switchBubble:(NSUInteger)bubbleId position:(NSUInteger)position
 {
-    if( recognizer.direction ==  UISwipeGestureRecognizerDirectionLeft )
-    {
-        if( _cursor >= (int)(_positionArray.count - _rowNum)  )
-        {
-            //Right Bounce
-            NSLog(@"Need Right Bounce Animation");
-            [self.subviews enumerateObjectsUsingBlock:^(UIView *v, NSUInteger idx, BOOL * _Nonnull stop) {
-                CGRect oldFrame  = v.frame;
-                CGRect newFrame = CGRectMake(oldFrame.origin.x-40, oldFrame.origin.y, oldFrame.size.width, oldFrame.size.height);
-                [UIView animateWithDuration:0.4 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                    v.frame = newFrame;
-                } completion:^(BOOL finished) {
-                    [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.4 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                        v.frame = oldFrame;
-                    } completion:^(BOOL finished) {
-                        
-                    }];
-                }];
-            }];
-            return;
-        }
-        _cursor += _rowNum;
+    NSUInteger insertViewIndex = bubbleId;
+    NSUInteger posIndex = position;
+    
+    NSUInteger posRowId = posIndex % _rowNum;
+    NSUInteger posColumnId = posIndex / _rowNum + _cursorColumnId;
+    
+    NSUInteger insertRowId = insertViewIndex % _rowNum;
+    NSUInteger insertColumnId = insertViewIndex / _rowNum;
+    
+    NSMutableArray *rowViewArray = _childViewArrayDict[@(posRowId)];
+    
+    __weak typeof(self)weakSelf = self;
+    if( posRowId == insertRowId && posColumnId < rowViewArray.count && insertColumnId < rowViewArray.count ){
+        UIView *posView = rowViewArray[posColumnId]; //oldview
+        UIView *insertView = rowViewArray[insertColumnId]; //newview
         
-        //Move Animation
-        [self.subviews enumerateObjectsUsingBlock:^(UIView *v, NSUInteger idx, BOOL * _Nonnull stop) {
-            CGRect newFrame = [self subViewFrameAtIndex:idx];
-            [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                v.frame = newFrame;
-            } completion:^(BOOL finished) {
-                
-                [_positionViewArray enumerateObjectsUsingBlock:^(UIView *posView, NSUInteger posViewIdx, BOOL * _Nonnull stop) {
-                    NSInteger newViewIndex = posViewIdx + _rowNum;
-                    if( newViewIndex < _positionViewArray.count  ){
-                        _positionViewArray[posViewIdx] = @(newViewIndex);
-                    }else{
-                        _positionViewArray[posViewIdx] = @(-1);
-                    }
-                }];
-            }];
-        }];
-    }
-    else
-    { //  UISwipeGestureRecognizerDirectionRight
+        CGRect posFrame = posView.frame;
+        CGRect zoomInFrame = [self scaleFrame:posFrame byScale:0];
+//        CGRect zoomOutFrame = [self scaleFrame:posFrame byScale:1.1];
         
-        if( _cursor <= 0 - _rowNum )
-        {
-            //Left Bounce
-            NSLog(@"Need Left Bounce Animation");
-            [self.subviews enumerateObjectsUsingBlock:^(UIView *v, NSUInteger idx, BOOL * _Nonnull stop) {
-                CGRect oldFrame  = v.frame;
-                CGRect newFrame = CGRectMake(oldFrame.origin.x+40, oldFrame.origin.y, oldFrame.size.width, oldFrame.size.height);
-                [UIView animateWithDuration:0.4 delay:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                    v.frame = newFrame;
-                } completion:^(BOOL finished) {
-                    [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.4 initialSpringVelocity:0 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                        v.frame = oldFrame;
-                    } completion:^(BOOL finished) {
-                        
-                    }];
-                }];
-            }];
-            return;
-        }
-        _cursor -= _rowNum;
+        insertView.frame = zoomInFrame;
+        [insertView sendSubviewToBack:posView];
         
-        //Move Animation
-        [self.subviews enumerateObjectsUsingBlock:^(UIView *v, NSUInteger idx, BOOL * _Nonnull stop) {
-            CGRect newFrame = [self subViewFrameAtIndex:idx];
-            [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                v.frame = newFrame;
-            } completion:^(BOOL finished) {
-                [_positionViewArray enumerateObjectsUsingBlock:^(UIView *posView, NSUInteger posViewIdx, BOOL * _Nonnull stop) {
-                    NSInteger newViewIndex = posViewIdx - _rowNum;
-                    if( newViewIndex >= 0  ){
-                        _positionViewArray[posViewIdx] = @(newViewIndex);
-                    }else{
-                        _positionViewArray[posViewIdx] = @(-1);
-                    }
-                }];
-            }];
-        }];
-    }
-}
-
-- (void)onTapHandler:(UIGestureRecognizer*)recognizer
-{
-    UIView *insertView = [[UIView alloc] init];
-    insertView.backgroundColor = [UIColor orangeColor];
-    NSUInteger insertPositionIndex = rand() % _positionArray.count;
-    insertPositionIndex = 2;
-    
-    UIView *oldView = [self viewWithTag:[_positionViewArray[insertPositionIndex] integerValue]];
-    
-    CGRect posFrame = [_positionArray[insertPositionIndex] CGRectValue];
-    
-    //1、newView的frame根据oldView的frame设置一个缩小的scale=0.6,添加到oldView后面
-//    [insertView sendSubviewToBack:oldView];
-    [self insertSubview:insertView belowSubview:oldView];
-    
-    CGRect zoomInFrame = CGRectMake(posFrame.origin.x + posFrame.size.width*0.2,
-                                    posFrame.origin.y + posFrame.size.height*0.2,
-                                    posFrame.size.width * 0.6,
-                                    posFrame.size.height * 0.6);
-    
-    CGRect zoomOutFrame = CGRectMake(posFrame.origin.x - posFrame.size.width*0.1,
-                                     posFrame.origin.y - posFrame.size.height*0.1,
-                                     posFrame.size.width * 1.2,
-                                     posFrame.size.height * 1.2);
-
-    
-    insertView.frame = zoomInFrame;
-    
-    //2、同时2个动画
-    //2.1 newView放大出现, 1.2scale
-    [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
-        insertView.frame = zoomOutFrame;
-    } completion:^(BOOL finished) {
-        
-        [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        //2、同时3个动画
+        //2.1 newView 0->1的弹簧动画
+        [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
             insertView.frame = posFrame;
         } completion:^(BOOL finished) {
             
         }];
-    }];
-    
-    //2.2 oldView左侧leftview，也向左移动一小段位置,oldView和右侧的view横向的往后移动[0<=index-cursor<=6]之间则需要移动，如果==7或==8则直接替换
-    if( insertPositionIndex - _rowNum >= 0 )
-    {
-        //TODO
+//        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+//            insertView.frame = zoomOutFrame;
+//        } completion:^(BOOL finished) {
+//            [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//                insertView.frame = posFrame;
+//            } completion:^(BOOL finished) {
+//                
+//            }];
+//        }];
+        
+        //2.2 其他气泡挤压动画
+        [weakSelf squeeAnimationWithPosView:posView row:posRowId column:posColumnId];
+        
+        //2.3
+        NSUInteger totalAnimationCount = insertColumnId-posColumnId;
+        __block NSUInteger finishCount = 0;
+        for (int i = insertColumnId-1; i >= posColumnId; --i)
+        {
+            UIView *v = rowViewArray[i];
+            NSLog(@"onTapHandler2() ==> move view.tag=%d", v.tag);
+            CGRect moveFrame = [self viewFrameWithColumn:(i+1) withRow:posRowId];
+            [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                v.frame = moveFrame;
+            } completion:^(BOOL finished) {
+                if( ++finishCount >= totalAnimationCount ) //全部完成update rowViewArray
+                {
+                    [rowViewArray removeObjectAtIndex:insertColumnId];
+                    [rowViewArray insertObject:insertView atIndex:posColumnId];
+//                    NSLog(@"=======Moving Finished============");
+//                    [rowViewArray enumerateObjectsUsingBlock:^(UIView* v, NSUInteger idx, BOOL * _Nonnull stop) {
+//                        NSLog(@"rowViewArray[%d].tag=%d", idx, v.tag);
+//                    }];
+//                    NSLog(@"===================");
+                    
+                    
+                }
+            }];
+        }
     }
-    
-    for (int i=insertPositionIndex; i<_positionViewArray.count; i+=_rowNum)
-    {
-        UIView *moveView = [self viewWithTag:[_positionViewArray[i] integerValue]];
-        CGRect newFrame = [self subViewFrameAtIndex:(i+_rowNum)];
-        [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
-            moveView.frame = newFrame;
-        } completion:^(BOOL finished) {
-            
-        }];
-    }
-    
-//    [self swipeView:insertView atIndex:insertPositionIndex];
 }
 
-- (void)swipeView:(UIView*)view atIndex:(NSUInteger)index
+#pragma mark - Private Animation
+- (void)bounceAnimation:(BOOL)isLeft distance:(CGFloat)dis
 {
-    //oldView
-    
-    //newView
-    
-    //1、newView的frame根据oldView的frame设置一个缩小的scale,添加到oldView后面
-    //2、同时2个动画
-    //      (1)newView放大出现, 1.2scale
-    //      (2)oldView左侧view，也向左移动一小段位置,oldView和右侧的view横向的往后移动[0<=index-cursor<=6]之间则需要移动，如果==7或==8则直接替换
-    //
-    //3、移动结束之后，newView从1.2scale->1.0scale， oldView左侧view恢复原来位置
+    CGFloat detlaX = (isLeft) ? (-dis): (dis);
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger idx, BOOL * _Nonnull stop) {
+            CGRect oldFrame  = v.frame;
+            CGRect newFrame = CGRectMake(oldFrame.origin.x+detlaX, oldFrame.origin.y, oldFrame.size.width, oldFrame.size.height);
+            [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+                v.frame = newFrame;
+            } completion:^(BOOL finished) {
+                [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                    v.frame = oldFrame;
+                } completion:^(BOOL finished) {
+                    
+                }];
+            }];
+        }];
+    }];
 }
+
+- (void)pulseAnimationDistance:(CGFloat)dis
+{
+    __weak typeof(self) weakSelf = self;
+    NSArray *durationArray = @[@(2), @(2.5), @(3)];
+    NSArray *distanceArray = @[@(5), @(6), @(7)];
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger idx, BOOL * _Nonnull stop) {
+            CGRect oldFrame = v.frame;
+            
+            
+//            CGFloat duration = 2.0 + ( ((rand() % 2) );
+//            NSUInteger durationIndex = rand() % 3;
+            CGFloat duration = [durationArray[rand() % 3] floatValue];
+            CGFloat distance = [distanceArray[rand() % 3] floatValue];
+
+            CGRect newFrame = CGRectMake(oldFrame.origin.x, oldFrame.origin.y-distance, oldFrame.size.width, oldFrame.size.height);
+
+            
+            [UIView animateWithDuration:duration delay:0 options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionAllowUserInteraction animations:^{
+                v.frame = newFrame;
+            } completion:^(BOOL finished) {//usingSpringWithDamping:0.4 initialSpringVelocity:0
+                [UIView animateWithDuration:duration delay:0  options:UIViewAnimationOptionCurveEaseInOut | UIViewAnimationOptionAllowUserInteraction animations:^{
+                    v.frame = oldFrame;
+                } completion:^(BOOL finished) {
+//                    [weakSelf pulseAnimationDistance:0];
+                }];
+            }];
+        }];
+    }];
+}
+
+- (void)moveNextAnimation:(BOOL)isLeft
+{
+    _cursorColumnId = (isLeft) ? (_cursorColumnId+1) : (_cursorColumnId-1);
+    
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        NSUInteger rowIdx = [key integerValue];
+        [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
+            CGRect newFrame = [self viewFrameWithColumn:colIdx withRow:rowIdx];
+            [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                v.frame = newFrame;
+            } completion:^(BOOL finished) {
+            }];
+        }];
+    }];
+}
+
+- (void)squeeAnimationWithPosView:(UIView*)posView row:(NSUInteger)posRowId column:(NSInteger)posColumnId
+{
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        NSUInteger rowIdx = [key integerValue];
+        if( rowIdx == posRowId )
+        {
+            for (int colIdx = 0; colIdx < posColumnId; colIdx ++)
+            {
+                UIView *v = rowArray[colIdx];
+                
+                CGRect frame = v.frame;
+                CGRect newFrame = [self squeeFrame:posView.frame withTarget:v.frame colIdx:colIdx];
+                [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                    v.frame = newFrame;
+                } completion:^(BOOL finished) {
+                    [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+                        v.frame = frame;
+                    } completion:^(BOOL finished) {
+                        
+                    }];
+                }];
+            }
+        }
+        else
+        {
+            [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
+                CGRect frame = v.frame;
+                CGRect newFrame = [self squeeFrame:posView.frame withTarget:v.frame colIdx:colIdx];
+                [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                    v.frame = newFrame;
+                } completion:^(BOOL finished) {
+                    [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+                        v.frame = frame;
+                    } completion:^(BOOL finished) {
+                        
+                    }];
+                }];
+            }];
+        }
+    }];
+}
+
+
+
+#pragma mark - Event Handler
+- (void)onSwipeHandler2:(UISwipeGestureRecognizer*)recognizer
+{
+    if( recognizer.direction ==  UISwipeGestureRecognizerDirectionLeft )
+    {
+        if( _cursorColumnId >=  (_colNum - 1)){
+            NSLog(@"Right Bounce Animation!!!!!!");
+            [self bounceAnimation:YES distance:20];
+            return;
+        }
+        [self moveNextAnimation:YES];
+    }
+    else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight )
+    {
+        if( _cursorColumnId < 0 ){
+            NSLog(@"Left Bounce Animation!!!!!!");
+            [self bounceAnimation:NO distance:20];
+            return;
+        }
+        [self moveNextAnimation:NO];
+    }
+}
+
+- (void)onTapHandler2:(UIGestureRecognizer*)recognizer
+{
+    NSUInteger insertViewIndex = 9;  //12;
+    NSUInteger posIndex = 3;
+    
+    [self switchBubble:insertViewIndex position:posIndex];
+
+//    [self pulseAnimationDistance:5];
+}
+
 
 @end

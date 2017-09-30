@@ -21,9 +21,9 @@
 
 WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
 
+WX_EXPORT_METHOD(@selector(registerSwipeCallback:finished:))
+WX_EXPORT_METHOD(@selector(replaceBubble:position:))
 
-
-WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
 
 /**
  *  @abstract Initializes a new component using the specified  properties.
@@ -47,11 +47,13 @@ WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
     self = [super initWithRef:ref type:type styles:styles attributes:attributes events:events weexInstance:weexInstance];
     if (self) {
         
-        NSString *jsonString = attributes[@"positions"];
-        _positions = [WXUtility objectFromJSON:jsonString];
+//        NSString *jsonString = attributes[@"positions"];
+//        _positions = [WXUtility objectFromJSON:jsonString];
+//        jsonString = attributes[@"nails"];
+//        _nails = [WXUtility objectFromJSON:jsonString];
         
-        jsonString = attributes[@"nails"];
-        _nails = [WXUtility objectFromJSON:jsonString];
+        _positions = attributes[@"positions"];
+        _nails = attributes[@"nails"];
         
         _rowNum = [attributes[@"rows"] integerValue];
     }
@@ -72,6 +74,18 @@ WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
     }
 }
 
+//scale Frame
+- (CGRect)scaleFrame:(CGRect)originFrame byScale:(CGFloat)scale
+{
+    CGFloat posScale = (1 - scale) * 0.5;
+    CGRect scaleFrame = CGRectMake(originFrame.origin.x + originFrame.size.width*posScale,
+                                   originFrame.origin.y + originFrame.size.height*posScale,
+                                   originFrame.size.width * scale,
+                                   originFrame.size.height * scale);
+    return scaleFrame;
+}
+
+
 - (void)insertSubview:(WXComponent *)subcomponent atIndex:(NSInteger)index
 {
     WXBubbleView *bubbleView = (WXBubbleView*)self.view;
@@ -83,24 +97,22 @@ WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
         CGRect frame = [bubbleView subViewFrameAtIndex:index];
         if (!CGRectEqualToRect(frame, CGRectZero)){
             //设置为原始尺寸的0.6倍
-            CGFloat scale = 0.6;
-            CGRect scaleFrame = CGRectMake(frame.origin.x+0.2*frame.size.width,
-                                           frame.origin.y+0.2*frame.size.height,
-                                           frame.size.width*0.6,
-                                           frame.size.height*0.6);
+//            CGFloat scale = 0.0;
+            CGRect scaleFrame = [self scaleFrame:frame byScale:0.4];
             view.frame = scaleFrame;
         }
         
         [bubbleView addSubview:view];
         [bubbleView addChildView:view atIndex:index];
         
-        [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.5 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+        NSArray *durationArray = @[@(0), @(0.08), @(0.16)];
+        CGFloat duration = [durationArray[rand() % 3] floatValue];
+        
+        [UIView animateWithDuration:1 delay:duration usingSpringWithDamping:0.4 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
             view.frame = frame;
         } completion:^(BOOL finished) {
             
         }];
-        
-        //TODO start moving
         
     }
 }
@@ -111,10 +123,19 @@ WX_EXPORT_METHOD(@selector(addSubView:atIndex:))
     _nails = nil;
 }
 
-
-- (void)onTouchHandler:(UIGestureRecognizer*)recognizer
+- (void)registerSwipeCallback:(WXCallback)startCallback finished:(WXCallback)finishCallback
 {
-    NSLog(@"subview Touched....");
+    WXBubbleView *bubbleView = self.view;
+    bubbleView.startCallback = startCallback;
+    bubbleView.finishCallback = finishCallback;
 }
+
+- (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position
+{
+    WXBubbleView *bubbleView = self.view;
+    [bubbleView replaceBubble:bubbleId position:position];
+}
+
+
 
 @end

@@ -16,6 +16,9 @@
 
 @interface WXBubbleAnimation : NSObject
 
-- (instancetype)initWithView:(UIView*)view;
+
+@property (assign, nonatomic, readonly) NSUInteger viewIndex;
+
+- (instancetype)initWithView:(UIView*)view withIndex:(NSUInteger)index;
 
 @end

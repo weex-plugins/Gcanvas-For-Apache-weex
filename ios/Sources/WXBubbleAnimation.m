@@ -34,6 +34,16 @@
 @implementation WXBubbleAnimation
 {
     __weak UIView   *_view;
+    NSInteger       _index;
+}
+
+- (instancetype)initWithView:(UIView*)view withIndex:(NSUInteger)index
+{
+    self = [super init];
+    if (self) {
+        
+    }
+    return self;
 }
 
 - (instancetype)initWithView:(UIView*)view
@@ -41,6 +51,8 @@
     self = [super init];
     if (self) {
         _view = view;
+        
+        
     }
     return self;
 }

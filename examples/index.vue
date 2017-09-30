@@ -10,6 +10,11 @@
       return {
         items: [ 
 
+          //bubble
+          {name: root + '/bubble', title:'Bubble'},
+          {name: root + '/bubble-index', title:'Bubble 2'},
+
+
           //hilo3d
           {name: root + '/webgl/hilo3d_mesh', title:'Hilo3d-Mesh'},
           {name: root + '/webgl/hilo3d_load_texture', title:'Hilo3d-LoadTexture'},
