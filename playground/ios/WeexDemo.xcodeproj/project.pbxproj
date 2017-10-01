@@ -687,6 +687,25 @@
 				INFOPLIST_FILE = WeexDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/ATSDK-Weex\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/GCanvas\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/SDWebImage\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/SocketRocket\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/WXDevtool\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/WeexPluginLoader\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/WeexSDK\"",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-licucore",
@@ -721,6 +740,25 @@
 				INFOPLIST_FILE = WeexDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/ATSDK-Weex\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/GCanvas\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/SDWebImage\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/SocketRocket\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/WXDevtool\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/WeexPluginLoader\"",
+					"-isystem",
+					"\"${PODS_ROOT}/Headers/Public/WeexSDK\"",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-licucore",
