@@ -118,55 +118,45 @@
 {
     CGRect frame = [self subViewFrameAtIndex:index];
     
-    /*
-    UIView *warpView = [[UIView alloc] initWithFrame:frame];
-//    warpView.layer.borderColor = [UIColor redColor].CGColor;
-//    warpView.layer.borderWidth = 1;
-    warpView.backgroundColor = [UIColor whiteColor];
-    warpView.tag = index;
-    [self addSubview:warpView];
+    UIView *wrapView = [[UIView alloc] initWithFrame:frame];
+    wrapView.backgroundColor = [UIColor whiteColor];
+    wrapView.tag = index;
+    [self addSubview:wrapView];
     
-    view.frame = warpView.bounds;
-    [warpView addSubview:view];
+    view.frame = wrapView.bounds;
+    [wrapView addSubview:view];
     
-    CGRect scaleFrame = [self scaleFrame:frame byScale:0.4];
-    warpView.frame = scaleFrame;
-    */
-    CGRect scaleFrame = [self scaleFrame:frame byScale:0.4];
-    view.frame = scaleFrame;
-    view.tag = index;
-    [self addSubview:view];
+    CGAffineTransform scaleTranfrom = CGAffineTransformScale(CGAffineTransformIdentity, 0.4, 0.4);
+    wrapView.transform = scaleTranfrom;
     
     NSArray *delayArray = @[@(0), @(0.08), @(0.16)];
     CGFloat delay = [delayArray[rand() % 3] floatValue];
     
     [UIView animateWithDuration:1 delay:delay usingSpringWithDamping:0.4 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
-//        warpView.frame = frame;
-        view.frame = frame;
+        wrapView.transform = CGAffineTransformIdentity;
     } completion:^(BOOL finished) {
         
     }];
     
-//    //view pulse animation
-//    NSArray *durationArray = @[@(4), @(5), @(6)];
-//    NSArray *distanceArray = @[@(5), @(6), @(7)];
-//
-//    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];;
-//    anim.fromValue = @(0);
-//    anim.toValue = @( [distanceArray[rand()%3] floatValue] );
-//    anim.duration = [durationArray[rand()%3] floatValue];
-//    anim.autoreverses = YES;
-//    anim.repeatCount=FLT_MAX;
-//    
-//    [view.layer addAnimation:anim forKey:@"bubble.pulse"];
+    //view pulse animation
+    NSArray *durationArray = @[@(4), @(5), @(6)];
+    NSArray *distanceArray = @[@(5), @(6), @(7)];
+
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];;
+    anim.fromValue = @(0);
+    anim.toValue = @( [distanceArray[rand()%3] floatValue] );
+    anim.duration = [durationArray[rand()%3] floatValue];
+    anim.autoreverses = YES;
+    anim.repeatCount=FLT_MAX;
+    
+    [view.layer addAnimation:anim forKey:@"bubble.pulse"];
     
     //save childView
     NSUInteger rowId = index % _rowNum;
     if( !_childViewArrayDict[@(rowId)] ){
         _childViewArrayDict[@(rowId)] = NSMutableArray.array;
     }
-    [_childViewArrayDict[@(rowId)] addObject:view];
-//    [_childViewArrayDict[@(rowId)] addObject:wrapView];
+    [_childViewArrayDict[@(rowId)] addObject:wrapView];
 }
 
 #pragma mark - Export Method
@@ -197,6 +187,45 @@
     }
     return frame;
 }
+/*
+- (CGAffineTransform)transformInRow:(NSUInteger)rowIdx from:(NSInteger)fromIdx to:(NSInteger)toIdx
+{
+    CGRect fromFrame = [self viewFrameWithColumn2:fromIdx withRow:rowIdx];
+    CGRect toFrame = [self viewFrameWithColumn2:toIdx withRow:rowIdx];
+    
+    CGFloat transX = toFrame.origin.x - fromFrame.origin.x;
+    CGFloat transY = toFrame.origin.y - fromFrame.origin.y;
+    
+    CGFloat scaleX = toFrame.size.width / fromFrame.size.width;
+    CGFloat scaleY = toFrame.size.height / fromFrame.size.height;
+    
+    NSLog(@"transformInRow, from:%d=>to:%d, tranX:%f, tranY:%f, scaleX:%f, scaleY:%f", fromIdx, toIdx, transX, transY, scaleX, scaleY);
+
+    
+    CGAffineTransform transfrom = CGAffineTransformMakeTranslation(transX, transY);
+    transfrom = CGAffineTransformScale(transfrom, scaleX, scaleY);
+    
+    return transfrom;
+}
+
+
+- (CGRect)viewFrameWithColumn2:(NSInteger)colIndex withRow:(NSUInteger)rowIndex
+{
+    NSArray *rowArray = _childViewArrayDict[@(rowIndex)];
+    
+    CGRect frame;
+    if( colIndex < 0 ){
+        frame = [_leftNailArray[rowIndex] CGRectValue];
+    }else if( colIndex < _colNum ){
+        frame = [_positionArray[ colIndex * _rowNum + rowIndex ] CGRectValue];
+    }else{
+        frame = [_rightNailArray[rowIndex] CGRectValue];
+    }
+    return frame;
+
+}
+*/
+
 
 //pos Frame
 - (CGRect)viewFrameWithColumn:(NSUInteger)colIndex withRow:(NSUInteger)rowIndex
@@ -289,7 +318,8 @@
         
         CGRect posFrame = posView.frame;
         CGRect zoomInFrame = [self scaleFrame:posFrame byScale:0];
-//        CGRect zoomOutFrame = [self scaleFrame:posFrame byScale:1.1];
+        
+//        CGAffineTransform zoomInScale = cg
         
         insertView.frame = zoomInFrame;
         [insertView sendSubviewToBack:posView];
@@ -301,15 +331,6 @@
         } completion:^(BOOL finished) {
             
         }];
-//        [UIView animateWithDuration:0.5 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
-//            insertView.frame = zoomOutFrame;
-//        } completion:^(BOOL finished) {
-//            [UIView animateWithDuration:0.5 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
-//                insertView.frame = posFrame;
-//            } completion:^(BOOL finished) {
-//                
-//            }];
-//        }];
         
         //2.2 其他气泡挤压动画
         [weakSelf squeeAnimationWithPosView:posView row:posRowId column:posColumnId];
@@ -329,12 +350,6 @@
                 {
                     [rowViewArray removeObjectAtIndex:insertColumnId];
                     [rowViewArray insertObject:insertView atIndex:posColumnId];
-//                    NSLog(@"=======Moving Finished============");
-//                    [rowViewArray enumerateObjectsUsingBlock:^(UIView* v, NSUInteger idx, BOOL * _Nonnull stop) {
-//                        NSLog(@"rowViewArray[%d].tag=%d", idx, v.tag);
-//                    }];
-//                    NSLog(@"===================");
-                    
                     weakSelf.replaceAnimation = NO;
                 }
             }];
@@ -394,17 +409,98 @@
     }];
 }
 
+
+CGAffineTransform deivde(CGAffineTransform t0, CGAffineTransform t1)
+{
+    return CGAffineTransformIdentity;
+}
+
+
+CGAffineTransform multiply(CGAffineTransform t0, CGAffineTransform t1)
+{
+    CGAffineTransform t;
+    t.a = t0.a*t1.a + t0.b*t1.c;
+    t.b = t0.a*t1.b + t0.b*t1.d;
+    t.c = t0.c*t1.a + t0.d*t1.c;
+    t.d = t0.c*t1.b + t0.d*t1.d;
+    
+    t.tx = t0.tx*t1.a + t0.ty*t1.c + t1.tx;
+    t.ty = t0.tx*t1.b + t0.ty*t1.d + t1.ty;
+    return t;
+}
+
 - (void)moveNextAnimation:(BOOL)isLeft
 {
+    __weak typeof(self)weakSelf = self;
     _cursorColumnId = (isLeft) ? (_cursorColumnId+1) : (_cursorColumnId-1);
     
+    
+    if( _startCallback ){
+        _startCallback(@{@"direction":(isLeft)?@"left":@"right"});
+    }
+    __block NSUInteger count = 0;
+    __block NSUInteger viewCount = 0;
     [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
         NSUInteger rowIdx = [key integerValue];
+        viewCount += rowArray.count;
         [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
+            
             CGRect newFrame = [self viewFrameWithColumn:colIdx withRow:rowIdx];
-            [UIView animateWithDuration:0.8 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
-                v.frame = newFrame;
+            CGFloat scaleX = newFrame.size.width / v.frame.size.width;
+            CGFloat scaleY = newFrame.size.height / v.frame.size.height;
+            CGFloat transX = (CGRectGetMidX(newFrame) - CGRectGetMidX(v.frame));
+            CGFloat transY = (CGRectGetMidY(newFrame) - CGRectGetMidY(v.frame));
+            
+            NSLog(@"cursorColumnId:%d, index:%d, scaleX=%f, scaleY=%f, transX=%f, transY=%f", _cursorColumnId, v.tag, scaleX, scaleY, transX, transY);
+            
+//            CGAffineTransform newTran = CGAffineTransformTranslate(CGAffineTransformIdentity, transX, transY);
+//            newTran = CGAffineTransformScale(newTran, scaleX, scaleY);
+            
+            CGAffineTransform newTran = CGAffineTransformScale(CGAffineTransformIdentity, scaleX, scaleY);
+
+            
+//            NSInteger fromIdx = v.tag / _rowNum;
+//            NSInteger toIdx = (int)colIdx - _cursorColumnId;
+//            CGAffineTransform t = [self transformInRow:rowIdx from:fromIdx to:toIdx];
+
+            [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+//                v.transform = t;
+                
+                CGAffineTransform oldT = v.transform;
+                CGAffineTransform newT = CGAffineTransformConcat(newTran, v.transform);
+                v.transform = newT;
+                v.frame = CGRectMake(v.frame.origin.x+transX, v.frame.origin.y + transY, v.frame.size.width, v.frame.size.height);
+//                v.transform = CGAffineTransformConcat(newTran, v.transform);
+
+                
             } completion:^(BOOL finished) {
+                count++;
+                NSLog(@"Completion count:%d...", count);
+
+                if( count == viewCount ){
+                    NSLog(@"Finished...");
+                    
+                    if( weakSelf.finishCallback ){
+                        weakSelf.finishCallback(@{@"direction":(isLeft)?@"left":@"right"});
+                    }
+                    
+                    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+                        [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
+                            
+                            CGFloat scaleX = [[v.layer valueForKeyPath:@"transform.scale.x"] floatValue];
+                            CGFloat scaleY = [[v.layer valueForKeyPath:@"transform.scale.y"] floatValue];
+                            CGFloat transX = [[v.layer valueForKeyPath:@"transform.translation.x"] floatValue];
+                            CGFloat transY = [[v.layer valueForKeyPath:@"transform.translation.y"] floatValue];
+                            
+                            CGAffineTransform t = v.transform;
+                            NSLog(@"current transfrom: %@", NSStringFromCGAffineTransform(v.transform));
+                            NSLog(@"==>key:%@, viewIndex:%d, scaleX:%.2f,scaleY:%.2f, translate.x=%.2f, translate.y=%.2f, x=%.2f, y=%.2f, w=%.2f, h=%.2f",
+                                  key, v.tag, scaleX, scaleY, transX, transY, v.frame.origin.x, v.frame.origin.y, v.frame.size.width, v.frame.size.height);
+                        }];
+                        
+                    }];
+                    NSLog(@"Finished=======");
+                }
             }];
         }];
     }];
