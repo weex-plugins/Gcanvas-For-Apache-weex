@@ -7,7 +7,7 @@
 //
 
 #import "WXBubbleView.h"
-#import "WXUtility.h"
+#import <WeexSDK/WXUtility.h>
 
 @interface WXBubbleView ()
 
