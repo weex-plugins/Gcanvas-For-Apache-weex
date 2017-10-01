@@ -90,30 +90,8 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
 {
     WXBubbleView *bubbleView = (WXBubbleView*)self.view;
     if ([bubbleView isKindOfClass:[WXBubbleView class]]) {
-        UIView *view = subcomponent.view;
-        
         subcomponent.isViewFrameSyncWithCalculated = NO;
-
-        CGRect frame = [bubbleView subViewFrameAtIndex:index];
-        if (!CGRectEqualToRect(frame, CGRectZero)){
-            //设置为原始尺寸的0.6倍
-//            CGFloat scale = 0.0;
-            CGRect scaleFrame = [self scaleFrame:frame byScale:0.4];
-            view.frame = scaleFrame;
-        }
-        
-        [bubbleView addSubview:view];
-        [bubbleView addChildView:view atIndex:index];
-        
-        NSArray *durationArray = @[@(0), @(0.08), @(0.16)];
-        CGFloat duration = [durationArray[rand() % 3] floatValue];
-        
-        [UIView animateWithDuration:1 delay:duration usingSpringWithDamping:0.4 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
-            view.frame = frame;
-        } completion:^(BOOL finished) {
-            
-        }];
-        
+        [bubbleView addChildView:subcomponent.view atIndex:index];
     }
 }
 

@@ -109,14 +109,57 @@
 
 - (void)addChildView:(UIView*)view atIndex:(NSUInteger)index
 {
+    CGRect frame = [self subViewFrameAtIndex:index];
+    
+    /*
+    UIView *warpView = [[UIView alloc] initWithFrame:frame];
+//    warpView.layer.borderColor = [UIColor redColor].CGColor;
+//    warpView.layer.borderWidth = 1;
+    warpView.backgroundColor = [UIColor whiteColor];
+    warpView.tag = index;
+    [self addSubview:warpView];
+    
+    view.frame = warpView.bounds;
+    [warpView addSubview:view];
+    
+    CGRect scaleFrame = [self scaleFrame:frame byScale:0.4];
+    warpView.frame = scaleFrame;
+    */
+    CGRect scaleFrame = [self scaleFrame:frame byScale:0.4];
+    view.frame = scaleFrame;
+    view.tag = index;
+    [self addSubview:view];
+    
+    NSArray *delayArray = @[@(0), @(0.08), @(0.16)];
+    CGFloat delay = [delayArray[rand() % 3] floatValue];
+    
+    [UIView animateWithDuration:1 delay:delay usingSpringWithDamping:0.4 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+//        warpView.frame = frame;
+        view.frame = frame;
+    } completion:^(BOOL finished) {
+        
+    }];
+    
+//    //view pulse animation
+//    NSArray *durationArray = @[@(4), @(5), @(6)];
+//    NSArray *distanceArray = @[@(5), @(6), @(7)];
+//
+//    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];;
+//    anim.fromValue = @(0);
+//    anim.toValue = @( [distanceArray[rand()%3] floatValue] );
+//    anim.duration = [durationArray[rand()%3] floatValue];
+//    anim.autoreverses = YES;
+//    anim.repeatCount=FLT_MAX;
+//    
+//    [view.layer addAnimation:anim forKey:@"bubble.pulse"];
+    
+    //save childView
     NSUInteger rowId = index % _rowNum;
     if( !_childViewArrayDict[@(rowId)] ){
         _childViewArrayDict[@(rowId)] = NSMutableArray.array;
     }
     [_childViewArrayDict[@(rowId)] addObject:view];
-    
-    //tags
-    view.tag = index;
+//    [_childViewArrayDict[@(rowId)] addObject:view];
 }
 
 #pragma mark - Export Method
@@ -411,7 +454,7 @@
     }
     else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight )
     {
-        if( _cursorColumnId < 0 ){
+        if( _cursorColumnId <= 0 ){
             NSLog(@"Left Bounce Animation!!!!!!");
             [self bounceAnimation:NO distance:20];
             return;

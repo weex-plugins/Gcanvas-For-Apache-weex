@@ -16,11 +16,7 @@
 @property (weak, nonatomic) WXCallback finishCallback;
 
 - (void)configPosition:(NSArray*)positions withNail:(NSArray*)nails withRow:(NSUInteger)row;
-
-- (CGRect)subViewFrameAtIndex:(NSUInteger)idx;
-
-- (void)addChildView:(UIView*)view atIndex:(NSUInteger)idx;
-
+- (void)addChildView:(UIView*)view atIndex:(NSUInteger)index;
 - (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position;
 
 @end

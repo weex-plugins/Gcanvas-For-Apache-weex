@@ -8,12 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-//@interface UIView (WXBubbleViewAnimation)
-//
-//- (void)ba_springAnmiation;
-//
-//@end
-
 @interface WXBubbleAnimation : NSObject
 
 

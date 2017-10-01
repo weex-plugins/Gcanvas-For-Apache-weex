@@ -8,29 +8,6 @@
 
 #import "WXBubbleAnimation.h"
 
-
-//@implementation UIView (WXBubbleViewAnimation)
-//
-//- (void)ba_springAnmiation
-//{
-//    CGRect frame = self.frame;
-//    
-//    CGFloat gap = 3 + rand() % 3;
-//    
-//    [UIView animateWithDuration:0.8 animations:^{
-//        self.frame = CGRectMake(frame.origin.x, frame.origin.y + gap, frame.size.width, frame.size.height);
-//    }];
-//    
-//    [UIView animateWithDuration:0.8 delay:0.5 options:UIViewAnimationOptionCurveEaseInOut animations:^{
-//        self.frame = CGRectMake(frame.origin.x, frame.origin.y - gap, frame.size.width, frame.size.height);
-//    } completion:^(BOOL finished) {
-//        [self ba_springAnmiation];
-//    }];
-//}
-//
-//@end
-
-
 @implementation WXBubbleAnimation
 {
     __weak UIView   *_view;
@@ -46,15 +23,24 @@
     return self;
 }
 
-- (instancetype)initWithView:(UIView*)view
+
++(CABasicAnimation*)moveDuration:(CGFloat)duration y:(CGFloat)y
 {
-    self = [super init];
-    if (self) {
-        _view = view;
-        
-        
-    }
-    return self;
+    CABasicAnimation *anim =[CABasicAnimation animationWithKeyPath:@"transform.translation.y"];
+    
+    anim.toValue=@(y);
+    anim.duration=duration;
+    anim.removedOnCompletion=NO;
+    anim.fillMode=kCAFillModeForwards;
+    return anim;
 }
+
+//+ (CAAnimation*)pulseAnimation
+//{
+//    CAAnimation *anim =
+//    
+//    return anim;
+//}
+
 
 @end
