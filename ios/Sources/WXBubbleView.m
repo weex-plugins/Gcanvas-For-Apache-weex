@@ -9,6 +9,12 @@
 #import "WXBubbleView.h"
 #import "WXUtility.h"
 
+@interface WXBubbleView ()
+
+@property (assign, nonatomic) BOOL replaceAnimation;
+
+@end
+
 @implementation WXBubbleView
 {
     NSInteger      _rowNum;             //坑位行数
@@ -23,6 +29,7 @@
     NSInteger       _cursorColumnId;    //游标始终指向_positonArray[0]对应的view对应的index
 
     NSMutableDictionary  *_childViewArrayDict;   //视图列表
+    
 }
 
 
@@ -159,7 +166,7 @@
         _childViewArrayDict[@(rowId)] = NSMutableArray.array;
     }
     [_childViewArrayDict[@(rowId)] addObject:view];
-//    [_childViewArrayDict[@(rowId)] addObject:view];
+//    [_childViewArrayDict[@(rowId)] addObject:wrapView];
 }
 
 #pragma mark - Export Method
@@ -257,6 +264,13 @@
  */
 - (void)switchBubble:(NSUInteger)bubbleId position:(NSUInteger)position
 {
+    if( _replaceAnimation )
+    {
+        return;
+    }
+    
+    _replaceAnimation = YES;
+    
     NSUInteger insertViewIndex = bubbleId;
     NSUInteger posIndex = position;
     
@@ -321,7 +335,7 @@
 //                    }];
 //                    NSLog(@"===================");
                     
-                    
+                    weakSelf.replaceAnimation = NO;
                 }
             }];
         }
