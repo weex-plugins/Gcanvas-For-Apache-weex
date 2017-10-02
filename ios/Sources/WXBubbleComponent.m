@@ -10,13 +10,18 @@
 #import "WXBubbleView.h"
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import <WeexSDK/WXUtility.h>
-#import "WXBubbleAnimation.h"
 
 @implementation WXBubbleComponent
 {
     NSArray     *_positions;
     NSArray     *_nails;
+    
     NSUInteger  _rowNum;
+    
+    //animation paramss
+    CGFloat     _animK;
+    CGFloat     _animK1;
+
 }
 
 WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
@@ -73,18 +78,6 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
         [bubbleView configPosition:_positions withNail:_nails withRow:_rowNum];
     }
 }
-
-//scale Frame
-- (CGRect)scaleFrame:(CGRect)originFrame byScale:(CGFloat)scale
-{
-    CGFloat posScale = (1 - scale) * 0.5;
-    CGRect scaleFrame = CGRectMake(originFrame.origin.x + originFrame.size.width*posScale,
-                                   originFrame.origin.y + originFrame.size.height*posScale,
-                                   originFrame.size.width * scale,
-                                   originFrame.size.height * scale);
-    return scaleFrame;
-}
-
 
 - (void)insertSubview:(WXComponent *)subcomponent atIndex:(NSInteger)index
 {
