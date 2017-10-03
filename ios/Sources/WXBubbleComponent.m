@@ -66,7 +66,7 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    WXBubbleView *bubbleView = self.view;
+    WXBubbleView *bubbleView = (WXBubbleView *)self.view;
     if( [bubbleView isKindOfClass:[WXBubbleView class]] ){
         [bubbleView configPosition:_positions withNail:_nails withRow:_rowNum];
     }
@@ -89,7 +89,7 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
 
 - (void)registerCallback:(WXKeepAliveCallback)startSwipeCallback finished:(WXKeepAliveCallback)finishSwipeCallback bubbleClick:(WXKeepAliveCallback)clickCallback
 {
-    WXBubbleView *bubbleView = self.view;
+    WXBubbleView *bubbleView = (WXBubbleView *)self.view;
     bubbleView.startSwipeCallback = startSwipeCallback;
     bubbleView.finishSwipeCallback = finishSwipeCallback;
     bubbleView.bubbleClickCallback = clickCallback;
@@ -97,7 +97,7 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
 
 - (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position
 {
-    WXBubbleView *bubbleView = self.view;
+    WXBubbleView *bubbleView = (WXBubbleView *)self.view;
     [bubbleView replaceBubble:bubbleId position:position];
 }
 

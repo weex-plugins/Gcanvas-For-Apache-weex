@@ -309,7 +309,7 @@
     if( posRowId == viewRowId &&  posColumnId != viewColumnId &&
        posColumnId < rowViewArray.count && viewColumnId < rowViewArray.count ){
         
-        NSLog(@"switchBubble, From:%d=>to:%d", bubbleId, position);
+        NSLog(@"switchBubble, From:%lu=>to:%lu", (unsigned long)bubbleId, (unsigned long)position);
 
         _isInSwitching = YES;
         UIView *posView = rowViewArray[posColumnId]; //oldview
@@ -338,7 +338,7 @@
         //2.3 气泡移动动画
         NSUInteger totalAnimationCount = viewColumnId-posColumnId;
         __block NSUInteger finishCount = 0;
-        for (int i = viewColumnId-1; i >= (int)posColumnId; --i)
+        for (int i = (int)viewColumnId-1; i >= (int)posColumnId; --i)
         {
             if( i >= 0  && i< rowViewArray.count )
             {
@@ -472,7 +472,6 @@
 
 - (void)moveAnimationWithView:(UIView*)v offset:(CGPoint)offsetPoint
 {
-    CGRect oldFrame = v.frame;
     [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
         v.frame = CGRectMake(v.frame.origin.x+offsetPoint.x, v.frame.origin.y+offsetPoint.y, v.frame.size.width, v.frame.size.height);
     } completion:^(BOOL finished) {
