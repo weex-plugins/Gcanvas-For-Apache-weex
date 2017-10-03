@@ -382,6 +382,8 @@
     }
     __weak typeof(self)weakSelf = self;
     CGFloat detlaX = (isLeft) ? (-dis): (dis);
+    
+    __block NSUInteger finishCount = 0;
     [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
         [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger idx, BOOL * _Nonnull stop) {
             CGRect oldFrame  = v.frame;
@@ -392,8 +394,10 @@
                 [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                     v.frame = oldFrame;
                 } completion:^(BOOL finished) {
-                    if( weakSelf.finishSwipeCallback ){
-                        weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"}, YES);
+                    if( ++finishCount >= weakSelf.childViewCount ){
+                        if( weakSelf.finishSwipeCallback ){
+                            weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"}, YES);
+                        }
                     }
                 }];
             }];
@@ -514,7 +518,7 @@
     {
         NSUInteger maxColumCount = _childViewCount / _rowNum;
         if( _cursorColumnId >  maxColumCount - _colNum){
-            NSLog(@"Right Bounce Animation!!!!!!");
+//            NSLog(@"Right Bounce Animation!!!!!!");
             [self bounceAnimation:YES];
             return;
         }
@@ -523,7 +527,7 @@
     else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight )
     {
         if( _cursorColumnId <= 0 ){
-            NSLog(@"Left Bounce Animation!!!!!!");
+//            NSLog(@"Left Bounce Animation!!!!!!");
             [self bounceAnimation:NO];
             return;
         }
@@ -541,15 +545,8 @@
 
 #pragma mark - Override
 
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
-{
-    NSLog(@"touchBegin ...");
-}
-
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"touchMove ...");
-
     [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
         subView.userInteractionEnabled = NO;
     }];
@@ -558,8 +555,6 @@
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    NSLog(@"touchEnd ...");
-
     [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
         subView.userInteractionEnabled = YES;
     }];
