@@ -28,10 +28,7 @@
     NSMutableArray  *_rightNailArray;   //最右边钉子坑位
     
     NSInteger       _cursorColumnId;    //当前列游标
-
     NSMutableDictionary*_childViewArrayDict; //视图列表
-    
-//    CGPoint     _startTouchPosition;
 }
 
 
@@ -115,9 +112,6 @@
     [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
     [self addGestureRecognizer:recognizer];
     
-//    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapHandler2:)];
-//    [self addGestureRecognizer:tapRecognizer];
-    
     _isConfig = YES;
 }
 
@@ -133,24 +127,11 @@
     view.frame = wrapView.bounds;
     [wrapView addSubview:view];
     
-    
-//    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-//    [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
-//    [wrapView addGestureRecognizer:recognizer];
-//    
-//    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-//    [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
-//    [wrapView addGestureRecognizer:recognizer];
-
-    
-    //for test
-//#ifdef DEBUG
+    //bubble tap
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onWrapViewTapHandler:)];
-    [wrapView addGestureRecognizer:tapRecognizer];
-//#endif
+    [wrapView addGestureRecognizer:tapRecognizer];    
     
-    
-    //bubble appear animation add to wrapView
+    //Appear-Animation: bubble appear animation add to wrapView
     wrapView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.4, 0.4);
     
     NSArray *delayArray = @[@(0), @(0.08), @(0.16)];
@@ -222,32 +203,29 @@
     NSInteger newColumIndex = colIndex - _cursorColumnId;
     if( newColumIndex < 0 )
     {
-//        NSLog(@"MOVE...Left %d=>%d", colIndex*_rowNum + rowIndex, rowIndex );
         frame = [_leftNailArray[rowIndex] CGRectValue];
     }
     else if( newColumIndex < _colNum )
     {
-//        NSLog(@"MOVE...POS %d=>%d", colIndex*_rowNum + rowIndex, newColumIndex * _rowNum + rowIndex );
         frame = [_positionArray[ newColumIndex * _rowNum + rowIndex ] CGRectValue];
     }
     else
     {
-//        NSLog(@"MOVE...Right %d=>%d", colIndex*_rowNum + rowIndex, rowIndex );
         frame = [_rightNailArray[rowIndex] CGRectValue];
     }
     return frame;
 }
 
 //scale Frame
-- (CGRect)scaleFrame:(CGRect)frame byScale:(CGFloat)scale
-{
-    CGFloat posScale = (1 - scale) * 0.5;
-    CGRect scaleFrame = CGRectMake(frame.origin.x + frame.size.width*posScale,
-                                   frame.origin.y + frame.size.height*posScale,
-                                   frame.size.width * scale,
-                                   frame.size.height * scale);
-    return scaleFrame;
-}
+//- (CGRect)scaleFrame:(CGRect)frame byScale:(CGFloat)scale
+//{
+//    CGFloat posScale = (1 - scale) * 0.5;
+//    CGRect scaleFrame = CGRectMake(frame.origin.x + frame.size.width*posScale,
+//                                   frame.origin.y + frame.size.height*posScale,
+//                                   frame.size.width * scale,
+//                                   frame.size.height * scale);
+//    return scaleFrame;
+//}
 
 //squee Frame, only modify origin point
 - (CGPoint)squeePositionWithFrame:(CGRect)posFrame target:(CGRect)targetFrame colIdx:(NSUInteger)colIdx
@@ -265,29 +243,8 @@
     CGFloat squeeX = widthFactor * (posFrame.origin.x - targetFrame.origin.x) / disFactor;
     CGFloat squeeY = widthFactor * (posFrame.origin.y - targetFrame.origin.y) / disFactor;
     
-    NSLog(@"====>colIdx:%d, offsetX:%f, offsetY:%f", colIdx, squeeX, squeeY);
-
+    //NSLog(@"====>squee, colIdx:%d, offsetX:%.2f, offsetY:%.2f", colIdx, squeeX, squeeY);
     return CGPointMake(squeeX, squeeY);
-}
-
-- (CGRect)squeeFrame:(CGRect)posFrame withTarget:(CGRect)targetFrame colIdx:(NSUInteger)colIdx
-{
-    CGFloat k = 16;
-    CGFloat width = targetFrame.size.width;
-    
-    CGFloat xDist = (posFrame.origin.x - targetFrame.origin.x);
-    CGFloat yDist = (posFrame.origin.y - targetFrame.origin.y);
-    CGFloat dis = sqrt((xDist * xDist) + (yDist * yDist));
-    
-    CGFloat widthFactor = k * width * width;
-    CGFloat disFactor = dis * dis * dis;
-    
-    CGFloat squeeX = widthFactor * (targetFrame.origin.x - posFrame.origin.x) / disFactor;
-    CGFloat squeeY = widthFactor * (targetFrame.origin.y - posFrame.origin.y) / disFactor;
-    
-    NSLog(@"====>colIdx:%d, offsetX:%f, offsetY:%f", colIdx, squeeX, squeeY);
-
-    return CGRectMake(targetFrame.origin.x - squeeX, targetFrame.origin.y - squeeY, width, targetFrame.size.height);
 }
 
 - (NSDictionary*)viewPositionByTag:(NSUInteger)tag
@@ -334,7 +291,9 @@
         return;
     }
     
-    _isInSwitching = YES;
+    if( bubbleId == position ){
+        return;
+    }
     
     NSUInteger posIndex = position;
     NSUInteger posRowId = posIndex % _rowNum;
@@ -347,7 +306,12 @@
     NSMutableArray *rowViewArray = _childViewArrayDict[@(posRowId)];
     
     __weak typeof(self)weakSelf = self;
-    if( posRowId == viewRowId && posColumnId < rowViewArray.count && viewColumnId < rowViewArray.count ){
+    if( posRowId == viewRowId &&  posColumnId != viewColumnId &&
+       posColumnId < rowViewArray.count && viewColumnId < rowViewArray.count ){
+        
+        NSLog(@"switchBubble, From:%d=>to:%d", bubbleId, position);
+
+        _isInSwitching = YES;
         UIView *posView = rowViewArray[posColumnId]; //oldview
         UIView *insertView = rowViewArray[viewColumnId]; //newview
         
@@ -374,7 +338,7 @@
         //2.3 气泡移动动画
         NSUInteger totalAnimationCount = viewColumnId-posColumnId;
         __block NSUInteger finishCount = 0;
-        for (int i = viewColumnId-1; i >= posColumnId; --i)
+        for (int i = viewColumnId-1; i >= (int)posColumnId; --i)
         {
             if( i >= 0  && i< rowViewArray.count )
             {
@@ -387,8 +351,6 @@
                 CGFloat transX = (CGRectGetMidX(newFrame) - CGRectGetMidX(viewFrame));
                 CGFloat transY = (CGRectGetMidY(newFrame) - CGRectGetMidY(viewFrame));
                 
-                NSLog(@"cursorColumnId:%d, index:%d, scaleX=%f, scaleY=%f, transX=%f, transY=%f", _cursorColumnId, v.tag, scaleX, scaleY, transX, transY);
-                
                 CGAffineTransform scaleTransfrom = CGAffineTransformScale(CGAffineTransformIdentity, scaleX, scaleY);
                 
                 [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
@@ -400,6 +362,7 @@
                 } completion:^(BOOL finished) {
                     if( ++finishCount >= totalAnimationCount ) //全部完成update rowViewArray
                     {
+                        NSLog(@"===> switch...finished!!!!!");
                         [rowViewArray removeObjectAtIndex:viewColumnId];
                         [rowViewArray insertObject:insertView atIndex:posColumnId];
                         weakSelf.isInSwitching = NO;
@@ -411,10 +374,11 @@
 }
 
 #pragma mark - Private Animation
-- (void)bounceAnimation:(BOOL)isLeft distance:(CGFloat)dis
+- (void)bounceAnimation:(BOOL)isLeft
 {
-    if( _startCallback ){
-        _startCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"});
+    CGFloat dis = 20;
+    if( _startSwipeCallback ){
+        _startSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"}, YES);
     }
     __weak typeof(self)weakSelf = self;
     CGFloat detlaX = (isLeft) ? (-dis): (dis);
@@ -428,9 +392,8 @@
                 [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
                     v.frame = oldFrame;
                 } completion:^(BOOL finished) {
-                    NSLog(@"Bounce Finished...");
-                    if( weakSelf.finishCallback ){
-                        weakSelf.finishCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"});
+                    if( weakSelf.finishSwipeCallback ){
+                        weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"}, YES);
                     }
                 }];
             }];
@@ -445,8 +408,8 @@
     }
     _cursorColumnId = (isLeft) ? (_cursorColumnId+1) : (_cursorColumnId-1);
     
-    if( _startCallback ){
-        _startCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"});
+    if( _startSwipeCallback ){
+        _startSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"}, YES);
     }
     __block NSUInteger finishCount = 0;
     __weak typeof(self)weakSelf = self;
@@ -471,8 +434,8 @@
                 finishCount++;
                 if( finishCount == weakSelf.childViewCount ){
                     NSLog(@"Swipe Finished...");
-                    if( weakSelf.finishCallback ){
-                        weakSelf.finishCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"});
+                    if( weakSelf.finishSwipeCallback ){
+                        weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"}, YES);
                     }
                 }
             }];
@@ -496,7 +459,6 @@
         else
         {
             [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
-                
                 CGPoint offsetPoint = [self squeePositionWithFrame:posView.frame target:v.frame colIdx:colIdx];
                 [self moveAnimationWithView:v offset:offsetPoint];
             }];
@@ -524,7 +486,8 @@
 - (void)onWrapViewTapHandler:(UITapGestureRecognizer*)recoginzer
 {
     UIView *view = recoginzer.view;
-    
+
+#if 1
     NSDictionary *dict = [self viewPositionByTag:view.tag];
     if (dict) {
         NSInteger rowId = [dict[@"rowId"] integerValue];
@@ -533,16 +496,18 @@
         NSArray *rowArray = _childViewArrayDict[@(rowId)] ;
         
         NSUInteger lastViewPosition = (rowArray.count-1) * _rowNum + rowId;
-        NSUInteger position = colId * _rowNum + rowId;
-        
-        NSLog(@"switchBubble, From:%d=>to:%d", lastViewPosition, position);
+        NSUInteger position = (colId - _cursorColumnId) * _rowNum + rowId;
 
         [self switchBubble:lastViewPosition position:position];
+    }
+#endif
+    
+    if( _bubbleClickCallback ){
+        _bubbleClickCallback(@{@"bubbleId":@(view.tag)}, YES);
     }
 }
 
 //#endif
-
 - (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
 {
     if( recognizer.direction ==  UISwipeGestureRecognizerDirectionLeft )
@@ -550,7 +515,7 @@
         NSUInteger maxColumCount = _childViewCount / _rowNum;
         if( _cursorColumnId >  maxColumCount - _colNum){
             NSLog(@"Right Bounce Animation!!!!!!");
-            [self bounceAnimation:YES distance:20];
+            [self bounceAnimation:YES];
             return;
         }
         [self allMoveNextPositionAnimation:YES];
@@ -559,7 +524,7 @@
     {
         if( _cursorColumnId <= 0 ){
             NSLog(@"Left Bounce Animation!!!!!!");
-            [self bounceAnimation:NO distance:20];
+            [self bounceAnimation:NO];
             return;
         }
         [self allMoveNextPositionAnimation:NO];
@@ -569,79 +534,34 @@
 //- (void)onTapHandler2:(UIGestureRecognizer*)recognizer
 //{
 //    NSUInteger insertViewIndex = 10;  //12;
-//    NSUInteger posIndex = 2;
+//    NSUInteger posIndex = 0;
 //    
 //    [self switchBubble:insertViewIndex position:posIndex];
 //}
 
-/*
-#pragma mark - Touch Event
-#define HORIZ_SWIPE_DRAG_MIN  3    //水平滑动最小间距
-#define VERT_SWIPE_DRAG_MAX    1    //垂直方向最大偏移量
+#pragma mark - Override
 
-
--(UIView*)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    return self;
+    NSLog(@"touchBegin ...");
 }
 
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    UITouch *aTouch = [touches anyObject];
-    // startTouchPosition是一个CGPoint类型的属性，用来存储当前touch事件的位置
-    _startTouchPosition = [aTouch locationInView:self];
+    NSLog(@"touchMove ...");
+
+    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
+        subView.userInteractionEnabled = NO;
+    }];
 }
 
--(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+
+- (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    
+    NSLog(@"touchEnd ...");
+
+    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
+        subView.userInteractionEnabled = YES;
+    }];
 }
-
--(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    UITouch *aTouch = [touches anyObject];
-    CGPoint currentTouchPosition = [aTouch locationInView:self];
-    
-    //  判断水平滑动的距离是否达到了设置的最小距离，并且是否是在接近直线的路线上滑动（y轴偏移量）
-    if (fabsf(_startTouchPosition.x - currentTouchPosition.x) >= HORIZ_SWIPE_DRAG_MIN)
-    {
-        // 满足if条件则认为是一次成功的滑动事件，根据x坐标变化判断是左滑还是右滑
-        if (_startTouchPosition.x < currentTouchPosition.x) {
-            [self rightSwipe];//右滑响应方法
-        } else {
-            [self leftSwipe];//左滑响应方法
-        }
-        //重置开始点坐标值
-        _startTouchPosition = CGPointZero;
-    }
-}
-
--(void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    _startTouchPosition = CGPointZero;
-}
-
--(void)rightSwipe
-{
-    if( _cursorColumnId <= 0 ){
-        NSLog(@"Left Bounce Animation!!!!!!");
-        [self bounceAnimation:NO distance:20];
-        return;
-    }
-    [self allMoveNextPositionAnimation:NO];
-}
-
--(void)leftSwipe
-{
-    NSUInteger maxColumCount = _childViewCount / _rowNum;
-    if( _cursorColumnId >  maxColumCount - _colNum){
-        NSLog(@"Right Bounce Animation!!!!!!");
-        [self bounceAnimation:YES distance:20];
-        return;
-    }
-    [self allMoveNextPositionAnimation:YES];
-}
-
-*/
-
 @end

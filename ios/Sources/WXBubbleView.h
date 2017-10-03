@@ -12,8 +12,9 @@
 
 @interface WXBubbleView : UIView
 
-@property (strong, nonatomic) WXCallback startCallback;
-@property (strong, nonatomic) WXCallback finishCallback;
+@property (strong, nonatomic) WXKeepAliveCallback startSwipeCallback;
+@property (strong, nonatomic) WXKeepAliveCallback finishSwipeCallback;
+@property (strong, nonatomic) WXKeepAliveCallback bubbleClickCallback;
 
 - (void)configPosition:(NSArray*)positions withNail:(NSArray*)nails withRow:(NSUInteger)row;
 - (void)addChildView:(UIView*)view atIndex:(NSUInteger)index;

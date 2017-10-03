@@ -26,7 +26,7 @@
 
 WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
 
-WX_EXPORT_METHOD(@selector(registerSwipeCallback:finished:))
+WX_EXPORT_METHOD(@selector(registerCallback:finished:bubbleClick:))
 WX_EXPORT_METHOD(@selector(replaceBubble:position:))
 
 
@@ -51,15 +51,8 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
     
     self = [super initWithRef:ref type:type styles:styles attributes:attributes events:events weexInstance:weexInstance];
     if (self) {
-        
-//        NSString *jsonString = attributes[@"positions"];
-//        _positions = [WXUtility objectFromJSON:jsonString];
-//        jsonString = attributes[@"nails"];
-//        _nails = [WXUtility objectFromJSON:jsonString];
-        
         _positions = attributes[@"positions"];
         _nails = attributes[@"nails"];
-        
         _rowNum = [attributes[@"rows"] integerValue];
     }
     return self;
@@ -94,11 +87,12 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
     _nails = nil;
 }
 
-- (void)registerSwipeCallback:(WXCallback)startCallback finished:(WXCallback)finishCallback
+- (void)registerCallback:(WXKeepAliveCallback)startSwipeCallback finished:(WXKeepAliveCallback)finishSwipeCallback bubbleClick:(WXKeepAliveCallback)clickCallback
 {
     WXBubbleView *bubbleView = self.view;
-    bubbleView.startCallback = startCallback;
-    bubbleView.finishCallback = finishCallback;
+    bubbleView.startSwipeCallback = startSwipeCallback;
+    bubbleView.finishSwipeCallback = finishSwipeCallback;
+    bubbleView.bubbleClickCallback = clickCallback;
 }
 
 - (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position
