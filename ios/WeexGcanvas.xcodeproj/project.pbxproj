@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9A9E771F1F837DD700598AD9 /* WXBubbleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9E771B1F837DD700598AD9 /* WXBubbleView.m */; };
+		9A9E77201F837DD700598AD9 /* WXBubbleComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9E771C1F837DD700598AD9 /* WXBubbleComponent.m */; };
+		9A9E77211F837DD700598AD9 /* WXBubbleView.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A9E771D1F837DD700598AD9 /* WXBubbleView.h */; };
+		9A9E77221F837DD700598AD9 /* WXBubbleComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A9E771E1F837DD700598AD9 /* WXBubbleComponent.h */; };
 		C431395C1E954ACB008B80D0 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C43139561E954ACB008B80D0 /* Info.plist */; };
 		C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */; };
 		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */; };
@@ -19,6 +23,10 @@
 		466821971E0A575693AA400F /* libPods-WeexGcanvas.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeexGcanvas.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7222E97A9E0BDD5D4BA6A21E /* Pods-WeexGcanvas.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.debug.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.debug.xcconfig"; sourceTree = "<group>"; };
 		912A6A653FE8C3267A392A2F /* Pods-WeexGcanvas.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeexGcanvas.release.xcconfig"; path = "Pods/Target Support Files/Pods-WeexGcanvas/Pods-WeexGcanvas.release.xcconfig"; sourceTree = "<group>"; };
+		9A9E771B1F837DD700598AD9 /* WXBubbleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXBubbleView.m; sourceTree = "<group>"; };
+		9A9E771C1F837DD700598AD9 /* WXBubbleComponent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WXBubbleComponent.m; sourceTree = "<group>"; };
+		9A9E771D1F837DD700598AD9 /* WXBubbleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXBubbleView.h; sourceTree = "<group>"; };
+		9A9E771E1F837DD700598AD9 /* WXBubbleComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXBubbleComponent.h; sourceTree = "<group>"; };
 		C431394B1E954AA8008B80D0 /* WeexGcanvas.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WeexGcanvas.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C43139561E954ACB008B80D0 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WXGCanvasComponent.h; sourceTree = "<group>"; };
@@ -70,6 +78,10 @@
 		C43139571E954ACB008B80D0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				9A9E771B1F837DD700598AD9 /* WXBubbleView.m */,
+				9A9E771C1F837DD700598AD9 /* WXBubbleComponent.m */,
+				9A9E771D1F837DD700598AD9 /* WXBubbleView.h */,
+				9A9E771E1F837DD700598AD9 /* WXBubbleComponent.h */,
 				C44B5F651E9E5C21001AF391 /* WeexGcanvas.h */,
 				C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */,
 				C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */,
@@ -96,6 +108,8 @@
 			files = (
 				C44B5F661E9E5C4E001AF391 /* WeexGcanvas.h in Headers */,
 				C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */,
+				9A9E77211F837DD700598AD9 /* WXBubbleView.h in Headers */,
+				9A9E77221F837DD700598AD9 /* WXBubbleComponent.h in Headers */,
 				C431395F1E954ACB008B80D0 /* WXGCanvasModule.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -188,8 +202,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A9E77201F837DD700598AD9 /* WXBubbleComponent.m in Sources */,
 				C43139601E954ACB008B80D0 /* WXGCanvasModule.m in Sources */,
 				C431395E1E954ACB008B80D0 /* WXGCanvasComponent.m in Sources */,
+				9A9E771F1F837DD700598AD9 /* WXBubbleView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
