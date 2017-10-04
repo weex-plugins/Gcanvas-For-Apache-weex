@@ -17,17 +17,14 @@
     NSArray     *_nails;
     
     NSUInteger  _rowNum;
-    
-    //animation paramss
-    CGFloat     _animK;
-    CGFloat     _animK1;
-
 }
 
 WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
 
 WX_EXPORT_METHOD(@selector(registerCallback:finished:bubbleClick:))
 WX_EXPORT_METHOD(@selector(replaceBubble:position:))
+WX_EXPORT_METHOD(@selector(inViewBubbleList:))
+WX_EXPORT_METHOD(@selector(outViewBubbleList:))
 
 
 /**
@@ -87,6 +84,8 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
     _nails = nil;
 }
 
+
+#pragma mark - Export Method
 - (void)registerCallback:(WXKeepAliveCallback)startSwipeCallback finished:(WXKeepAliveCallback)finishSwipeCallback bubbleClick:(WXKeepAliveCallback)clickCallback
 {
     WXBubbleView *bubbleView = (WXBubbleView *)self.view;
@@ -101,6 +100,19 @@ WX_EXPORT_METHOD(@selector(replaceBubble:position:))
     [bubbleView replaceBubble:bubbleId position:position];
 }
 
+- (void)inViewBubbleList:(WXKeepAliveCallback)callback
+{
+    WXBubbleView *bubbleView = (WXBubbleView *)self.view;
+    NSArray *list = [bubbleView inBubbleList];
+    callback(list, YES);
+}
+
+- (void)outViewBubbleList:(WXKeepAliveCallback)callback
+{
+    WXBubbleView *bubbleView = (WXBubbleView *)self.view;
+    NSArray *list = [bubbleView outBubbleList];
+    callback(list, YES);
+}
 
 
 @end

@@ -20,4 +20,7 @@
 - (void)addChildView:(UIView*)view atIndex:(NSUInteger)index;
 - (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position;
 
+- (NSArray*)inBubbleList;
+- (NSArray*)outBubbleList;
+
 @end

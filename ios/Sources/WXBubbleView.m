@@ -127,9 +127,11 @@
     view.frame = wrapView.bounds;
     [wrapView addSubview:view];
     
+#if 0
     //bubble tap
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onWrapViewTapHandler:)];
-    [wrapView addGestureRecognizer:tapRecognizer];    
+    [wrapView addGestureRecognizer:tapRecognizer];
+#endif
     
     //Appear-Animation: bubble appear animation add to wrapView
     wrapView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.4, 0.4);
@@ -167,6 +169,38 @@
 - (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position
 {
     [self switchBubble:bubbleId position:position];
+}
+
+- (NSArray*)inBubbleList
+{
+    NSMutableArray *array = NSMutableArray.array;
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowKey, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        NSUInteger rowIdx = [rowKey integerValue];
+        [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
+            NSInteger visibleColumnIndex = (NSInteger)colIdx - _cursorColumnId;
+            if( visibleColumnIndex >= 0 && visibleColumnIndex < _colNum )
+            {
+                [array addObject:@(v.tag)];
+            }
+        }];
+    }];
+    return array;
+}
+
+- (NSArray*)outBubbleList
+{
+    NSMutableArray *array = NSMutableArray.array;
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowKey, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        NSUInteger rowIdx = [rowKey integerValue];
+        [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
+            NSInteger visibleColumnIndex = (NSInteger)colIdx - _cursorColumnId;
+            if( !(visibleColumnIndex >= 0 && visibleColumnIndex < _colNum) )
+            {
+                [array addObject:@(v.tag)];
+            }
+        }];
+    }];
+    return array;
 }
 
 
@@ -362,10 +396,15 @@
                 } completion:^(BOOL finished) {
                     if( ++finishCount >= totalAnimationCount ) //全部完成update rowViewArray
                     {
-                        NSLog(@"===> switch...finished!!!!!");
                         [rowViewArray removeObjectAtIndex:viewColumnId];
                         [rowViewArray insertObject:insertView atIndex:posColumnId];
                         weakSelf.isInSwitching = NO;
+                        
+                    #if 0
+                        NSLog(@"===> replace...finished!!!!!");
+                        NSLog(@"inBubbleList：%@", [weakSelf inBubbleList]);
+                        NSLog(@"outBubbleList：%@", [weakSelf outBubbleList]);
+                    #endif
                     }
                 }];
             }
@@ -437,10 +476,14 @@
             } completion:^(BOOL finished) {
                 finishCount++;
                 if( finishCount == weakSelf.childViewCount ){
-                    NSLog(@"Swipe Finished...");
                     if( weakSelf.finishSwipeCallback ){
                         weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"}, YES);
                     }
+                #if 0
+                    NSLog(@"Swipe Finished...");
+                    NSLog(@"inBubbleList：%@", [weakSelf inBubbleList]);
+                    NSLog(@"outBubbleList：%@", [weakSelf outBubbleList]);
+                #endif
                 }
             }];
         }];
@@ -484,13 +527,13 @@
 
 #pragma mark - Event Handler
 
-//#ifdef DEBUG
+#if 0
+
 
 - (void)onWrapViewTapHandler:(UITapGestureRecognizer*)recoginzer
 {
     UIView *view = recoginzer.view;
 
-#if 1
     NSDictionary *dict = [self viewPositionByTag:view.tag];
     if (dict) {
         NSInteger rowId = [dict[@"rowId"] integerValue];
@@ -503,12 +546,12 @@
 
         [self switchBubble:lastViewPosition position:position];
     }
-#endif
     
     if( _bubbleClickCallback ){
         _bubbleClickCallback(@{@"bubbleId":@(view.tag)}, YES);
     }
 }
+#endif
 
 //#endif
 - (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
