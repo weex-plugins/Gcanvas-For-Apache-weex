@@ -8,6 +8,7 @@ import android.support.v4.util.ArrayMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author ertong
@@ -15,7 +16,7 @@ import java.util.List;
  */
 
 public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
-    private final ArrayList<ISpringSetListener> mSpringListeners = new ArrayList<>();
+    private final CopyOnWriteArrayList<ISpringSetListener> mSpringListeners = new CopyOnWriteArrayList<>();
 
     public static final float sStiffness = 1.0f;
     public static final float sDampingRadio = 1.0f;
@@ -203,7 +204,7 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
                 }
             }
 
-            ArrayList<Node> visited = new ArrayList<Node>(mNodes.size());
+            ArrayList<Node> visited = new ArrayList<>(mNodes.size());
             updateLatestParent(mRootNode, visited);
             mDependencyDirty = false;
         }

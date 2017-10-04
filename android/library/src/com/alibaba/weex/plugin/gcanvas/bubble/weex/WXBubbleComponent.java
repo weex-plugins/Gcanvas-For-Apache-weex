@@ -204,10 +204,10 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                     } else if (type == BubbleEventCenter.AnimationType.MoveRight) {
                         result.put("direction", "right");
                         result.put("type", "swipe");
-                    } else if (type == BubbleEventCenter.AnimationType.BounceLeft) {
+                    } else if (type == BubbleEventCenter.AnimationType.EdgeBounceLeft) {
                         result.put("direction", "left");
                         result.put("type", "bounce");
-                    } else if (type == BubbleEventCenter.AnimationType.BounceRight) {
+                    } else if (type == BubbleEventCenter.AnimationType.EdgeBounceRight) {
                         result.put("direction", "right");
                         result.put("type", "bounce");
                     }
@@ -223,10 +223,10 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                     } else if (type == BubbleEventCenter.AnimationType.MoveRight) {
                         result.put("direction", "right");
                         result.put("type", "swipe");
-                    } else if (type == BubbleEventCenter.AnimationType.BounceLeft) {
+                    } else if (type == BubbleEventCenter.AnimationType.EdgeBounceLeft) {
                         result.put("direction", "left");
                         result.put("type", "bounce");
-                    } else if (type == BubbleEventCenter.AnimationType.BounceRight) {
+                    } else if (type == BubbleEventCenter.AnimationType.EdgeBounceRight) {
                         result.put("direction", "right");
                         result.put("type", "bounce");
                     }
@@ -239,7 +239,7 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                 public void onClick(int id) {
                     HashMap<String, Object> result = new HashMap<>();
                     result.put("bubbleId", id);
-                    bubbleClickCallback.invoke(result);
+                    bubbleClickCallback.invokeAndKeepAlive(result);
                 }
             };
             mBubbleContainer.addBubbleClickCallback(bubbleClickListener);

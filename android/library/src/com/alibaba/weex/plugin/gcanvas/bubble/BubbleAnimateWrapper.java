@@ -3,38 +3,59 @@ package com.alibaba.weex.plugin.gcanvas.bubble;
 import android.support.animation.DynamicAnimation;
 import android.support.animation.SpringAnimation;
 import android.support.animation.SpringForce;
-import android.util.Log;
+import android.support.annotation.NonNull;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
+
+import java.util.Random;
 
 /**
  * @author ertong
  *         create at 2017/9/21
  */
 
-public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
+public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Comparable<BubbleAnimateWrapper> {
     private static final String TAG = BubbleAnimateWrapper.class.getSimpleName();
 
     static final int sDirectionLeft = 0x100;
     static final int sDirectionRight = 0x200;
 
+    private static final float sMoveDamping = 600f;
+//
+//    private static final long[] sFloatDurationCandidates = {
+//            1250, 1750, 2250
+//    };
+
+
+    private static final long[] sFloatDurationCandidates = {
+            4000, 5000, 6000
+    };
+
+    private static final float[] sFloatDistanceCandidates = {
+            5.0f, 6.0f, 7.0f
+    };
+
+    private Random mRandom = new Random();
+
+
+    private int viewIndex;
 
     private View mView;
     private BubblePosition mPosition;
 
     private SpringSet.ISpringSetListener mMoveLeftEndListener, mMoveRightEndListener;
 
+    private SpringSet.ISpringSetListener mEdgeLeftBounceListener, mEdgeRightBounceListener;
+
     private Animation mFloatingAnim;
 
     private SpringSet.ISpringSetListener mScaleListener;
 
-    private SpringSet.ISpringSetListener mEdgeLeftBounceListener, mEdgeRightBounceListener;
-
     private boolean mIsPlaying = false;
 
-    public BubbleAnimateWrapper(View view) {
+    BubbleAnimateWrapper(@NonNull View view, int index) {
         this.mView = view;
         this.mView.setPivotX(0);
 
@@ -46,11 +67,11 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
 
             @Override
             public void onSpringEnd(SpringSet springSet) {
-                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.MoveLeft, BubbleAnimateWrapper.this);
                 springSet.removeSpringSetListener(this);
                 if (null != mPosition && null != mPosition.mLeft) {
                     setBubblePosition(mPosition.mLeft);
                 }
+                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.MoveLeft, BubbleAnimateWrapper.this);
             }
         };
 
@@ -64,54 +85,62 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
             @Override
             public void onSpringEnd(SpringSet springSet) {
                 springSet.removeSpringSetListener(this);
-                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.MoveRight, BubbleAnimateWrapper.this);
                 if (null != mPosition && null != mPosition.mRight) {
                     setBubblePosition(mPosition.mRight);
                 }
-            }
-        };
-
-        mScaleListener = new SpringSet.ISpringSetListener() {
-
-            @Override
-            public void onSpringStart(SpringSet springSet) {
-                mView.setPivotX(mView.getWidth() / 2);
-            }
-
-            @Override
-            public void onSpringEnd(SpringSet springSet) {
-                springSet.removeSpringSetListener(this);
-                mView.setPivotX(0);
+                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.MoveRight, BubbleAnimateWrapper.this);
             }
         };
 
         mEdgeLeftBounceListener = new SpringSet.ISpringSetListener() {
             @Override
             public void onSpringStart(SpringSet springSet) {
-                BubbleEventCenter.getEventCenter().fireOnMoveStart(BubbleEventCenter.AnimationType.BounceLeft, BubbleAnimateWrapper.this);
+                BubbleEventCenter.getEventCenter().fireOnMoveStart(BubbleEventCenter.AnimationType.EdgeBounceLeft, BubbleAnimateWrapper.this);
             }
 
             @Override
             public void onSpringEnd(SpringSet springSet) {
-                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.BounceLeft, BubbleAnimateWrapper.this);
+                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.EdgeBounceLeft, BubbleAnimateWrapper.this);
             }
         };
 
         mEdgeRightBounceListener = new SpringSet.ISpringSetListener() {
             @Override
             public void onSpringStart(SpringSet springSet) {
-                BubbleEventCenter.getEventCenter().fireOnMoveStart(BubbleEventCenter.AnimationType.BounceRight, BubbleAnimateWrapper.this);
+                BubbleEventCenter.getEventCenter().fireOnMoveStart(BubbleEventCenter.AnimationType.EdgeBounceRight, BubbleAnimateWrapper.this);
             }
 
             @Override
             public void onSpringEnd(SpringSet springSet) {
-                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.BounceRight, BubbleAnimateWrapper.this);
+                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.EdgeBounceRight, BubbleAnimateWrapper.this);
             }
         };
 
-        mFloatingAnim = new TranslateAnimation(0, 0, 0, 6);
-        mFloatingAnim.setDuration(1000);
-        mFloatingAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+
+
+        mScaleListener = new SpringSet.ISpringSetListener() {
+
+            @Override
+            public void onSpringStart(SpringSet springSet) {
+                mView.setPivotX(mView.getWidth() / 2);
+                mView.setPivotY(mView.getHeight() / 2);
+                BubbleEventCenter.getEventCenter().fireOnMoveStart(BubbleEventCenter.AnimationType.ReplaceScale, BubbleAnimateWrapper.this);
+            }
+
+            @Override
+            public void onSpringEnd(SpringSet springSet) {
+                springSet.removeSpringSetListener(this);
+                mView.setPivotX(0);
+                mView.setPivotY(0);
+                BubbleEventCenter.getEventCenter().fireOnMoveEnd(BubbleEventCenter.AnimationType.ReplaceScale, BubbleAnimateWrapper.this);
+            }
+        };
+
+        viewIndex = index;
+
+        mFloatingAnim = new TranslateAnimation(0, 0, mView.getTranslationY(), sFloatDistanceCandidates[mRandom.nextInt(sFloatDistanceCandidates.length)] * mView.getContext().getResources().getDisplayMetrics().density);
+        mFloatingAnim.setDuration(sFloatDurationCandidates[mRandom.nextInt(sFloatDurationCandidates.length)]);
+        mFloatingAnim.setInterpolator(new LinearInterpolator());
         mFloatingAnim.setRepeatMode(Animation.REVERSE);
         mFloatingAnim.setRepeatCount(Animation.INFINITE);
     }
@@ -123,18 +152,12 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
     void setBubblePosition(BubblePosition position) {
         this.mPosition = position;
         if (null != mPosition && null != mView) {
-            if (mPosition.isNail && mFloatingAnim.hasStarted()) {
+            if (mPosition.isNail) {
                 mFloatingAnim.cancel();
-                mFloatingAnim.reset();
-            } else if (!mFloatingAnim.hasStarted()) {
-                mView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (null != mView) {
-                            mView.startAnimation(mFloatingAnim);
-                        }
-                    }
-                });
+            } else {
+                if (!mFloatingAnim.hasStarted()) {
+                    mView.startAnimation(mFloatingAnim);
+                }
             }
         }
     }
@@ -147,10 +170,14 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
         if (direction == sDirectionLeft) {
             if (null != mView) {
                 SpringSet springSet = new SpringSet();
-                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.scaleLeftX * mView.getScaleX(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.scaleLeftY * mView.getScaleY(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, -mPosition.disLeftX + mView.getTranslationX(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, -mPosition.disLeftY + mView.getTranslationY(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.scaleLeftX * mView.getScaleX(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.scaleLeftY * mView.getScaleY(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, -mPosition.disLeftX + mView.getTranslationX(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, -mPosition.disLeftY + mView.getTranslationY(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                scaleX.setStartVelocity(Math.abs(mPosition.scaleLeftX * mView.getScaleX()) / 0.8f);
+                scaleY.setStartVelocity(Math.abs(mPosition.scaleLeftY * mView.getScaleY()) / 0.8f);
+                moveX.setStartVelocity(Math.abs(mPosition.disLeftX + mView.getTranslationX()) / 0.8f);
+                moveY.setStartVelocity(Math.abs(mPosition.disLeftY + mView.getTranslationY()) / 0.8f);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
                 springSet.addSpringSetListener(mMoveLeftEndListener);
                 springSet.addSpringSetListener(this);
@@ -159,10 +186,14 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
         } else if (direction == sDirectionRight) {
             if (null != mView) {
                 SpringSet springSet = new SpringSet();
-                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.scaleRightX * mView.getScaleX(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.scaleRightY * mView.getScaleY(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, mPosition.disRightX + mView.getTranslationX(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, mPosition.disRightY + mView.getTranslationY(), SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.scaleRightX * mView.getScaleX(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.scaleRightY * mView.getScaleY(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, mPosition.disRightX + mView.getTranslationX(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, mPosition.disRightY + mView.getTranslationY(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                scaleX.setStartVelocity(Math.abs(mPosition.scaleRightX * mView.getScaleX()) / 0.8f);
+                scaleY.setStartVelocity(Math.abs(mPosition.scaleRightY * mView.getScaleY()) / 0.8f);
+                moveX.setStartVelocity(Math.abs(mPosition.disRightX + mView.getTranslationX()) / 0.8f);
+                moveY.setStartVelocity(Math.abs(mPosition.disRightY + mView.getTranslationY()) / 0.8f);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
                 springSet.addSpringSetListener(mMoveRightEndListener);
                 springSet.addSpringSetListener(this);
@@ -191,7 +222,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
         SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, finalPosX, SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
         springX.setMaxValue(offsetX > 0 ? finalPosX + offsetX : finalPosX - offsetX);
         springX.setStartValue(offsetX > 0 ? finalPosX - offsetX : finalPosX + offsetX);
-        Log.d(TAG, "final postion = [" + finalPosX + "," + finalPosY + "], offset x = " + offsetX + ", offset y = " + offsetY);
         SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, finalPosY, SpringForce.STIFFNESS_VERY_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
         springY.setMaxValue(offsetY > 0 ? finalPosY + offsetY : finalPosY - offsetY);
         springY.setStartValue(offsetY > 0 ? finalPosY - offsetY : finalPosY + offsetY);
@@ -200,13 +230,15 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
 //        gravityAnimation.start();
     }
 
-    void scaleBounce() {
+    void scaleBounce(float destX, float destY) {
         SpringSet mBounceAnim = new SpringSet();
-        SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, 1.0f, SpringForce.STIFFNESS_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-        scaleX.setMaxValue(1.05f);
+        final float scaleToX = destX * mView.getScaleX();
+        final float scaleToY = destY * mView.getScaleY();
+        SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, scaleToX, SpringForce.STIFFNESS_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        scaleX.setMaxValue(scaleToX * 1.05f);
         scaleX.setStartValue(0);
-        SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, 1.0f, SpringForce.STIFFNESS_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-        scaleX.setMaxValue(1.05f);
+        SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, scaleToY, SpringForce.STIFFNESS_LOW, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        scaleX.setMaxValue(scaleToY * 1.05f);
         scaleX.setStartValue(0);
         mBounceAnim.playTogether(scaleX, scaleY);
         mBounceAnim.addSpringSetListener(mScaleListener);
@@ -240,6 +272,7 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
 
     @Override
     public void onSpringStart(SpringSet springSet) {
+        mFloatingAnim.cancel();
         this.mIsPlaying = true;
     }
 
@@ -251,5 +284,32 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener {
 
     public boolean isPlaying() {
         return mIsPlaying;
+    }
+
+    void startFloating() {
+
+    }
+
+    void stopFloating() {
+    }
+
+    @Override
+    public int compareTo(@NonNull BubbleAnimateWrapper o) {
+        if (null == o.mPosition) {
+            return 1;
+        } else if (null == mPosition) {
+            return -1;
+        }
+        int positionCompare = mPosition.compareTo(o.getPosition());
+        if (0 != positionCompare) {
+            return positionCompare;
+        } else {
+            return (viewIndex < o.viewIndex) ? -1 : ((viewIndex == o.viewIndex) ? 0 : 1);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "[" + viewIndex + "," + (null == mPosition ? "NaN, NaN]" : mPosition.row + "," + mPosition.column + "]");
     }
 }

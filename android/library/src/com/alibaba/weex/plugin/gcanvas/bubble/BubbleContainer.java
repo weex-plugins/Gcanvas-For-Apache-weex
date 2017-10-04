@@ -10,10 +10,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.taobao.weex.bridge.JSCallback;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -30,6 +29,8 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     private boolean mIsAnimationShow = false;
 
+    private boolean mIsPositionDirty = false;
+
     private ArrayList<BubblePosition> mBubblePositions = new ArrayList<>();
 
     private ArrayList<BubblePosition> mHeadNails = new ArrayList<>();
@@ -37,6 +38,12 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     private ArrayList<BubblePosition> mTailNails = new ArrayList<>();
 
     private ArrayList<BubbleAnimateWrapper> mWrapperList = new ArrayList<>();
+
+    private CopyOnWriteArrayList<BubbleAnimateWrapper> mHeadNailViews = new CopyOnWriteArrayList<>();
+
+    private CopyOnWriteArrayList<BubbleAnimateWrapper> mTailNailViews = new CopyOnWriteArrayList<>();
+
+    private CopyOnWriteArrayList<BubbleAnimateWrapper> mPositionCache = new CopyOnWriteArrayList<>();
 
     private HashMap<BubbleEventCenter.AnimationType, AtomicInteger> mAnimationRecorder = new HashMap<>();
 
@@ -47,6 +54,8 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     private ArrayList<IAnimationListener> mAnimationListeners = new ArrayList<>();
 
     private ArrayList<IBubbleClickListener> mBubbleClickListeners = new ArrayList<>();
+
+    private int clickedBubbleId = -1;
 
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
@@ -73,14 +82,12 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         int wrapperIndex = index;
         if (wrapperIndex < 0 || wrapperIndex > mWrapperList.size()) {
             wrapperIndex = mWrapperList.size();
-            mWrapperList.add(wrapperIndex, new BubbleAnimateWrapper(child));
+            mWrapperList.add(wrapperIndex, new BubbleAnimateWrapper(child, wrapperIndex));
             child.setId(wrapperIndex);
             child.setOnTouchListener(new OnTouchListener() {
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
-                    for (IBubbleClickListener listener : mBubbleClickListeners) {
-                        listener.onClick(view.getId());
-                    }
+                    clickedBubbleId = view.getId();
                     return false;
                 }
             });
@@ -104,48 +111,42 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        if (mIsPositionDirty) {
+            calculateBubbleInfo();
+            mIsPositionDirty = false;
+        }
+
         int start = mCurrentLayoutColumn * mRowCount;
         int end = start + mBubblePositions.size();
         final int childCount = getChildCount();
         if (end > childCount) {
             end = childCount;
         }
-        //onMeasure和onLayout有可能在addsubview之前调用，因此需要做保护
+
         int count = 0;
         final int headNailSize = mHeadNails.size();
-        for (; count < start; count++) {
+        for (; count < start && count < childCount; count++) {
             BubblePosition position = mHeadNails.get(count % headNailSize);
             View child = getChildAt(count);
-            if (mWrapperList.size() > count) {
-                mWrapperList.get(count).setBubblePosition(position);
-            }
-            if (child != null) {
-                child.measure(MeasureSpec.makeMeasureSpec((int) position.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) position.height, MeasureSpec.EXACTLY));
-            }
+            mWrapperList.get(count).setBubblePosition(position);
+            child.measure(MeasureSpec.makeMeasureSpec((int) position.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) position.height, MeasureSpec.EXACTLY));
         }
 
         final int bubbleLength = mBubblePositions.size();
-        for (int i = 0; i < bubbleLength; i++, count++) {
+        for (int i = 0; i < bubbleLength && count < childCount; i++, count++) {
             BubblePosition position = mBubblePositions.get(i);
             View child = getChildAt(count);
-            if (mWrapperList.size() > count) {
-                mWrapperList.get(count).setBubblePosition(position);
-            }
-            if (child != null) {
-                child.measure(MeasureSpec.makeMeasureSpec((int) position.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) position.height, MeasureSpec.EXACTLY));
-            }
+            mWrapperList.get(count).setBubblePosition(position);
+            child.measure(MeasureSpec.makeMeasureSpec((int) position.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) position.height, MeasureSpec.EXACTLY));
         }
 
         final int tailNailSize = mTailNails.size();
-        for (int i = end; i < childCount; i++, count++) {
+        for (int i = end; i < childCount && count < childCount; i++, count++) {
             BubblePosition position = mTailNails.get((i - end) % tailNailSize);
             View child = getChildAt(count);
-            if (mWrapperList.size() > count) {
-                mWrapperList.get(count).setBubblePosition(position);
-            }
-            if (child != null) {
-                child.measure(MeasureSpec.makeMeasureSpec((int) position.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) position.height, MeasureSpec.EXACTLY));
-            }
+            mWrapperList.get(count).setBubblePosition(position);
+            child.measure(MeasureSpec.makeMeasureSpec((int) position.width, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec((int) position.height, MeasureSpec.EXACTLY));
         }
     }
 
@@ -166,7 +167,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 this.mHeadNails.add(bp);
             }
         }
-        calculateNailInfo();
+        mIsPositionDirty = true;
     }
 
     public void setTailNails(float[][] nailInfo) {
@@ -185,7 +186,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 this.mTailNails.add(bp);
             }
         }
-        calculateNailInfo();
+        mIsPositionDirty = true;
     }
 
     @Override
@@ -197,103 +198,47 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             end = childCount;
         }
 
-//        final int headNailSize = mHeadNails.size();
-//        if (start >= headNailSize) {
-//            int nailHeadStart = start - headNailSize;
-//            for (int i = 0; i < headNailSize; i++) {
-//                BubblePosition position = mHeadNails.get(i % headNailSize);
-//                View child = getChildAt(nailHeadStart + i);
-//                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-//            }
-//        }
-//
-//        final int bubbleLength = mBubblePositions.size();
-//        for (int i = 0; i < bubbleLength; i++) {
-//            if (start + i > 0 && start + i < end) {
-//                BubblePosition position = mBubblePositions.get(i);
-//                View child = getChildAt(start + i);
-//                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-//            }
-//        }
-//
-//        final int tailNailSize = mTailNails.size();
-//        if (end + tailNailSize <= childCount) {
-//            for (int i = 0; i < tailNailSize; i++) {
-//                BubblePosition position = mTailNails.get(i % tailNailSize);
-//                View child = getChildAt(end + i);
-//                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-//            }
-//        }
-
+        mHeadNailViews.clear();
         int count = 0;
         final int headNailSize = mHeadNails.size();
-        for (; count < start; count++) {
+        for (; count < start && count < childCount; count++) {
             BubblePosition position = mHeadNails.get(count % headNailSize);
             View child = getChildAt(count);
-            if (mWrapperList.size() > count) {
-                mWrapperList.get(count).setBubblePosition(position);
-            }
-            if (child != null) {
-                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-            }
+            child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
+            BubbleAnimateWrapper animator = mWrapperList.get(count);
+            animator.setBubblePosition(position);
+            mHeadNailViews.add(animator);
         }
 
+        mPositionCache.clear();
         final int bubbleLength = mBubblePositions.size();
-        for (int i = 0; i < bubbleLength; i++) {
+        for (int i = 0; i < bubbleLength && count < childCount; i++) {
             BubblePosition position = mBubblePositions.get(i);
             View child = getChildAt(count);
-            if (mWrapperList.size() > count) {
-                mWrapperList.get(count).setBubblePosition(position);
-            }
-            if (child != null) {
-                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-            }
+            BubbleAnimateWrapper animator = mWrapperList.get(count);
+            animator.setBubblePosition(position);
+            child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
+            mPositionCache.add(animator);
             count++;
         }
 
+        mTailNailViews.clear();
         final int tailNailSize = mTailNails.size();
-        for (int i = end; i < childCount; i++, count++) {
+        for (int i = end; i < childCount && count < childCount; i++, count++) {
             BubblePosition position = mTailNails.get((i - end) % tailNailSize);
             View child = getChildAt(count);
-            if (mWrapperList.size() > count) {
-                mWrapperList.get(count).setBubblePosition(position);
-            }
-            if (child != null) {
-                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-            }
+            child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
+            BubbleAnimateWrapper animator = mWrapperList.get(count);
+            animator.setBubblePosition(position);
+            mTailNailViews.add(animator);
+            Log.d(TAG, "add tail ===> " + animator + ", tail = " + mTailNailViews);
         }
-
-//        final int childCount = getChildCount();
-//        final int bubbleSize = mBubblePositions.size();
-//        if (childCount > bubbleSize) {
-//            for (int i = 0; i < bubbleSize; i++) {
-//                BubblePosition position = mBubblePositions.get(i);
-//                View child = getChildAt(i);
-//                mWrapperList.get(i).setBubblePosition(position);
-//                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-//            }
-//
-//            final int tailNailSize = mTailNails.size();
-//            for (int i = bubbleSize; i < childCount; i++) {
-//                BubblePosition position = mTailNails.get(i % tailNailSize);
-//                View child = getChildAt(i);
-//                mWrapperList.get(i).setBubblePosition(position);
-//                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-//            }
-//        } else {
-//            for (int i = 0; i < childCount; i++) {
-//                BubblePosition position = mBubblePositions.get(i);
-//                View child = getChildAt(i);
-//                mWrapperList.get(i).setBubblePosition(position);
-//                child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
-//            }
-//        }
     }
 
 
     public void setRows(int rows) {
         this.mRowCount = rows;
-        this.calculateBubbleInfo();
+        this.mIsPositionDirty = true;
     }
 
     private void calculateNailInfo() {
@@ -369,7 +314,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                     }
                 }
             }
-
             calculateNailInfo();
         }
     }
@@ -390,7 +334,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 }
             }
         }
-        calculateBubbleInfo();
+        mIsPositionDirty = true;
         requestLayout();
     }
 
@@ -411,55 +355,52 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         int start = mCurrentLayoutColumn * mRowCount;
         int end = start + mBubblePositions.size();
         final int childCount = getChildCount();
-        if (end > childCount) {
-            end = childCount;
-        }
 
 
         Log.d(TAG, "swipe start = " + start + ", end = " + end + ", child = " + childCount + ", current = " + mCurrentLayoutColumn);
         if (direction == BubbleAnimateWrapper.sDirectionLeft) {
-            if (end == childCount) {
-                for (int i = start; i < end; i++) {
-                    Log.d(TAG, "bounce left, i = " + i);
-                    mWrapperList.get(i).edgeBounce(direction);
+            if (end >= childCount) {
+                for (BubbleAnimateWrapper animateWrapper : mPositionCache) {
+                    animateWrapper.edgeBounce(direction);
                 }
-                return;
+            } else {
+                for (BubbleAnimateWrapper animateWrapper : mPositionCache) {
+                    animateWrapper.move(direction);
+                    Log.d(TAG, "move left cache ===> " + animateWrapper.getPosition());
+                }
+                int count = 0;
+                BubbleAnimateWrapper animator;
+                while (count++ < mRowCount && mTailNailViews.size() > 0 && null != (animator = mTailNailViews.remove(0))) {
+                    animator.move(direction);
+                    Log.d(TAG, "move left ===> " + animator.getPosition());
+                }
+                mCurrentLayoutColumn++;
             }
-            mCurrentLayoutColumn++;
         } else if (direction == BubbleAnimateWrapper.sDirectionRight) {
-            if (mCurrentLayoutColumn < 0) {
-                for (int i = 0; i < end; i++) {
-                    Log.d(TAG, "bounce right, i = " + i);
-                    mWrapperList.get(i).edgeBounce(direction);
+            if (mHeadNailViews.isEmpty()) {
+                for (BubbleAnimateWrapper animateWrapper : mPositionCache) {
+                    animateWrapper.edgeBounce(direction);
                 }
-                return;
+            } else {
+                for (BubbleAnimateWrapper animateWrapper : mPositionCache) {
+                    animateWrapper.move(direction);
+                    Log.d(TAG, "move right cache ===> " + animateWrapper.getPosition());
+                }
+                int count = 0;
+                BubbleAnimateWrapper animator;
+                while (count++ < mRowCount && mHeadNailViews.size() > 0 && null != (animator = mHeadNailViews.remove(0))) {
+                    animator.move(direction);
+                    Log.d(TAG, "move right ===> " + animator.getPosition());
+                }
+                mCurrentLayoutColumn--;
             }
-            mCurrentLayoutColumn--;
         }
 
-        final int headNailSize = mHeadNails.size();
-        int nailStart = start - headNailSize;
-        if (nailStart >= 0) {
-            for (int i = nailStart; i < start; i++) {
-                mWrapperList.get(i).move(direction);
-                Log.d(TAG, "move head, i = " + i);
-            }
-        }
+    }
 
-        for (int i = start; i < end; i++) {
-            if (i >= 0) {
-                mWrapperList.get(i).move(direction);
-            }
-            Log.d(TAG, "move bubble, i = " + i);
-        }
-
-        int count = 0;
-        for (int i = end; i < childCount && count < mTailNails.size(); i++, count++) {
-            mWrapperList.get(i).move(direction);
-            Log.d(TAG, "move tail, i = " + i);
-        }
-
-        Log.d(TAG, "swipe end, current = " + mCurrentLayoutColumn);
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return super.onInterceptTouchEvent(ev);
     }
 
     @Override
@@ -492,7 +433,12 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        replaceBubble(3, 5);
+        if (clickedBubbleId >= 0) {
+            for (IBubbleClickListener listener : mBubbleClickListeners) {
+                listener.onClick(clickedBubbleId);
+            }
+            clickedBubbleId = -1;
+        }
         return true;
     }
 
@@ -542,7 +488,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 //        if (null == bubblePos || bubblePos.equals(animateWrapper.getPosition())) {
 //            return;
 //        }
+        BubblePosition currentPos = animateWrapper.getPosition();
+        float scaleX = currentPos != null ? bubblePos.width / currentPos.width : 1.0f;
+        float scaleY = currentPos != null ? bubblePos.height / currentPos.height : 1.0f;
         animateWrapper.setBubblePosition(bubblePos);
+        mPositionCache.add(animateWrapper);
         animateWrapper.getCurrentView().setX(bubblePos.x);
         animateWrapper.getCurrentView().setY(bubblePos.y);
 
@@ -560,7 +510,8 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 anim.gravityMove(bubblePos);
             }
         }
-        animateWrapper.scaleBounce();
+        Log.d(TAG, "replace bubble, bounce right ====> position = " + animateWrapper.getPosition());
+        animateWrapper.scaleBounce(scaleX, scaleY);
     }
 
 
@@ -578,11 +529,34 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             }
         }
         counter.incrementAndGet();
+        mPositionCache.remove(bubbleAnimateWrapper);
+        Log.d(TAG, "anim start, cache = " + mPositionCache);
+        mTailNailViews.remove(bubbleAnimateWrapper);
+        mHeadNailViews.remove(bubbleAnimateWrapper);
+        Log.d(TAG, "anim start, head = " + mHeadNailViews);
+        Log.d(TAG, "anim start, tail = " + mTailNailViews);
+//        }
     }
 
     @Override
     public void onEnd(BubbleEventCenter.AnimationType type, BubbleAnimateWrapper
             bubbleAnimateWrapper) {
+        BubblePosition position = bubbleAnimateWrapper.getPosition();
+        if (null != position) {
+            if (position.isNail) {
+                if (position.column < 0) {
+                    mHeadNailViews.add(0, bubbleAnimateWrapper);
+                    Log.d(TAG, "anim end, add head = " + bubbleAnimateWrapper);
+
+                } else {
+                    mTailNailViews.add(0, bubbleAnimateWrapper);
+                    Log.d(TAG, "anim end, add tail = " + bubbleAnimateWrapper);
+                }
+            } else {
+                mPositionCache.add(bubbleAnimateWrapper);
+                Log.d(TAG, "anim end, add cache = " + bubbleAnimateWrapper);
+            }
+        }
         AtomicInteger counter = mAnimationRecorder.get(type);
         if (null != counter) {
             if (0 == counter.decrementAndGet()) {
@@ -591,6 +565,9 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 }
             }
         }
+        Log.d(TAG, "anim end, head = " + mHeadNailViews);
+        Log.d(TAG, "anim end, tail = " + mTailNailViews);
+        Log.d(TAG, "anim end, cache = " + mPositionCache);
     }
 
     @Override

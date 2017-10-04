@@ -1,11 +1,13 @@
 package com.alibaba.weex.plugin.gcanvas.bubble;
 
+import android.support.annotation.NonNull;
+
 /**
  * @author ertong
  *         create at 2017/9/29
  */
 
-public class BubblePosition {
+public class BubblePosition implements Comparable<BubblePosition> {
     private static final String TAG = BubbleAnimateWrapper.class.getSimpleName();
     float x, y, width, height;
 
@@ -67,6 +69,8 @@ public class BubblePosition {
     @Override
     public String toString() {
         return '{' +
+                "[" + row +
+                "," + column + "]" +
                 "x=" + x +
                 ", y=" + y +
                 ", width=" + width +
@@ -86,5 +90,24 @@ public class BubblePosition {
                 ", scaleRightX=" + scaleRightX +
                 ", scaleRightY=" + scaleRightY +
                 '}';
+    }
+
+    @Override
+    public int compareTo(@NonNull BubblePosition o) {
+        int rowDiff = row - o.row;
+        int columnDiff = column - o.column;
+        if (rowDiff > 0) {
+            return 1;
+        } else if (rowDiff < 0) {
+            return -1;
+        } else {
+            if (columnDiff > 0) {
+                return 1;
+            } else if (columnDiff < 0) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
     }
 }
