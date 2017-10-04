@@ -178,7 +178,6 @@
 {
     NSMutableArray *array = NSMutableArray.array;
     [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowKey, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
-        NSUInteger rowIdx = [rowKey integerValue];
         [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
             NSInteger visibleColumnIndex = (NSInteger)colIdx - _cursorColumnId;
             if( visibleColumnIndex >= 0 && visibleColumnIndex < _colNum )
@@ -194,7 +193,6 @@
 {
     NSMutableArray *array = NSMutableArray.array;
     [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowKey, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
-        NSUInteger rowIdx = [rowKey integerValue];
         [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger colIdx, BOOL * _Nonnull stop) {
             NSInteger visibleColumnIndex = (NSInteger)colIdx - _cursorColumnId;
             if( !(visibleColumnIndex >= 0 && visibleColumnIndex < _colNum) )
