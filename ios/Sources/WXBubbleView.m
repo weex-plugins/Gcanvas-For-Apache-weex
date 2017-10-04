@@ -117,6 +117,9 @@
 
 - (void)addChildView:(UIView*)view atIndex:(NSUInteger)index
 {
+    if( [view superview] ){
+        return;
+    }
     CGRect frame = [self originViewFrameAtIndex:index];
     
     //wrapView for appear/move/replace animation
@@ -343,7 +346,7 @@
     if( posRowId == viewRowId &&  posColumnId != viewColumnId &&
        posColumnId < rowViewArray.count && viewColumnId < rowViewArray.count ){
         
-        NSLog(@"switchBubble, From:%lu=>to:%lu", (unsigned long)bubbleId, (unsigned long)position);
+        //NSLog(@"switchBubble, From:%lu=>to:%lu", (unsigned long)bubbleId, (unsigned long)position);
 
         _isInSwitching = YES;
         UIView *posView = rowViewArray[posColumnId]; //oldview
