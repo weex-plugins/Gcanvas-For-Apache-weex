@@ -130,11 +130,9 @@
     view.frame = wrapView.bounds;
     [wrapView addSubview:view];
     
-//#if 0
     //bubble tap
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onWrapViewTapHandler:)];
     [wrapView addGestureRecognizer:tapRecognizer];
-//#endif
     
     //Appear-Animation: bubble appear animation add to wrapView
     wrapView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.4, 0.4);
@@ -250,17 +248,6 @@
     }
     return frame;
 }
-
-//scale Frame
-//- (CGRect)scaleFrame:(CGRect)frame byScale:(CGFloat)scale
-//{
-//    CGFloat posScale = (1 - scale) * 0.5;
-//    CGRect scaleFrame = CGRectMake(frame.origin.x + frame.size.width*posScale,
-//                                   frame.origin.y + frame.size.height*posScale,
-//                                   frame.size.width * scale,
-//                                   frame.size.height * scale);
-//    return scaleFrame;
-//}
 
 //squee Frame, only modify origin point
 - (CGPoint)squeePositionWithFrame:(CGRect)posFrame target:(CGRect)targetFrame colIdx:(NSUInteger)colIdx
@@ -534,6 +521,7 @@
 {
     UIView *view = recoginzer.view;
 
+#if 0
     NSDictionary *dict = [self viewPositionByTag:view.tag];
     if (dict) {
         NSInteger rowId = [dict[@"rowId"] integerValue];
@@ -546,6 +534,7 @@
 
         [self switchBubble:lastViewPosition position:position];
     }
+#endif
     
     if( _bubbleClickCallback ){
         _bubbleClickCallback(@{@"bubbleId":@(view.tag)}, YES);
@@ -575,14 +564,6 @@
         [self allMoveNextPositionAnimation:NO];
     }
 }
-
-//- (void)onTapHandler2:(UIGestureRecognizer*)recognizer
-//{
-//    NSUInteger insertViewIndex = 10;  //12;
-//    NSUInteger posIndex = 0;
-//    
-//    [self switchBubble:insertViewIndex position:posIndex];
-//}
 
 #pragma mark - Override
 
