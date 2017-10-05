@@ -130,11 +130,11 @@
     view.frame = wrapView.bounds;
     [wrapView addSubview:view];
     
-#if 0
+//#if 0
     //bubble tap
     UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onWrapViewTapHandler:)];
     [wrapView addGestureRecognizer:tapRecognizer];
-#endif
+//#endif
     
     //Appear-Animation: bubble appear animation add to wrapView
     wrapView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.4, 0.4);
@@ -528,7 +528,6 @@
 
 #pragma mark - Event Handler
 
-#if 0
 
 
 - (void)onWrapViewTapHandler:(UITapGestureRecognizer*)recoginzer
@@ -552,7 +551,6 @@
         _bubbleClickCallback(@{@"bubbleId":@(view.tag)}, YES);
     }
 }
-#endif
 
 //#endif
 - (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
