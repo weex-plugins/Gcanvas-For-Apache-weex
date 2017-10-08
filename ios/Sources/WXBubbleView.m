@@ -65,8 +65,8 @@
 
 - (void)configPosition:(NSArray*)positions withNail:(NSArray*)nails withRow:(NSUInteger)row
 {
-    CGFloat scale = self.frame.size.width / WXDefaultScreenWidth;
-    
+    CGFloat scale = [UIScreen mainScreen].bounds.size.width / WXDefaultScreenWidth;
+        
     //positions
     [positions enumerateObjectsUsingBlock:^(NSArray *pos, NSUInteger idx, BOOL * _Nonnull stop) {
         if( pos.count >= 4 ){
