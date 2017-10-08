@@ -142,8 +142,7 @@
     
     [UIView animateWithDuration:1 delay:delay usingSpringWithDamping:0.4 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
         wrapView.transform = CGAffineTransformIdentity;
-    } completion:^(BOOL finished) {
-    }];
+    } completion:nil];
 
     //view pulse animation
     NSArray *durationArray = @[@(4), @(5), @(6)];
@@ -384,8 +383,10 @@
                 } completion:^(BOOL finished) {
                     if( ++finishCount >= totalAnimationCount ) //全部完成update rowViewArray
                     {
-                        [rowViewArray removeObjectAtIndex:viewColumnId];
-                        [rowViewArray insertObject:insertView atIndex:posColumnId];
+                        if(rowViewArray.count > viewColumnId){
+                            [rowViewArray removeObjectAtIndex:viewColumnId];
+                            [rowViewArray insertObject:insertView atIndex:posColumnId];
+                        }
                         weakSelf.isInSwitching = NO;
                         
                     #if 0
