@@ -8,6 +8,7 @@
 
 #import "WXBubbleComponent.h"
 #import "WXBubbleView.h"
+#import "WXScrollerProtocol.h"
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import <WeexSDK/WXUtility.h>
 
@@ -67,6 +68,15 @@ WX_EXPORT_METHOD(@selector(outViewBubbleList:))
     WXBubbleView *bubbleView = (WXBubbleView *)self.view;
     if( [bubbleView isKindOfClass:[WXBubbleView class]] ){
         [bubbleView configPosition:_positions withNail:_nails withRow:_rowNum];
+    }
+    
+    //设置scrollview的delaysContentTouches属性
+    id<WXScrollerProtocol> scroller = [self performSelector:NSSelectorFromString(@"ancestorScroller")];
+    if( scroller &&  [scroller isKindOfClass:[WXScrollerComponent class]]){
+        UIScrollView *scrollView = (UIScrollView*)((WXScrollerComponent*)scroller).view;
+        if( [scrollView isKindOfClass:[UIScrollView class]] ){
+            scrollView.delaysContentTouches = NO;
+        }
     }
 }
 

@@ -12,6 +12,7 @@
 @interface WXBubbleView ()
 
 @property (assign, nonatomic) BOOL isInSwitching; //在替换动画中
+@property (assign, nonatomic) BOOL isInSwiping; //在横滑动画中
 @property (assign, nonatomic) NSUInteger childViewCount; //视图数量
 
 @end
@@ -308,7 +309,7 @@
  */
 - (void)switchBubble:(NSUInteger)bubbleId position:(NSUInteger)position
 {
-    if( _isInSwitching ){
+    if( _isInSwitching || _isInSwiping){
         return;
     }
     
@@ -435,6 +436,8 @@
 
 - (void)allMoveNextPositionAnimation:(BOOL)isLeft
 {
+    _isInSwiping = YES;
+    
     if( _isInSwitching ){
         return;
     }
@@ -463,8 +466,8 @@
                 v.transform = CGAffineTransformConcat(scaleTransfrom, v.transform);
                 v.frame = CGRectMake(v.frame.origin.x+transX, v.frame.origin.y+transY, v.frame.size.width, v.frame.size.height);
             } completion:^(BOOL finished) {
-                finishCount++;
-                if( finishCount == weakSelf.childViewCount ){
+                if( ++finishCount == weakSelf.childViewCount ){
+                    weakSelf.isInSwiping = NO;
                     if( weakSelf.finishSwipeCallback ){
                         weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"}, YES);
                     }
@@ -515,9 +518,6 @@
 
 
 #pragma mark - Event Handler
-
-
-
 - (void)onWrapViewTapHandler:(UITapGestureRecognizer*)recoginzer
 {
     UIView *view = recoginzer.view;
@@ -567,7 +567,6 @@
 }
 
 #pragma mark - Override
-
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
     [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
