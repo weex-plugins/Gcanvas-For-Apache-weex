@@ -3,13 +3,11 @@ package com.alibaba.weex.plugin.gcanvas.bubble.weex;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.serializer.ObjectArrayCodec;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.alibaba.weex.plugin.gcanvas.bubble.BubbleContainer;
 import com.alibaba.weex.plugin.gcanvas.bubble.BubbleEventCenter;
@@ -243,7 +241,6 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                 }
             };
             mBubbleContainer.addBubbleClickCallback(bubbleClickListener);
-
         }
     }
 
@@ -254,6 +251,24 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
         }
     }
 
+
+    @JSMethod
+    public void inViewBubbleList(JSCallback callback) {
+        if (null == callback || mBubbleContainer == null) {
+            return;
+        }
+
+        callback.invoke(mBubbleContainer.inViewBubbleList());
+    }
+
+    @JSMethod
+    public void outViewBubbleList(JSCallback callback) {
+        if (null == callback || mBubbleContainer == null) {
+            return;
+        }
+
+        callback.invoke(mBubbleContainer.outViewBubbleList());
+    }
 }
 
 

@@ -89,12 +89,6 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
         }
     }
 
-    /**
-     * Sets up this AnimatorSet to play each of the supplied animations when the
-     * previous animation ends.
-     *
-     * @param items The animations that will be started one after another.
-     */
     public void playSequentially(List<SpringAnimation> items) {
         if (items != null && items.size() > 0) {
             if (items.size() == 1) {
@@ -298,10 +292,6 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
 
         public Node(SpringAnimation animation) {
             this.mAnimation = animation;
-        }
-
-        public Node() {
-
         }
 
         void addChild(Node node) {

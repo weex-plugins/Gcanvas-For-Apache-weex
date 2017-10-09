@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
  */
 
 public class BubblePosition implements Comparable<BubblePosition> {
-    private static final String TAG = BubbleAnimateWrapper.class.getSimpleName();
+    private static final String TAG = BubblePosition.class.getSimpleName();
     float x, y, width, height;
 
     int row, column;
@@ -40,6 +40,14 @@ public class BubblePosition implements Comparable<BubblePosition> {
             this.scaleRightX = this.mRight.width / this.width;
             this.scaleRightY = this.mRight.height / this.height;
         }
+    }
+
+    BubblePosition getLeftSibling() {
+        return mLeft;
+    }
+
+    BubblePosition getRightSibling() {
+        return mRight;
     }
 
     void setLeftSibling(BubblePosition previousSibling) {
