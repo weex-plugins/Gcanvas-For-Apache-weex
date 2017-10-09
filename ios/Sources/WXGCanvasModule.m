@@ -443,12 +443,11 @@ static NSMutableDictionary *_instanceDict;
     });
     
     [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin* plugin, BOOL * _Nonnull stop) {
-        AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] init];
-        [measureValSet setValue:@(30) forKey:MEASURE_FPS];
+        NSDictionary *meaDict = @{MEASURE_FPS:@([plugin fps])};
+        AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] initWithDictionary:meaDict];
         
-        AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] init];
-        [dimensionValSet setValue:@"weex" forKey:DIMENSION_PLUGIN];
-        [dimensionValSet setValue:@"" forKey:DIMENSION_PLUGIN];
+        NSDictionary *dimDict = @{DIMENSION_PLUGIN:@"weex", DIMENSION_TYPE:@([plugin contextType])};
+        AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] initWithDictionary:dimDict];
         
         [AppMonitorStat commitWithModule:AppModule monitorPoint:MONITOR_POINT_FPS dimensionValueSet:dimensionValSet measureValueSet:measureValSet];
     }];
