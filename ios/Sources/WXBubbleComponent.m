@@ -8,7 +8,7 @@
 
 #import "WXBubbleComponent.h"
 #import "WXBubbleView.h"
-#import "WXScrollerProtocol.h"
+#import <WeexSDK/WXScrollerProtocol.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
 #import <WeexSDK/WXUtility.h>
 
@@ -71,7 +71,11 @@ WX_EXPORT_METHOD(@selector(outViewBubbleList:))
     }
     
     //设置scrollview的delaysContentTouches属性
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
     id<WXScrollerProtocol> scroller = [self performSelector:NSSelectorFromString(@"ancestorScroller")];
+#pragma clang diagnostic pop
     if( scroller &&  [scroller isKindOfClass:[WXScrollerComponent class]]){
         UIScrollView *scrollView = (UIScrollView*)((WXScrollerComponent*)scroller).view;
         if( [scrollView isKindOfClass:[UIScrollView class]] ){
