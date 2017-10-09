@@ -26,6 +26,15 @@
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+#import <UT/AppMonitor.h>
+
+
+#define AppModule           @"GCanvas"
+#define MONITOR_POINT_FPS   @"GCanvasFps"
+#define MEASURE_FPS         @"fps"
+#define DIMENSION_TYPE      @"type"
+#define DIMENSION_PLUGIN    @"plugin"
+
 
 //#ifdef DEBUG
 //#define WEBGL_FPS
@@ -422,6 +431,28 @@ static NSMutableDictionary *_instanceDict;
 
 - (void)onWeexInstanceWillDestroy:(NSNotification*)notification
 {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        AppMonitorMeasureSet *measures = [[AppMonitorMeasureSet alloc] init];
+        [measures addMeasureWithName:MEASURE_FPS];
+        AppMonitorDimensionSet *dimensions = [[AppMonitorDimensionSet alloc] init];
+        [dimensions addDimensionWithName:DIMENSION_TYPE];
+        [dimensions addDimensionWithName:DIMENSION_PLUGIN];
+        
+        [AppMonitorStat registerWithModule:AppModule monitorPoint:MONITOR_POINT_FPS measureSet:measures dimensionSet:dimensions];
+    });
+    
+    [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin* plugin, BOOL * _Nonnull stop) {
+        AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] init];
+        [measureValSet setValue:@(30) forKey:MEASURE_FPS];
+        
+        AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] init];
+        [dimensionValSet setValue:@"weex" forKey:DIMENSION_PLUGIN];
+        [dimensionValSet setValue:@"" forKey:DIMENSION_PLUGIN];
+        
+        [AppMonitorStat commitWithModule:AppModule monitorPoint:MONITOR_POINT_FPS dimensionValueSet:dimensionValSet measureValueSet:measureValSet];
+    }];
+    
     NSString *instanceId = notification.userInfo[@"instanceId"];
     if (![instanceId isEqualToString:weexInstance.instanceId]) {
         return;

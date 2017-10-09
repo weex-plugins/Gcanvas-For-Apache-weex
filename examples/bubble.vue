@@ -1,7 +1,24 @@
 <template>
   <div>
   	<bubble ref="bubble_container" style="width:750;height:1024;background-color:black;" :positions="positions" rows="2" :nails="nails">
+      <!--
       <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+      <image style="width: 200px;height: 200px;" src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1506407433151&di=7e79e35a9a4af5e7409e9ef64c9b0357&imgtype=0&src=http%3A%2F%2Fimagscdn.3234.com%2Fpictures%2F0%2F03%2FygpfZP.jpg" resize="stretch" />
+       -->
+       
+       <div style='background-color:orange;'>
+           <text style='font-size:50;color:white;'>1</text>
+        </div>
         <div style='background-color:white;'>
            <text style='font-size:50;color:black;'>2</text>
         </div>
@@ -20,11 +37,6 @@
         <div style='background-color:green;'>
               <text style='font-size:50;color:white;'>7</text>
         </div>
-          <!-- <slider class="slider" interval="3000" auto-play="true">
-             <div class="frame" v-for="img in imageList"> -->
-               <!-- <image class="image" resize="cover" :src="img.src"></image> -->
-             <!-- </div> -->
-           <!-- </slider> -->
       <div style='background-color:#e03b1c;'>
                <text style='font-size:50;color:white;'>8</text>
       </div>
@@ -40,6 +52,7 @@
      <div style='background-color:#eeeeee;'>
           <text style='font-size:50;color:white;'>12</text>
      </div>
+     
   	</bubble>
   </div>
 </template>
