@@ -1,11 +1,18 @@
 <template>
-  <div>
+  <list>
+    <cell>
+      <div>
         <bubble :positions="positions" rows=2 :nails="nails" style="width:750px; height: 1000px;background-color:#cccccc">
           <div v-for="(bubble,index) in bubbles" v-if="bubble" :key="index" class="bubble">
             <div class="text-wrap"><text class="test-text">{{index}}</text></div>
           </div>
         </bubble>
-  </div> 
+        </div>
+    </cell>
+    <cell>
+      <div class="holder"></div>
+    </cell>
+  </list>
 </template>
 <style scoped>
 .holder {

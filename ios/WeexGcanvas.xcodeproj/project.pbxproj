@@ -78,11 +78,11 @@
 		C43139571E954ACB008B80D0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				9A9E771B1F837DD700598AD9 /* WXBubbleView.m */,
+				C44B5F651E9E5C21001AF391 /* WeexGcanvas.h */,
+				9A9E771E1F837DD700598AD9 /* WXBubbleComponent.h */,
 				9A9E771C1F837DD700598AD9 /* WXBubbleComponent.m */,
 				9A9E771D1F837DD700598AD9 /* WXBubbleView.h */,
-				9A9E771E1F837DD700598AD9 /* WXBubbleComponent.h */,
-				C44B5F651E9E5C21001AF391 /* WeexGcanvas.h */,
+				9A9E771B1F837DD700598AD9 /* WXBubbleView.m */,
 				C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */,
 				C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */,
 				C431395A1E954ACB008B80D0 /* WXGCanvasModule.h */,
