@@ -27,15 +27,17 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
 
     private boolean mStarted = false;
 
-    private ArrayList<DynamicAnimation> mPlayingSet = new ArrayList<>();
+    private ArrayList<SpringAnimation> mPlayingSet = new ArrayList<>();
 
     private SpringAnimation mDelayAnim;
 
-    private ArrayMap<DynamicAnimation, Node> mNodeMap = new ArrayMap<>();
+    private ArrayMap<SpringAnimation, Node> mNodeMap = new ArrayMap<>();
 
     private ArrayList<Node> mNodes = new ArrayList<>();
 
     private Node mRootNode;
+
+    private boolean mIsFastMove = false;
 
     public SpringSet() {
         mDelayAnim = SpringUtils.createSpring(null, DynamicAnimation.SCALE_X, 1.0f, SpringForce.STIFFNESS_MEDIUM, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
@@ -53,11 +55,6 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
         }
     }
 
-    /**
-     * Sets up this AnimatorSet to play all of the supplied animations at the same time.
-     *
-     * @param items The animations that will be started simultaneously.
-     */
     public void playTogether(Collection<SpringAnimation> items) {
         if (items != null && items.size() > 0) {
             Builder builder = null;
@@ -71,12 +68,7 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
         }
     }
 
-    /**
-     * Sets up this AnimatorSet to play each of the supplied animations when the
-     * previous animation ends.
-     *
-     * @param items The animations that will be started one after another.
-     */
+
     public void playSequentially(SpringAnimation... items) {
         if (items != null) {
             if (items.length == 1) {
@@ -96,6 +88,20 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
             } else {
                 for (int i = 0; i < items.size() - 1; ++i) {
                     play(items.get(i)).before(items.get(i + 1));
+                }
+            }
+        }
+    }
+
+    public void playSequentially(SpringSet... sets) {
+        if (sets != null && sets.length > 0) {
+            Builder builder = null;
+            for (int i = 0; i < sets.length - 1; i++) {
+                SpringSet set = sets[i];
+                if (builder == null) {
+                    builder = play(set.mRootNode.mAnimation);
+                } else {
+                    play(sets[i].mRootNode.mAnimation).before(sets[i + 1].mRootNode.mAnimation);
                 }
             }
         }
@@ -141,10 +147,15 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
     }
 
     private void start(final Node node) {
-        final DynamicAnimation anim = node.mAnimation;
+        final SpringAnimation anim = node.mAnimation;
         mPlayingSet.add(anim);
         anim.addEndListener(this);
         anim.start();
+        if (mIsFastMove) {
+            if (anim.canSkipToEnd()) {
+                anim.skipToEnd();
+            }
+        }
     }
 
     private void findSiblings(Node node, ArrayList<Node> siblings) {
@@ -155,6 +166,15 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
             }
             for (int i = 0; i < node.mSiblings.size(); i++) {
                 findSiblings(node.mSiblings.get(i), siblings);
+            }
+        }
+    }
+
+    public void fastMove() {
+        mIsFastMove = true;
+        for (SpringAnimation animation : mPlayingSet) {
+            if (animation.canSkipToEnd()) {
+                animation.skipToEnd();
             }
         }
     }
@@ -236,7 +256,6 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
     }
 
 
-
     public void clear() {
         cancel();
         mSpringListeners.clear();
@@ -276,7 +295,7 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
     }
 
     private static class Node implements Cloneable {
-        DynamicAnimation mAnimation;
+        SpringAnimation mAnimation;
 
         ArrayList<Node> mChildNodes = null;
 
@@ -371,7 +390,6 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
             mCurrentNode.addParent(node);
             return this;
         }
-
     }
 
     private void onChildAnimatorEnded(DynamicAnimation animation) {
@@ -400,6 +418,7 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
                     mSpringListeners.get(i).onSpringEnd(this);
                 }
                 mStarted = false;
+                mIsFastMove = false;
             }
         }
     }

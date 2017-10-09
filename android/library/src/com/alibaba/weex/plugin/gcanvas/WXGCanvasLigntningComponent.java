@@ -31,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
-//public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener, WeexPageFragment.WXViewCreatedListener {
     public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener{
     private GWXSurfaceView mSurfaceView;
     public AtomicBoolean mSended = new AtomicBoolean(false);
@@ -195,7 +194,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     public void sendEvent(){
 
         synchronized (this) {
-            if (mSended.get() != true) {
+            if (!mSended.get()) {
                 Map<String, Object> params = new HashMap<>();
                 params.put("ref", getRef());
 

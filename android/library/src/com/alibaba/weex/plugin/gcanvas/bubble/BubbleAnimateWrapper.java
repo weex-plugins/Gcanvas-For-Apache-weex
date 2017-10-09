@@ -9,6 +9,8 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 
+import com.taobao.weex.utils.WXViewUtils;
+
 import java.util.Random;
 
 /**
@@ -22,10 +24,10 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
     static final int sDirectionLeft = 0x100;
     static final int sDirectionRight = 0x200;
 
-    private static final float sMoveDamping = 600f;
+    private static final float sMoveDamping = 250;
 
     private static final long[] sFloatDurationCandidates = {
-            4000, 5000, 6000
+            2000, 2500, 3000
     };
 
     private static final float[] sFloatDistanceCandidates = {
@@ -50,6 +52,8 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
 
     private boolean mIsPlaying = false;
 
+    private SpringSet mLastMoveSpring;
+
     BubbleAnimateWrapper(@NonNull View view, int index) {
         this.mView = view;
         this.mView.setPivotX(0);
@@ -63,9 +67,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
             @Override
             public void onSpringEnd(SpringSet springSet) {
                 springSet.removeSpringSetListener(this);
-//                if (null != mPosition && null != mPosition.mLeft) {
-//                    setBubblePosition(mPosition.mLeft);
-//                }
                 BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.MoveLeft, BubbleAnimateWrapper.this);
             }
         };
@@ -149,6 +150,9 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
     }
 
     public void move(int direction) {
+        if (null != mLastMoveSpring && mLastMoveSpring.isRunning()) {
+            mLastMoveSpring.fastMove();
+        }
         if (direction == sDirectionLeft) {
             if (null != mView) {
                 SpringSet springSet = new SpringSet();
@@ -167,6 +171,7 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
                 if (null != mPosition && null != mPosition.mLeft) {
                     mPosition = mPosition.mLeft;
                 }
+                mLastMoveSpring = springSet;
             }
         } else if (direction == sDirectionRight) {
             if (null != mView) {
@@ -186,6 +191,7 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
                 if (null != mPosition && null != mPosition.mRight) {
                     mPosition = mPosition.mRight;
                 }
+                mLastMoveSpring = springSet;
             }
         }
     }
@@ -199,7 +205,7 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
             return;
         }
 
-        final float k = 16.0f;
+        final float k = WXViewUtils.getRealPxByWidth(20.0f, 750);
         final float l = this.mPosition.width;
         final float x1 = this.mPosition.x;
         final float y1 = this.mPosition.y;
@@ -209,14 +215,12 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
         final float offsetX = k * l * l * (x2 - x1) / (r * r * r);
         final float offsetY = k * l * l * (y2 - y1) / (r * r * r);
         SpringSet gravityAnimation = new SpringSet();
-        final float finalPosX = mView.getTranslationX();
-        final float finalPosY = mView.getTranslationY();
-        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, finalPosX, 3000f, SpringForce.DAMPING_RATIO_LOW_BOUNCY);
-        springX.setMaxValue(offsetX > 0 ? finalPosX + offsetX : finalPosX - offsetX);
-        springX.setStartValue(offsetX > 0 ? finalPosX - offsetX : finalPosX + offsetX);
-        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, finalPosY, 3000f, SpringForce.DAMPING_RATIO_LOW_BOUNCY);
-        springY.setMaxValue(offsetY > 0 ? finalPosY + offsetY : finalPosY - offsetY);
-        springY.setStartValue(offsetY > 0 ? finalPosY - offsetY : finalPosY + offsetY);
+        final float translationX = mView.getTranslationX();
+        final float translationY = mView.getTranslationY();
+        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, 200f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, 200f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        springX.setStartValue(translationX + offsetX);
+        springY.setStartValue(translationY + offsetY);
         gravityAnimation.playTogether(springX, springY);
         gravityAnimation.addSpringSetListener(this);
         gravityAnimation.start();
@@ -235,10 +239,8 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
         mView.setY(newPos.y);
         mPosition = newPos;
         SpringAnimation scaleXAnim = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, scaleToX, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-//        scaleXAnim.setMaxValue(scaleToX * 1.05f);
         scaleXAnim.setStartValue(0);
         SpringAnimation scaleYAnim = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, scaleToY, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-//        scaleYAnim.setMaxValue(scaleToY * 1.05f);
         scaleYAnim.setStartValue(0);
         mBounceAnim.playTogether(scaleXAnim, scaleYAnim);
         mBounceAnim.addSpringSetListener(mScaleListener);
@@ -318,5 +320,21 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
     @Override
     public String toString() {
         return "[" + mViewIndex + "," + (null == mPosition ? "NaN, NaN]" : mPosition.row + "," + mPosition.column + "]");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BubbleAnimateWrapper wrapper = (BubbleAnimateWrapper) o;
+
+        return mPosition != null ? mPosition.equals(wrapper.mPosition) : wrapper.mPosition == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return mPosition != null ? mPosition.hashCode() : 0;
     }
 }

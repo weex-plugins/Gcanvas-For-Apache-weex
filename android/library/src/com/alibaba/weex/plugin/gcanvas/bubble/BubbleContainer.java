@@ -63,6 +63,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     private int clickedBubbleId = -1;
 
+    private int lastX = -1;
+    private int lastY = -1;
+
+    private boolean mIsDetached = false;
+
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
@@ -92,7 +97,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         final LayoutAnimationController controller = new LayoutAnimationController(animation);
         controller.setOrder(LayoutAnimationController.ORDER_RANDOM);
         controller.setDelay(0.1f);
-        animation.setDuration(1000);
+        animation.setDuration(800);
         animation.setInterpolator(new SpringInterpolator());
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
@@ -146,16 +151,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     }
 
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        for (AtomicInteger integer : mAnimationRecorder.values()) {
-            if (integer.get() > 0) {
-                return false;
-            }
-        }
-        return super.dispatchTouchEvent(ev);
-    }
-
-    @Override
     public void removeView(View view) {
         for (int i = 0; i < mWrapperList.size(); i++) {
             BubbleAnimateWrapper wrapper = mWrapperList.get(i);
@@ -167,15 +162,15 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         super.removeView(view);
     }
 
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        for (AtomicInteger integer : mAnimationRecorder.values()) {
-            if (integer.get() > 0) {
-                return true;
-            }
-        }
-        return super.onInterceptTouchEvent(ev);
-    }
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        for (AtomicInteger integer : mAnimationRecorder.values()) {
+//            if (integer.get() > 0) {
+//                return true;
+//            }
+//        }
+//        return super.onInterceptTouchEvent(ev);
+//    }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -184,6 +179,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         if (mIsPositionDirty) {
             calculateBubbleInfo();
             mIsPositionDirty = false;
+        }
+
+        if (!mPositionCache.isEmpty()) {
+            return;
         }
 
         int start = mCurrentLayoutColumn * mRowCount;
@@ -267,20 +266,22 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             end = childCount;
         }
 
+        if (!mPositionCache.isEmpty()) {
+            return;
+        }
+
         mHeadNailViews.clear();
         int count = 0;
         final int headNailSize = mHeadNails.size();
         for (; count < start && count < childCount; count++) {
             BubblePosition position = mHeadNails.get(count % headNailSize);
             View child = getChildAt(count);
-            child.setScaleX(1);
-            child.setScaleY(1);
-            child.setTranslationX(0);
-            child.setTranslationY(0);
             child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
             BubbleAnimateWrapper animator = mWrapperList.get(count);
+            Log.d(TAG, "head view found animator ===> " + animator);
             animator.setBubblePosition(position);
             mHeadNailViews.add(animator);
+            Log.d(TAG, animator + " --- head view ===> scale x = " + child.getScaleX() + ", scale y = " + child.getScaleY() + ", trans x = " + child.getTranslationX() + ", trans y = " + child.getTranslationY());
         }
 
         mPositionCache.clear();
@@ -288,10 +289,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         for (int i = 0; i < bubbleLength && count < childCount; i++) {
             BubblePosition position = mBubblePositions.get(i);
             View child = getChildAt(count);
-            child.setScaleX(1);
-            child.setScaleY(1);
-            child.setTranslationX(0);
-            child.setTranslationY(0);
             BubbleAnimateWrapper animator = mWrapperList.get(count);
             animator.setBubblePosition(position);
             child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
@@ -304,10 +301,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         for (int i = end; i < childCount && count < childCount; i++, count++) {
             BubblePosition position = mTailNails.get((i - end) % tailNailSize);
             View child = getChildAt(count);
-            child.setScaleX(1);
-            child.setScaleY(1);
-            child.setTranslationX(0);
-            child.setTranslationY(0);
             child.layout((int) position.x, (int) position.y, (int) (position.x + position.width), (int) (position.y + position.height));
             BubbleAnimateWrapper animator = mWrapperList.get(count);
             animator.setBubblePosition(position);
@@ -402,6 +395,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         if (null == positions) {
             return;
         }
+
+        if (!mBubblePositions.isEmpty()) {
+            return;
+        }
         this.mBubblePositions.clear();
         for (float[] position : positions) {
             if (position.length == 4) {
@@ -417,6 +414,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         mIsPositionDirty = true;
         if (!mIsAnimationShow) {
             startLayoutAnimation();
+            mIsAnimationShow = true;
+        } else {
+            for (BubbleAnimateWrapper wrapper : mPositionCache) {
+                wrapper.enableFloating(true);
+            }
         }
     }
 
@@ -424,12 +426,20 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     }
 
+    private boolean isAnimating() {
+        for (Map.Entry<BubbleEventCenter.AnimationType, AtomicInteger> entry : mAnimationRecorder.entrySet()) {
+            if (entry.getValue().get() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void swipe(int direction) {
         Log.d(TAG, "swipe direction ===> " + direction);
         int start = mCurrentLayoutColumn * mRowCount;
         int end = start + mBubblePositions.size();
         final int childCount = getChildCount();
-
 
         Log.d(TAG, "swipe start = " + start + ", end = " + end + ", child = " + childCount + ", current = " + mCurrentLayoutColumn);
         if (direction == BubbleAnimateWrapper.sDirectionLeft) {
@@ -513,6 +523,39 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     }
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        int x = (int) ev.getRawX();
+        int y = (int) ev.getRawY();
+        int dealtX = 0;
+        int dealtY = 0;
+
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                dealtX = 0;
+                dealtY = 0;
+                // 保证子View能够接收到Action_move事件
+                getParent().requestDisallowInterceptTouchEvent(true);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                dealtX += Math.abs(x - lastX);
+                dealtY += Math.abs(y - lastY);
+                if (dealtX >= dealtY) {
+                    getParent().requestDisallowInterceptTouchEvent(true);
+                } else {
+                    getParent().requestDisallowInterceptTouchEvent(false);
+                }
+                lastX = x;
+                lastY = y;
+                break;
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_UP:
+                break;
+
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         return mGestureDetector.onTouchEvent(event);
     }
@@ -522,12 +565,15 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         BubbleEventCenter.getEventCenter().addBubbleAnimListener(this);
+        mIsDetached = false;
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         BubbleEventCenter.getEventCenter().removeBubbleAnimListener(this);
+        mAnimationRecorder.clear();
+        mIsDetached = true;
     }
 
     @Override
@@ -607,17 +653,13 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     }
 
     public void replaceBubble(int position, int index) {
+        if (isAnimating() || mIsDetached) {
+            return;
+        }
         if (position > mBubblePositions.size() || position < 0) {
             return;
         }
 
-
-        for (Map.Entry<BubbleEventCenter.AnimationType, AtomicInteger> entry : mAnimationRecorder.entrySet()) {
-            Log.e(TAG, entry.getKey() + " count ===> " + entry.getValue());
-            if (entry.getValue().get() > 0) {
-                return;
-            }
-        }
 
         if (index < 0 || index > mWrapperList.size()) {
             return;
@@ -763,13 +805,16 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     }
 
-
     public void addAnimationCallback(IAnimationListener animationListener) {
-        mAnimationListeners.add(animationListener);
+        if (!mAnimationListeners.contains(animationListener)) {
+            mAnimationListeners.add(animationListener);
+        }
     }
 
     public void addBubbleClickCallback(IBubbleClickListener bubbleClicklistener) {
-        mBubbleClickListeners.add(bubbleClicklistener);
+        if (!mBubbleClickListeners.contains(bubbleClicklistener)) {
+            mBubbleClickListeners.add(bubbleClicklistener);
+        }
     }
 
 
