@@ -20,7 +20,7 @@
 }
 
 //WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent, 1.0)
-WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
+//WX_PlUGIN_EXPORT_COMPONENT(bubble,WXBubbleComponent)
 
 WX_EXPORT_METHOD(@selector(registerCallback:finished:bubbleClick:))
 WX_EXPORT_METHOD(@selector(replaceBubble:position:))

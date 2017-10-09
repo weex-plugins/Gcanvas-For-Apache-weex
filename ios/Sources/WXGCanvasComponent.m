@@ -32,7 +32,7 @@
 @implementation WXGCanvasComponent
 
 //WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent, 1.0)
-WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
+//WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 
 
 /**
