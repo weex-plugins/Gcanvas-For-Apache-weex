@@ -230,10 +230,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         for (float[] position : nailInfo) {
             if (position.length == 4) {
                 BubblePosition bp = new BubblePosition(position);
-                bp.disLeftX = 0;
-                bp.disLeftY = 0;
-                bp.scaleLeftX = 1.0f;
-                bp.scaleLeftY = 1.0f;
+//                bp.disLeftX = 0;
+//                bp.disLeftY = 0;
+//                bp.scaleLeftX = 1.0f;
+//                bp.scaleLeftY = 1.0f;
                 bp.isNail = true;
                 this.mHeadNails.add(bp);
             }
@@ -249,10 +249,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         for (float[] position : nailInfo) {
             if (position.length == 4) {
                 BubblePosition bp = new BubblePosition(position);
-                bp.disRightX = 0;
-                bp.disRightY = 0;
-                bp.scaleRightY = 1.0f;
-                bp.scaleRightX = 1.0f;
+//                bp.disRightX = 0;
+//                bp.disRightY = 0;
+//                bp.scaleRightY = 1.0f;
+//                bp.scaleRightX = 1.0f;
                 bp.isNail = true;
                 this.mTailNails.add(bp);
             }
