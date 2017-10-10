@@ -23,4 +23,6 @@
 - (NSArray*)inBubbleList;
 - (NSArray*)outBubbleList;
 
+- (void)bubbleViewAppear;
+
 @end

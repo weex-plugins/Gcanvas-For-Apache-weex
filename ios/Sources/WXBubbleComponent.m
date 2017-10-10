@@ -84,6 +84,22 @@ WX_EXPORT_METHOD(@selector(outViewBubbleList:))
     }
 }
 
+- (void)fireEvent:(NSString *)eventName params:(NSDictionary *)params
+{
+    [super fireEvent:eventName params:params];
+    if ([eventName isEqualToString:@"appear"]) {
+        WXBubbleView *bubbleView = (WXBubbleView*)self.view;
+        if ([bubbleView isKindOfClass:[WXBubbleView class]]) {
+            dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW, 0.1*NSEC_PER_SEC);
+            dispatch_after(time, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [bubbleView bubbleViewAppear];
+                });
+            });
+        }
+    }
+}
+
 - (void)insertSubview:(WXComponent *)subcomponent atIndex:(NSInteger)index
 {
     WXBubbleView *bubbleView = (WXBubbleView*)self.view;

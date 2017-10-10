@@ -212,6 +212,21 @@
 }
 
 
+- (void)bubbleViewAppear
+{
+    //recover pluse animation
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        [rowArray enumerateObjectsUsingBlock:^(UIView * wrapView, NSUInteger idx, BOOL * _Nonnull stop) {
+            if( wrapView.subviews.count > 0 ){
+                UIView *view = [wrapView.subviews firstObject];
+                if( view ){
+                    [self pulseAnimationWithView:view];
+                }
+            }
+        }];
+    }];
+}
+
 #pragma mark - ViewFrame Utils
 - (CGRect)originViewFrameAtIndex:(NSUInteger)idx
 {
@@ -624,16 +639,7 @@
 
 - (void)onWillEnterForegroundNotify:(NSNotification*)notification
 {
-    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
-        [rowArray enumerateObjectsUsingBlock:^(UIView * wrapView, NSUInteger idx, BOOL * _Nonnull stop) {
-            if( wrapView.subviews.count > 0 ){
-                UIView *view = [wrapView.subviews firstObject];
-                if( view ){
-                    [self pulseAnimationWithView:view];
-                }
-            }
-        }];
-    }];
+    [self bubbleViewAppear];
 }
 
 @end
