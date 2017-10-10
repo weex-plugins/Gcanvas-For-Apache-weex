@@ -2,6 +2,7 @@ package com.alibaba.weex.plugin.gcanvas.bubble;
 
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -251,6 +252,9 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         }
 
         if (mIsReattached) {
+            for (BubbleAnimateWrapper wrapper : mPositionCache) {
+                wrapper.enableFloating(true);
+            }
             return;
         }
 
@@ -397,10 +401,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         if (!mIsAnimationShow) {
             startLayoutAnimation();
             mIsAnimationShow = true;
-        } else {
-            for (BubbleAnimateWrapper wrapper : mPositionCache) {
-                wrapper.enableFloating(true);
-            }
         }
     }
 
@@ -442,7 +442,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                     BubblePosition position = animateWrapper.getPosition();
                     if (null != position && position.column < 0) {
                         addInOrder(mHeadNailViews, animateWrapper);
-//                        mHeadNailViews.add(0, animateWrapper);
                         mPositionCache.remove(animateWrapper);
                     }
                 }
@@ -458,7 +457,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                             animator.move(direction);
                             mTailNailViews.remove(animator);
                             addInOrder(mPositionCache, animator);
-//                            mPositionCache.add(animator);
                             row++;
                             counter++;
                             continue loop;
@@ -467,7 +465,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                     animator = mTailNailViews.remove(0);
                     animator.move(direction);
                     addInOrder(mPositionCache, animator);
-//                    mPositionCache.add(animator);
                     counter++;
                 }
                 mCurrentLayoutColumn++;
@@ -482,7 +479,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                     animateWrapper.move(direction);
                     BubblePosition position = animateWrapper.getPosition();
                     if (null != position && position.column >= mColumnCount) {
-//                        mTailNailViews.add(0, animateWrapper);
                         addInOrder(mTailNailViews, animateWrapper);
                         mPositionCache.remove(animateWrapper);
                     }
@@ -691,6 +687,8 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             if (-1 < toPlaceIndex) {
                 BubbleAnimateWrapper wrapper = mTailNailViews.remove(toPlaceIndex);
                 wrapper.setBubblePosition(animateWrapper.getPosition());
+                wrapper.getCurrentView().setX(animateWrapper.getPosition().x);
+                wrapper.getCurrentView().setY(animateWrapper.getPosition().y);
                 addInOrder(mHeadNailViews, wrapper);
             }
         }
@@ -709,7 +707,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 wrapper.move(BubbleAnimateWrapper.sDirectionRight);
                 pos = wrapper.getPosition();
                 if (null != pos && pos.column >= mColumnCount) {
-//                    mTailNailViews.add(0, wrapper);
                     addInOrder(mTailNailViews, wrapper);
                     mPositionCache.remove(wrapper);
                 }
@@ -719,7 +716,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         }
         animateWrapper.scaleBounce(bubblePos);
         if (!mPositionCache.contains(animateWrapper)) {
-//            mPositionCache.add(animateWrapper);
             addInOrder(mPositionCache, animateWrapper);
         }
     }
@@ -801,6 +797,16 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         }
         list.add(insertAt, item);
         return insertAt;
+    }
+
+    @Override
+    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
+        super.onVisibilityChanged(changedView, visibility);
+        if(visibility == View.VISIBLE && mIsReattached){
+            for (BubbleAnimateWrapper wrapper : mPositionCache) {
+                wrapper.enableFloating(true);
+            }
+        }
     }
 }
 
