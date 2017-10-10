@@ -309,32 +309,16 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
         } else if (null == mPosition) {
             return -1;
         }
-        int positionCompare = mPosition.compareTo(o.getPosition());
-        if (0 != positionCompare) {
-            return positionCompare;
-        } else {
-            return (mViewIndex < o.mViewIndex) ? -1 : ((mViewIndex == o.mViewIndex) ? 0 : 1);
-        }
+        return mPosition.compareTo(o.getPosition());
+//        if (0 != positionCompare) {
+//            return positionCompare;
+//        } else {
+//            return (mViewIndex < o.mViewIndex) ? -1 : ((mViewIndex == o.mViewIndex) ? 0 : 1);
+//        }
     }
 
     @Override
     public String toString() {
         return "[" + mViewIndex + "," + (null == mPosition ? "NaN, NaN]" : mPosition.row + "," + mPosition.column + "]");
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        BubbleAnimateWrapper wrapper = (BubbleAnimateWrapper) o;
-
-        return mPosition != null ? mPosition.equals(wrapper.mPosition) : wrapper.mPosition == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        return mPosition != null ? mPosition.hashCode() : 0;
     }
 }

@@ -104,14 +104,14 @@ public class BubblePosition implements Comparable<BubblePosition> {
     public int compareTo(@NonNull BubblePosition o) {
         int rowDiff = row - o.row;
         int columnDiff = column - o.column;
-        if (rowDiff > 0) {
+        if (columnDiff > 0) {
             return 1;
-        } else if (rowDiff < 0) {
+        } else if (columnDiff < 0) {
             return -1;
         } else {
-            if (columnDiff > 0) {
+            if (rowDiff > 0) {
                 return 1;
-            } else if (columnDiff < 0) {
+            } else if (rowDiff < 0) {
                 return -1;
             } else {
                 return 0;
