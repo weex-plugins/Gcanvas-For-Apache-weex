@@ -179,6 +179,8 @@
 - (void)replaceBubble:(NSUInteger)bubbleId position:(NSUInteger)position
 {
     [self switchBubble:bubbleId position:position];
+    
+    [self bubbleViewAppear];
 }
 
 - (NSArray*)inBubbleList
@@ -502,6 +504,8 @@
                 #endif
                 }
             }];
+            
+            [weakSelf pulseAnimationWithView:v];
         }];
     }];
 }
@@ -542,6 +546,10 @@
 
 - (void)pulseAnimationWithView:(UIView*)view
 {
+    CAAnimation *animation = [view.layer animationForKey:@"bubble.pulse"];
+    if( animation )
+        return;
+    
     //view pulse animation
     NSArray *durationArray = @[@(4), @(5), @(6)];
     NSArray *distanceArray = @[@(5), @(6), @(7)];
@@ -552,6 +560,7 @@
     anim.duration = [durationArray[rand()%3] floatValue];
     anim.autoreverses = YES;
     anim.repeatCount=FLT_MAX;
+    
     [view.layer addAnimation:anim forKey:@"bubble.pulse"];
 }
 
