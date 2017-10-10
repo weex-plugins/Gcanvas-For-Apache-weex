@@ -1,6 +1,9 @@
 package com.alibaba.weex.plugin.gcanvas.bubble;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -71,8 +74,14 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     private static final int SWIPE_THRESHOLD = 100;
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
+    private static final int sScreenLock = 0x1200;
+    private static final int sScreenOn = 0x1300;
+
+    private int mScreenState = sScreenOn;
 
     private boolean mIsBubbleReplacing = false;
+
+    private ScreenBroadcastReceiver mScreenReceiver = new ScreenBroadcastReceiver();
 
     public BubbleContainer(Context context) {
         super(context);
@@ -174,7 +183,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             mIsPositionDirty = false;
         }
 
-        if (mIsReattached) {
+        if (mIsReattached || mScreenState == sScreenLock) {
             return;
         }
 
@@ -251,7 +260,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             end = childCount;
         }
 
-        if (mIsReattached) {
+        if (mIsReattached || mScreenState == sScreenLock) {
             for (BubbleAnimateWrapper wrapper : mPositionCache) {
                 wrapper.enableFloating(true);
             }
@@ -560,6 +569,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             mIsReattached = true;
         }
         mIsDetached = false;
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_USER_PRESENT);
+        getContext().registerReceiver(mScreenReceiver, filter);
     }
 
     @Override
@@ -569,6 +583,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         mAnimationRecorder.clear();
         mIsDetached = true;
         mIsBubbleReplacing = false;
+        getContext().unregisterReceiver(mScreenReceiver);
     }
 
     @Override
@@ -799,12 +814,16 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         return insertAt;
     }
 
-    @Override
-    protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        if(visibility == View.VISIBLE && mIsReattached){
-            for (BubbleAnimateWrapper wrapper : mPositionCache) {
-                wrapper.enableFloating(true);
+    private class ScreenBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+                mScreenState = sScreenOn;
+            } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+                mScreenState = sScreenLock;
+            } else if (Intent.ACTION_USER_PRESENT.equals(action)) {
+                mScreenState = sScreenOn;
             }
         }
     }
