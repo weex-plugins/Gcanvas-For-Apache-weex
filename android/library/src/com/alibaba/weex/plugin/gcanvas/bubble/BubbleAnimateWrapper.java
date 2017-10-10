@@ -18,13 +18,13 @@ import java.util.Random;
  *         create at 2017/9/21
  */
 
-public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Comparable<BubbleAnimateWrapper> {
+public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
     private static final String TAG = BubbleAnimateWrapper.class.getSimpleName();
 
     static final int sDirectionLeft = 0x100;
     static final int sDirectionRight = 0x200;
 
-    private static final float sMoveDamping = 250;
+    private static final float sMoveDamping = 60;
 
     private static final long[] sFloatDurationCandidates = {
             2000, 2500, 3000
@@ -49,8 +49,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
     private Animation mFloatingAnim;
 
     private SpringSet.ISpringSetListener mScaleListener;
-
-    private boolean mIsPlaying = false;
 
     private SpringSet mLastMoveSpring;
 
@@ -163,7 +161,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
                 SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mLeft.x, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
                 SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mLeft.y, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
-                springSet.addSpringSetListener(this);
                 springSet.addSpringSetListener(mMoveLeftEndListener);
                 springSet.start();
                 if (null != mPosition && null != mPosition.mLeft) {
@@ -179,7 +176,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
                 SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mRight.x, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
                 SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mRight.y, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
-                springSet.addSpringSetListener(this);
                 springSet.addSpringSetListener(mMoveRightEndListener);
                 springSet.start();
                 if (null != mPosition && null != mPosition.mRight) {
@@ -211,12 +207,11 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
         SpringSet gravityAnimation = new SpringSet();
         final float translationX = mView.getTranslationX();
         final float translationY = mView.getTranslationY();
-        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, 200f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, 200f, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
         springX.setStartValue(translationX + offsetX);
         springY.setStartValue(translationY + offsetY);
         gravityAnimation.playTogether(springX, springY);
-        gravityAnimation.addSpringSetListener(this);
         gravityAnimation.start();
     }
 
@@ -227,8 +222,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
         float scaleX = mPosition != null ? newPos.width / mView.getWidth() : 1.0f;
         float scaleY = mPosition != null ? newPos.height / mView.getHeight() : 1.0f;
         SpringSet mBounceAnim = new SpringSet();
-//        final float scaleToX = scaleX * mView.getScaleX();
-//        final float scaleToY = scaleY * mView.getScaleY();
         final float scaleToX = scaleX;
         final float scaleToY = scaleY;
         mView.setX(newPos.x);
@@ -250,7 +243,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
                 SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, mView.getTranslationX(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
                 springAnimation.setStartValue(mView.getTranslationX() - 100);
                 mBounceAnim.play(springAnimation);
-                mBounceAnim.addSpringSetListener(this);
                 mBounceAnim.addSpringSetListener(mEdgeLeftBounceListener);
                 mBounceAnim.start();
             }
@@ -260,30 +252,10 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
                 SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, mView.getTranslationX(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
                 springAnimation.setStartValue(mView.getTranslationX() + 100);
                 mBounceAnim.play(springAnimation);
-                mBounceAnim.addSpringSetListener(this);
                 mBounceAnim.addSpringSetListener(mEdgeRightBounceListener);
                 mBounceAnim.start();
             }
         }
-    }
-
-    @Override
-    public void onSpringStart(SpringSet springSet) {
-        this.mIsPlaying = true;
-        enableFloating(false);
-    }
-
-    @Override
-    public void onSpringEnd(SpringSet springSet) {
-        this.mIsPlaying = false;
-        springSet.removeSpringSetListener(this);
-        if (!mPosition.isNail) {
-            enableFloating(true);
-        }
-    }
-
-    public boolean isPlaying() {
-        return mIsPlaying;
     }
 
     void enableFloating(boolean enable) {

@@ -127,7 +127,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 animation.setAnimationListener(null);
                 AtomicInteger layoutAnim = mAnimationRecorder.get(BubbleEventCenter.AnimationType.Layout);
                 if (layoutAnim.decrementAndGet() == 0) {
-                    for (BubbleAnimateWrapper wrapper : mPositionCache) {
+                    for (BubbleAnimateWrapper wrapper : mWrapperList) {
                         wrapper.enableFloating(true);
                     }
                 }
@@ -261,9 +261,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         }
 
         if (mIsReattached || mScreenState == sScreenLock) {
-            for (BubbleAnimateWrapper wrapper : mPositionCache) {
-                wrapper.enableFloating(true);
-            }
             return;
         }
 
