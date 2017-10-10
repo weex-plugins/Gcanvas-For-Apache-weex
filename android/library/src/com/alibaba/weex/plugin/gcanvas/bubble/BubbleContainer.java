@@ -591,6 +591,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         BubbleEventCenter.getEventCenter().removeBubbleAnimListener(this);
         mAnimationRecorder.clear();
         mIsDetached = true;
+        mIsBubbleReplacing = false;
     }
 
     @Override
