@@ -44,6 +44,16 @@
         
         _childViewArrayDict = NSMutableDictionary.dictionary;
         _childViewCount = 0;
+        
+//        [[NSNotificationCenter defaultCenter] addObserver:self
+//                                                 selector:@selector(onDidEnterBackgroundNotify:)
+//                                                     name:UIApplicationWillResignActiveNotification
+//                                                   object:nil];
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(onWillEnterForegroundNotify:)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
     }
     return self;
 }
@@ -62,6 +72,8 @@
         [rowArray removeAllObjects];
     }];
     [_childViewArrayDict removeAllObjects];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)configPosition:(NSArray*)positions withNail:(NSArray*)nails withRow:(NSUInteger)row
@@ -146,16 +158,17 @@
     } completion:nil];
 
     //view pulse animation
-    NSArray *durationArray = @[@(4), @(5), @(6)];
-    NSArray *distanceArray = @[@(5), @(6), @(7)];
-
-    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];;
-    anim.fromValue = @(0);
-    anim.toValue = @( [distanceArray[rand()%3] floatValue] );
-    anim.duration = [durationArray[rand()%3] floatValue];
-    anim.autoreverses = YES;
-    anim.repeatCount=FLT_MAX;
-    [view.layer addAnimation:anim forKey:@"bubble.pulse"];
+//    NSArray *durationArray = @[@(4), @(5), @(6)];
+//    NSArray *distanceArray = @[@(5), @(6), @(7)];
+//
+//    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];;
+//    anim.fromValue = @(0);
+//    anim.toValue = @( [distanceArray[rand()%3] floatValue] );
+//    anim.duration = [durationArray[rand()%3] floatValue];
+//    anim.autoreverses = YES;
+//    anim.repeatCount=FLT_MAX;
+//    [view.layer addAnimation:anim forKey:@"bubble.pulse"];
+    [self pulseAnimationWithView:view];
     
     //save childView
     NSUInteger rowId = index % _rowNum;
@@ -516,6 +529,21 @@
     }];
 }
 
+- (void)pulseAnimationWithView:(UIView*)view
+{
+    //view pulse animation
+    NSArray *durationArray = @[@(4), @(5), @(6)];
+    NSArray *distanceArray = @[@(5), @(6), @(7)];
+    
+    CABasicAnimation *anim = [CABasicAnimation animationWithKeyPath:@"transform.translation.y"];;
+    anim.fromValue = @(0);
+    anim.toValue = @( [distanceArray[rand()%3] floatValue] );
+    anim.duration = [durationArray[rand()%3] floatValue];
+    anim.autoreverses = YES;
+    anim.repeatCount=FLT_MAX;
+    [view.layer addAnimation:anim forKey:@"bubble.pulse"];
+}
+
 
 #pragma mark - Event Handler
 - (void)onWrapViewTapHandler:(UITapGestureRecognizer*)recoginzer
@@ -566,6 +594,7 @@
     }
 }
 
+
 #pragma mark - Override
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
@@ -581,4 +610,25 @@
         subView.userInteractionEnabled = YES;
     }];
 }
+
+#pragma mark - Notification
+//- (void)onDidEnterBackgroundNotify:(NSNotification*)notification
+//{
+//
+//}
+
+- (void)onWillEnterForegroundNotify:(NSNotification*)notification
+{
+    [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
+        [rowArray enumerateObjectsUsingBlock:^(UIView * wrapView, NSUInteger idx, BOOL * _Nonnull stop) {
+            if( wrapView.subviews.count > 0 ){
+                UIView *view = [wrapView.subviews firstObject];
+                if( view ){
+                    [self pulseAnimationWithView:view];
+                }
+            }
+        }];
+    }];
+}
+
 @end
