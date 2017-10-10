@@ -13,6 +13,8 @@
 
 @property (assign, nonatomic) BOOL isInSwitching; //在替换动画中
 @property (assign, nonatomic) BOOL isInSwiping; //在横滑动画中
+@property (assign, nonatomic) BOOL isInBouncing; //在bounce动画中
+
 @property (assign, nonatomic) NSUInteger childViewCount; //视图数量
 
 @end
@@ -438,6 +440,8 @@
     __weak typeof(self)weakSelf = self;
     CGFloat detlaX = (isLeft) ? (-dis): (dis);
     
+    
+    _isInBouncing = YES;
     __block NSUInteger finishCount = 0;
     [_childViewArrayDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull rowIdx, NSMutableArray *rowArray, BOOL * _Nonnull stop) {
         [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -450,6 +454,7 @@
                     v.frame = oldFrame;
                 } completion:^(BOOL finished) {
                     if( ++finishCount >= weakSelf.childViewCount ){
+                        weakSelf.isInBouncing = NO;
                         if( weakSelf.finishSwipeCallback ){
                             weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"bounce"}, YES);
                         }
@@ -464,7 +469,7 @@
 {
     _isInSwiping = YES;
     
-    if( _isInSwitching ){
+    if( _isInSwitching || _isInBouncing ){
         return;
     }
     _cursorColumnId = (isLeft) ? (_cursorColumnId+1) : (_cursorColumnId-1);
