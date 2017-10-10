@@ -85,8 +85,6 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
 static EAGLContext *_firstContext;
 static NSMutableDictionary *_instanceDict;
 
-//static NSMutableArray *_instance
-//- (EAGLContext*)getEAGLContext
 + (EAGLContext*)getEAGLContext:(NSString*)instacneId
 {
     if(!_instanceDict){
@@ -99,23 +97,18 @@ static NSMutableDictionary *_instanceDict;
     
     if( !_firstContext )
     {
-//        NSLog(@"context--------------12");
        _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-//        NSLog(@"context--------------12 %p", _firstContext);
         return _firstContext;
     }
     else
     {
-//        NSLog(@"context--------------13");
         EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_firstContext.sharegroup];
-//        NSLog(@"context--------------13 %p -> %p", _firstContext, newContext);
         return newContext;
     }
 }
 
 - (void)dealloc
 {
-//    NSLog(@"context--------------WXGCanvasModule dealloc");
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -139,7 +132,7 @@ static NSMutableDictionary *_instanceDict;
 }
 
 - (NSString*)enable:(NSDictionary *)args
-{//return @"";
+{
     if (!args || !args[@"componentId"])
     {
         return @"";
@@ -197,7 +190,7 @@ static NSMutableDictionary *_instanceDict;
 }
 
 - (void)render:(NSString *)commands componentId:(NSString*)componentId
-{//return;
+{
     if( self.enterBackground ) return;
     
 //    GCVLOG_METHOD(@"render:componentId: , commands=%@, componentId=%@", commands, componentId);
@@ -234,7 +227,7 @@ static NSMutableDictionary *_instanceDict;
 
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
-{//callback(@{});return;
+{
     if( ![data isKindOfClass:NSArray.class] )
     {
         return;
@@ -272,7 +265,7 @@ static NSMutableDictionary *_instanceDict;
 }
 
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
-{//callback(@{});return;
+{
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
 
@@ -380,7 +373,7 @@ static NSMutableDictionary *_instanceDict;
 
 //设置Context类型
 - (void)setContextType:(NSUInteger)type componentId:(NSString*)componentId
-{//return;
+{
     GCVLOG_METHOD(@"setContextType %ld componentId:%@", (unsigned long)type, componentId);
     GCanvasPlugin *plugin = self.pluginDict[componentId];
     if( plugin )
@@ -398,7 +391,6 @@ static NSMutableDictionary *_instanceDict;
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
 {
-//    NSLog(@"-----onGCanvasCompLoadedNotify");
     NSString *componentId = notification.userInfo[@"componentId"];
     [self gcanvasComponentById:componentId];
 }
@@ -443,21 +435,24 @@ static NSMutableDictionary *_instanceDict;
     });
     
     [self.pluginDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, GCanvasPlugin* plugin, BOOL * _Nonnull stop) {
-        NSDictionary *meaDict = @{MEASURE_FPS:@([plugin fps])};
-        AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] initWithDictionary:meaDict];
         
-        NSDictionary *dimDict = @{DIMENSION_PLUGIN:@"weex", DIMENSION_TYPE:@([plugin contextType])};
-        AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] initWithDictionary:dimDict];
-        
-        [AppMonitorStat commitWithModule:AppModule monitorPoint:MONITOR_POINT_FPS dimensionValueSet:dimensionValSet measureValueSet:measureValSet];
+        CGFloat fps = [plugin fps];
+        if( fps > 0 )
+        {
+            NSDictionary *meaDict = @{MEASURE_FPS:@([plugin fps])};
+            AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] initWithDictionary:meaDict];
+            
+            NSDictionary *dimDict = @{DIMENSION_PLUGIN:@"weex", DIMENSION_TYPE:@([plugin contextType])};
+            AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] initWithDictionary:dimDict];
+            
+            [AppMonitorStat commitWithModule:AppModule monitorPoint:MONITOR_POINT_FPS dimensionValueSet:dimensionValSet measureValueSet:measureValSet];
+        }
     }];
     
     NSString *instanceId = notification.userInfo[@"instanceId"];
     if (![instanceId isEqualToString:weexInstance.instanceId]) {
         return;
     }
-    
-//    NSLog(@"context--------------WeexInstanceDestory Notification");
     
     [self.pluginDict removeAllObjects];
     self.pluginDict = nil;
@@ -466,17 +461,13 @@ static NSMutableDictionary *_instanceDict;
         if (comp.glkview.delegate) {
             comp.glkview.delegate = nil;
         }
-//        NSLog(@"context--------------view context %p", comp.glkview.context);
     }];
     [self.componentDict removeAllObjects];
     self.componentDict = nil;
     [[GCVCommon sharedInstance] clearLoadImageDict];
     
-//    NSLog(@"context--------------releases Module Instance:%p", _firstContext);
-
     [_instanceDict removeObjectForKey:instanceId];
     if( _instanceDict.count == 0 ){
-//        NSLog(@"context--------------releases Context:%p", _firstContext);
         _firstContext = nil;
     }
 }
