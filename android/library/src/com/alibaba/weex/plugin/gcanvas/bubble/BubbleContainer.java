@@ -15,7 +15,6 @@ import android.view.animation.ScaleAnimation;
 import com.alibaba.fastjson.JSONArray;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,16 +164,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         super.removeView(view);
     }
 
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent ev) {
-//        for (AtomicInteger integer : mAnimationRecorder.values()) {
-//            if (integer.get() > 0) {
-//                return true;
-//            }
-//        }
-//        return super.onInterceptTouchEvent(ev);
-//    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -230,10 +219,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         for (float[] position : nailInfo) {
             if (position.length == 4) {
                 BubblePosition bp = new BubblePosition(position);
-//                bp.disLeftX = 0;
-//                bp.disLeftY = 0;
-//                bp.scaleLeftX = 1.0f;
-//                bp.scaleLeftY = 1.0f;
                 bp.isNail = true;
                 this.mHeadNails.add(bp);
             }
@@ -249,10 +234,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         for (float[] position : nailInfo) {
             if (position.length == 4) {
                 BubblePosition bp = new BubblePosition(position);
-//                bp.disRightX = 0;
-//                bp.disRightY = 0;
-//                bp.scaleRightY = 1.0f;
-//                bp.scaleRightX = 1.0f;
                 bp.isNail = true;
                 this.mTailNails.add(bp);
             }
@@ -700,16 +681,17 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             mHeadNailViews.remove(animateWrapper);
             final int tailSize = mTailNailViews.size();
             int toPlaceIndex = tailSize - 1;
-            for (int i = tailSize - 1; i >= 0; i++) {
+            for (int i = tailSize - 1; i >= 0; i--) {
                 BubbleAnimateWrapper bubble = mTailNailViews.get(i);
-                if (bubble.getPosition().row == bubble.getPosition().row) {
+                if (bubble.getPosition().row == animateWrapper.getPosition().row) {
                     toPlaceIndex = i;
                     break;
                 }
             }
             if (-1 < toPlaceIndex) {
-                addInOrder(mHeadNailViews, mTailNailViews.remove(toPlaceIndex));
-//                mHeadNailViews.add(mTailNailViews.remove(toPlaceIndex));
+                BubbleAnimateWrapper wrapper = mTailNailViews.remove(toPlaceIndex);
+                wrapper.setBubblePosition(animateWrapper.getPosition());
+                addInOrder(mHeadNailViews, wrapper);
             }
         }
 
@@ -804,19 +786,19 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     }
 
 
-    private static <T extends Comparable<T>> int addInOrder(final List<T> list, final T item) {
+    private static int addInOrder(final List<BubbleAnimateWrapper> list, final BubbleAnimateWrapper item) {
         if (list.contains(item)) {
             return -1;
         }
-        final int insertAt;
-        // The index of the search key, if it is contained in the list; otherwise, (-(insertion point) - 1)
-        final int index = Collections.binarySearch(list, item);
-        if (index < 0) {
-            insertAt = -(index + 1);
-        } else {
-            insertAt = index + 1;
+        int insertAt = 0;
+        final int size = list.size();
+        for (int i = 0; i < size; i++) {
+            BubbleAnimateWrapper toCompare = list.get(i);
+            if (item.getPosition().column == toCompare.getPosition().column && item.getPosition().row > toCompare.getPosition().row) {
+                insertAt = i + 1;
+                break;
+            }
         }
-
         list.add(insertAt, item);
         return insertAt;
     }

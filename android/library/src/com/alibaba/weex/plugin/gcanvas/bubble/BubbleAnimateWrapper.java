@@ -306,11 +306,6 @@ public class BubbleAnimateWrapper implements SpringSet.ISpringSetListener, Compa
             return -1;
         }
         return mPosition.compareTo(o.getPosition());
-//        if (0 != positionCompare) {
-//            return positionCompare;
-//        } else {
-//            return (mViewIndex < o.mViewIndex) ? -1 : ((mViewIndex == o.mViewIndex) ? 0 : 1);
-//        }
     }
 
     @Override
