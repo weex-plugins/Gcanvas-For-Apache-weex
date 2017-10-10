@@ -253,15 +253,14 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        if (mScreenState == sScreenLock || mIsReattached) {
+            return;
+        }
         int start = mCurrentLayoutColumn * mRowCount;
         int end = start + mBubblePositions.size();
         final int childCount = getChildCount();
         if (end > childCount) {
             end = childCount;
-        }
-
-        if (mIsReattached || mScreenState == sScreenLock) {
-            return;
         }
 
         mHeadNailViews.clear();
@@ -571,6 +570,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(Intent.ACTION_USER_PRESENT);
         getContext().registerReceiver(mScreenReceiver, filter);
+        if(mIsReattached){
+            for (BubbleAnimateWrapper animateWrapper : mWrapperList) {
+                animateWrapper.enableFloating(true);
+            }
+        }
     }
 
     @Override
