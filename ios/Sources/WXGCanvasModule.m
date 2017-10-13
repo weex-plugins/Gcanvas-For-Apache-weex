@@ -439,9 +439,9 @@ static NSMutableDictionary *_instanceDict;
         CGFloat fps = [plugin fps];
         if( fps > 0 )
         {
-            NSDictionary *meaDict = @{MEASURE_FPS:@([plugin fps])};
-            AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] initWithDictionary:meaDict];
-            
+            AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] init];
+            [measureValSet setValue:@(fps) forName:MEASURE_FPS];
+                        
             NSDictionary *dimDict = @{DIMENSION_PLUGIN:@"weex", DIMENSION_TYPE:@([plugin contextType])};
             AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] initWithDictionary:dimDict];
             
