@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -54,7 +55,9 @@ public class GCanvasLightningModule extends WXModule implements Destroyable {
 
 
     public GCanvasLightningModule() {
-        GCanvasJNI.init();
+        if (Build.VERSION.SDK_INT < 24) {
+            GCanvasJNI.init();
+        }
 //        GLog.setLevel("debug");
     }
 
