@@ -83,6 +83,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     private ScreenBroadcastReceiver mScreenReceiver = new ScreenBroadcastReceiver();
 
+    private int mTotal = 18;
+
+    private boolean mHasLayouted = false;
+
     public BubbleContainer(Context context) {
         super(context);
         init();
@@ -102,6 +106,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     public BubbleContainer(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
+    }
+
+    public void setTotal(int count) {
+        this.mTotal = count;
     }
 
     private void init() {
@@ -183,7 +191,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             mIsPositionDirty = false;
         }
 
-        if (mIsReattached || mScreenState == sScreenLock) {
+        if (mIsReattached || mScreenState == sScreenLock || mHasLayouted) {
             return;
         }
 
@@ -253,7 +261,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (mScreenState == sScreenLock || mIsReattached) {
+        if (mScreenState == sScreenLock || mIsReattached || mHasLayouted) {
             return;
         }
         int start = mCurrentLayoutColumn * mRowCount;
@@ -297,8 +305,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             animator.setBubblePosition(position);
             mTailNailViews.add(animator);
         }
-    }
 
+        if (mWrapperList.size() == mTotal) {
+            mHasLayouted = true;
+        }
+    }
 
     public void setRows(int rows) {
         this.mRowCount = rows;
@@ -515,7 +526,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 mCurrentLayoutColumn--;
             }
         }
-
     }
 
     @Override

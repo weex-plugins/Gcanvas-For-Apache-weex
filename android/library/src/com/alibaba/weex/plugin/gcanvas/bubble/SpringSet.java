@@ -18,9 +18,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
     private final CopyOnWriteArrayList<ISpringSetListener> mSpringListeners = new CopyOnWriteArrayList<>();
 
-    public static final float sStiffness = 1.0f;
-    public static final float sDampingRadio = 1.0f;
-
     private boolean mTerminated = false;
 
     private boolean mDependencyDirty = false;

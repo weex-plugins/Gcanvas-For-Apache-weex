@@ -2,7 +2,6 @@ package com.alibaba.weex.plugin.gcanvas.bubble;
 
 import android.support.animation.DynamicAnimation;
 import android.support.animation.SpringAnimation;
-import android.support.animation.SpringForce;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.animation.Animation;
@@ -12,6 +11,8 @@ import android.view.animation.TranslateAnimation;
 import com.taobao.weex.utils.WXViewUtils;
 
 import java.util.Random;
+
+import static android.support.animation.SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY;
 
 /**
  * @author ertong
@@ -24,7 +25,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
     static final int sDirectionLeft = 0x100;
     static final int sDirectionRight = 0x200;
 
-    private static final float sMoveDamping = 60;
+    private static final float sMoveDamping = 80;
 
     private static final long[] sFloatDurationCandidates = {
             2000, 2500, 3000
@@ -56,7 +57,6 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
 
     BubbleAnimateWrapper(@NonNull View view, int index) {
         this.mView = view;
-        this.mView.setPivotX(0);
 
         mMoveLeftEndListener = new SpringSet.ISpringSetListener() {
             @Override
@@ -147,21 +147,20 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
     }
 
     public void move(int direction) {
-        if (null != mLastMoveSpring && mLastMoveSpring.isRunning()) {
-            mLastMoveSpring.fastMove();
-        }
-
         if (null == mView || mPosition == null) {
             return;
+        }
+        if (null != mLastMoveSpring && mLastMoveSpring.isRunning()) {
+            mLastMoveSpring.fastMove();
         }
 
         if (direction == sDirectionLeft) {
             if (null != mPosition.mLeft) {
                 SpringSet springSet = new SpringSet();
-                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.mLeft.width / mView.getWidth(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.mLeft.height / mView.getHeight(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mLeft.x, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mLeft.y, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.mLeft.width / mView.getWidth(), sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.mLeft.height / mView.getHeight(), sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mLeft.x + (mPosition.mLeft.width - mView.getWidth()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mLeft.y + (mPosition.mLeft.height - mView.getHeight()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
                 springSet.addSpringSetListener(mMoveLeftEndListener);
                 springSet.start();
@@ -173,10 +172,10 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
         } else if (direction == sDirectionRight) {
             if (null != mPosition.mRight) {
                 SpringSet springSet = new SpringSet();
-                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.mRight.width / mView.getWidth(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.mRight.height / mView.getHeight(), sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mRight.x, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mRight.y, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleX = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, mPosition.mRight.width / mView.getWidth(), sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation scaleY = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, mPosition.mRight.height / mView.getHeight(), sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mRight.x + (mPosition.mRight.width - mView.getWidth()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mRight.y + (mPosition.mRight.height - mView.getHeight()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
                 springSet.addSpringSetListener(mMoveRightEndListener);
                 springSet.start();
@@ -197,7 +196,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             return;
         }
 
-        final float k = WXViewUtils.getRealPxByWidth(20.0f, 750);
+        final float k = WXViewUtils.dip2px(WXViewUtils.getRealPxByWidth(20.0f, 750));
         final float l = this.mPosition.width;
         final float x1 = this.mPosition.x;
         final float y1 = this.mPosition.y;
@@ -209,8 +208,8 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
         SpringSet gravityAnimation = new SpringSet();
         final float translationX = mView.getTranslationX();
         final float translationY = mView.getTranslationY();
-        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, sMoveDamping / 2, DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, sMoveDamping / 2, DAMPING_RATIO_MEDIUM_BOUNCY);
         springX.setStartValue(translationX + offsetX);
         springY.setStartValue(translationY + offsetY);
         gravityAnimation.playTogether(springX, springY);
@@ -226,12 +225,12 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
         SpringSet mBounceAnim = new SpringSet();
         final float scaleToX = scaleX;
         final float scaleToY = scaleY;
-        mView.setX(newPos.x);
-        mView.setY(newPos.y);
+        mView.setX(newPos.x + (newPos.width - mView.getWidth()) / 2.0f);
+        mView.setY(newPos.y + (newPos.height - mView.getHeight()) / 2.0f);
         mPosition = newPos;
-        SpringAnimation scaleXAnim = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, scaleToX, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation scaleXAnim = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_X, scaleToX, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
         scaleXAnim.setStartValue(0);
-        SpringAnimation scaleYAnim = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, scaleToY, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation scaleYAnim = SpringUtils.createSpring(mView, DynamicAnimation.SCALE_Y, scaleToY, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
         scaleYAnim.setStartValue(0);
         mBounceAnim.playTogether(scaleXAnim, scaleYAnim);
         mBounceAnim.addSpringSetListener(mScaleListener);
@@ -240,13 +239,14 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
 
     void edgeBounce(int direction) {
         if (null != mLastBounce && mLastBounce.isRunning()) {
+            mLastBounce.removeSpringSetListener(mEdgeLeftBounceListener);
             mLastBounce.fastMove();
         }
         if (direction == sDirectionLeft) {
             if (null != mView) {
                 SpringSet mBounceAnim = new SpringSet();
-                SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.x, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                springAnimation.setStartValue(mPosition.x - 100);
+                SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, mView.getTranslationX(), sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                springAnimation.setStartValue(mView.getTranslationX() - 100);
                 mBounceAnim.play(springAnimation);
                 mBounceAnim.addSpringSetListener(mEdgeLeftBounceListener);
                 mBounceAnim.start();
@@ -255,8 +255,8 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
         } else if (direction == sDirectionRight) {
             if (null != mView) {
                 SpringSet mBounceAnim = new SpringSet();
-                SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.x, sMoveDamping, SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY);
-                springAnimation.setStartValue(mPosition.x + 100);
+                SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, mView.getTranslationX(), sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
+                springAnimation.setStartValue(mView.getTranslationX() + 100);
                 mBounceAnim.play(springAnimation);
                 mBounceAnim.addSpringSetListener(mEdgeRightBounceListener);
                 mBounceAnim.start();

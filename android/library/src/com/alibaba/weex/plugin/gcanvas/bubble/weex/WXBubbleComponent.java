@@ -34,31 +34,6 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
 
     private static final String TAG = WXBubbleComponent.class.getSimpleName();
 
-    private static final float sBasicWidth = 375.0f;
-
-    private static final float[][] sDefaultPositions = {
-            /**
-             * 1 2 3 4
-             * 5 6 7 8
-             **/
-            // 1
-            {20.0f / sBasicWidth, 13.0f / sBasicWidth, 77f / sBasicWidth, 83f / sBasicWidth},
-            // 2
-            {105.0f / sBasicWidth, 6.0f / sBasicWidth, 125 / sBasicWidth, 134 / sBasicWidth},
-            // 3
-            {238 / sBasicWidth, 26 / sBasicWidth, 100 / sBasicWidth, 107 / sBasicWidth},
-            // 4
-            {346 / sBasicWidth, 38 / sBasicWidth, 77 / sBasicWidth, 83 / sBasicWidth},
-            // 5
-            {-19.0f / sBasicWidth, 102 / sBasicWidth, 125 / sBasicWidth, 134 / sBasicWidth},
-            // 6
-            {114.0f / sBasicWidth, 145 / sBasicWidth, 77 / sBasicWidth, 83 / sBasicWidth},
-            // 7
-            {199 / sBasicWidth, 137 / sBasicWidth, 100 / sBasicWidth, 107 / sBasicWidth},
-            // 8
-            {307 / sBasicWidth, 127 / sBasicWidth, 100 / sBasicWidth, 107 / sBasicWidth}
-    };
-
     private BubbleContainer mBubbleContainer;
 
     public WXBubbleComponent(WXSDKInstance instance, WXDomObject dom, WXVContainer parent, String instanceId, boolean isLazy) {
@@ -101,6 +76,13 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
     public void setRows(int rows) {
         if (null != mBubbleContainer && rows > 0) {
             mBubbleContainer.setRows(rows);
+        }
+    }
+
+    @WXComponentProp(name = "total")
+    public void setTotal(int totals) {
+        if (null != mBubbleContainer && totals > 0) {
+            mBubbleContainer.setTotal(totals);
         }
     }
 
@@ -182,6 +164,12 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                     } catch (Throwable e) {
 
                     }
+                }
+                return true;
+            case "total":
+                int total = WXUtils.getInt(param);
+                if (null != mBubbleContainer) {
+                    mBubbleContainer.setTotal(total);
                 }
                 return true;
         }
