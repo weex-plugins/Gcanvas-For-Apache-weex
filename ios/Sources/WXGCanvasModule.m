@@ -653,6 +653,10 @@ static NSMutableDictionary *_instanceDict;
         component = [self gcanvasComponentById:componentId];
     }
     
+    if( !component.glkview.context ){
+        component.glkview.context = [WXGCanvasModule getEAGLContext:(self.weexInstance.instanceId)];
+    }
+    
     __block NSDictionary *retDict;
     __weak typeof(self) weakSelf = self;
     dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
