@@ -518,7 +518,7 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
-    if (component.isViewLoaded && self.weexInstance)
+    if (component.glkview && self.weexInstance)
     {
         if ([component isKindOfClass:[WXGCanvasComponent class]])
         {
