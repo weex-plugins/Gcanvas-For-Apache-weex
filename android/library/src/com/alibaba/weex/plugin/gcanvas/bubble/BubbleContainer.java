@@ -120,7 +120,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         final LayoutAnimationController controller = new LayoutAnimationController(animation);
         controller.setOrder(LayoutAnimationController.ORDER_RANDOM);
         controller.setDelay(0.1f);
-        animation.setDuration(800);
+        animation.setDuration(500);
         animation.setInterpolator(new SpringInterpolator());
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
