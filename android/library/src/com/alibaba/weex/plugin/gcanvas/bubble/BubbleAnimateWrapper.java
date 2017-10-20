@@ -12,6 +12,7 @@ import com.taobao.weex.utils.WXViewUtils;
 
 import java.util.Random;
 
+import static android.support.animation.SpringForce.DAMPING_RATIO_LOW_BOUNCY;
 import static android.support.animation.SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY;
 
 /**
@@ -36,7 +37,6 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
     };
 
     private Random mRandom = new Random();
-
 
     private int mViewIndex;
 
@@ -199,7 +199,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             return;
         }
 
-        final float k = WXViewUtils.dip2px(WXViewUtils.getRealPxByWidth(20.0f, 750));
+        final float k = WXViewUtils.getRealPxByWidth(16.0f, 750) ;
         final float l = this.mPosition.width;
         final float x1 = this.mPosition.x;
         final float y1 = this.mPosition.y;
@@ -211,11 +211,25 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
         SpringSet gravityAnimation = new SpringSet();
         final float translationX = mView.getTranslationX();
         final float translationY = mView.getTranslationY();
-        SpringAnimation springX = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, sMoveDamping / 2, DAMPING_RATIO_MEDIUM_BOUNCY);
-        SpringAnimation springY = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, sMoveDamping / 2, DAMPING_RATIO_MEDIUM_BOUNCY);
-        springX.setStartValue(translationX + offsetX);
-        springY.setStartValue(translationY + offsetY);
-        gravityAnimation.playTogether(springX, springY);
+        SpringAnimation springXTo = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX + offsetX, sMoveDamping, DAMPING_RATIO_LOW_BOUNCY);
+        SpringAnimation springYTo = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY + offsetY, sMoveDamping, DAMPING_RATIO_LOW_BOUNCY);
+        gravityAnimation.playTogether(springXTo, springYTo);
+
+        final SpringSet gravityBackAnim = new SpringSet();
+        SpringAnimation springXBack = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_X, translationX, sMoveDamping * 1.5f, DAMPING_RATIO_MEDIUM_BOUNCY);
+        SpringAnimation springYBack = SpringUtils.createSpring(mView, DynamicAnimation.TRANSLATION_Y, translationY, sMoveDamping * 1.5f, DAMPING_RATIO_MEDIUM_BOUNCY);
+        gravityBackAnim.playTogether(springXBack, springYBack);
+
+        gravityAnimation.addSpringSetListener(new SpringSet.ISpringSetListener() {
+            @Override
+            public void onSpringStart(SpringSet springSet) {
+            }
+
+            @Override
+            public void onSpringEnd(SpringSet springSet) {
+                gravityBackAnim.start();
+            }
+        });
         gravityAnimation.start();
     }
 
@@ -255,7 +269,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             if (null != mView) {
                 SpringSet mBounceAnim = new SpringSet();
                 SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.X, mBounceValue, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
-                springAnimation.setStartValue(mView.getX() - 100);
+                springAnimation.setStartValue(mBounceValue - 100);
                 mBounceAnim.play(springAnimation);
                 mBounceAnim.addSpringSetListener(mEdgeLeftBounceListener);
                 mBounceAnim.start();
@@ -265,7 +279,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             if (null != mView) {
                 SpringSet mBounceAnim = new SpringSet();
                 SpringAnimation springAnimation = SpringUtils.createSpring(mView, DynamicAnimation.X, mBounceValue, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
-                springAnimation.setStartValue(mView.getX() + 100);
+                springAnimation.setStartValue(mBounceValue + 100);
                 mBounceAnim.play(springAnimation);
                 mBounceAnim.addSpringSetListener(mEdgeRightBounceListener);
                 mBounceAnim.start();

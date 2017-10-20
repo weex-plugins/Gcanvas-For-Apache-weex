@@ -109,7 +109,10 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     }
 
     public void setTotal(int count) {
-        this.mTotal = count;
+        if (count > 0 && count != this.mTotal) {
+            this.mTotal = count;
+            requestLayout();
+        }
     }
 
     private void init() {
