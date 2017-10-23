@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
-import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -54,8 +53,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     private CopyOnWriteArrayList<BubbleAnimateWrapper> mPositionCache = new CopyOnWriteArrayList<>();
 
     private HashMap<BubbleEventCenter.AnimationType, AtomicInteger> mAnimationRecorder = new HashMap<>();
-
-    private int mCurrentLayoutColumn = 0;
 
     private final GestureDetector mGestureDetector = new GestureDetector(getContext(), this);
 
@@ -198,7 +195,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             return;
         }
 
-        int start = mCurrentLayoutColumn * mRowCount;
+        int start = 0;
         int end = start + mBubblePositions.size();
         final int childCount = getChildCount();
         if (end > childCount) {
@@ -267,7 +264,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
         if (mScreenState == sScreenLock || mIsReattached || mHasLayouted) {
             return;
         }
-        int start = mCurrentLayoutColumn * mRowCount;
+        int start = 0;
         int end = start + mBubblePositions.size();
         final int childCount = getChildCount();
         if (end > childCount) {
@@ -446,12 +443,8 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
             return;
         }
 
-        int start = mCurrentLayoutColumn * mRowCount;
-        int end = start + mBubblePositions.size();
-        final int childCount = getChildCount();
-
         if (direction == BubbleAnimateWrapper.sDirectionLeft) {
-            if (end > childCount) {
+            if (mPositionCache.size() <= (mBubblePositions.size() - mRowCount)) {
                 for (BubbleAnimateWrapper animateWrapper : mPositionCache) {
                     animateWrapper.edgeBounce(direction);
                 }
@@ -481,12 +474,11 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                             continue loop;
                         }
                     }
-                    animator = mTailNailViews.remove(0);
-                    animator.move(direction);
-                    addInOrder(mPositionCache, animator);
+//                    animator = mTailNailViews.remove(0);
+//                    animator.move(direction);
+//                    addInOrder(mPositionCache, animator);
                     counter++;
                 }
-                mCurrentLayoutColumn++;
             }
         } else if (direction == BubbleAnimateWrapper.sDirectionRight) {
             if (mHeadNailViews.isEmpty()) {
@@ -520,13 +512,12 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                             continue loop;
                         }
                     }
-                    animator = mHeadNailViews.remove(0);
-                    animator.move(direction);
+//                    animator = mHeadNailViews.remove(0);
+//                    animator.move(direction);
 //                    mPositionCache.add(animator);
-                    addInOrder(mPositionCache, animator);
+//                    addInOrder(mPositionCache, animator);
                     counter++;
                 }
-                mCurrentLayoutColumn--;
             }
         }
     }
