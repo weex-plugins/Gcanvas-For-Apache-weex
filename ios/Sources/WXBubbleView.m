@@ -417,12 +417,6 @@
                             [rowViewArray insertObject:insertView atIndex:posColumnId];
                         }
                         weakSelf.isInSwitching = NO;
-                        
-                    #if 0
-                        NSLog(@"===> replace...finished!!!!!");
-                        NSLog(@"inBubbleList：%@", [weakSelf inBubbleList]);
-                        NSLog(@"outBubbleList：%@", [weakSelf outBubbleList]);
-                    #endif
                     }
                 }];
             }
@@ -502,11 +496,6 @@
                     if( weakSelf.finishSwipeCallback ){
                         weakSelf.finishSwipeCallback(@{@"direction":(isLeft)?@"left":@"right",@"type":@"swipe"}, YES);
                     }
-                #if 0
-                    NSLog(@"Swipe Finished...");
-                    NSLog(@"inBubbleList：%@", [weakSelf inBubbleList]);
-                    NSLog(@"outBubbleList：%@", [weakSelf outBubbleList]);
-                #endif
                 }
             }];
             
@@ -574,22 +563,6 @@
 - (void)onWrapViewTapHandler:(UITapGestureRecognizer*)recoginzer
 {
     UIView *view = recoginzer.view;
-
-#if 0
-    NSDictionary *dict = [self viewPositionByTag:view.tag];
-    if (dict) {
-        NSInteger rowId = [dict[@"rowId"] integerValue];
-        NSInteger colId = [dict[@"colId"] integerValue];
-        
-        NSArray *rowArray = _childViewArrayDict[@(rowId)] ;
-        
-        NSUInteger lastViewPosition = (rowArray.count-1) * _rowNum + rowId;
-        NSUInteger position = (colId - _cursorColumnId) * _rowNum + rowId;
-
-        [self switchBubble:lastViewPosition position:position];
-    }
-#endif
-    
     if( _bubbleClickCallback ){
         _bubbleClickCallback(@{@"bubbleId":@(view.tag)}, YES);
     }
