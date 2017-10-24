@@ -440,8 +440,8 @@ static NSMutableDictionary *_instanceDict;
         if( fps > 0 )
         {
             AppMonitorMeasureValueSet *measureValSet = [[AppMonitorMeasureValueSet alloc] init];
-            [measureValSet setValue:@(fps) forName:MEASURE_FPS];
-                        
+            [measureValSet setDoubleValue:fps forName:MEASURE_FPS];
+            
             NSDictionary *dimDict = @{DIMENSION_PLUGIN:@"weex", DIMENSION_TYPE:@([plugin contextType])};
             AppMonitorDimensionValueSet *dimensionValSet = [[AppMonitorDimensionValueSet alloc] initWithDictionary:dimDict];
             
