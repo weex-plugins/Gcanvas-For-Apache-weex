@@ -149,6 +149,17 @@
     [self addSubview:wrapView];
     
     view.frame = wrapView.bounds;
+//    [view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
+//        CGRect frame = subView.frame;
+//        CGRect scaleFrame = CGRectMake(-frame.size.width*0.5,
+//                                       -frame.size.height*0.5,
+//                                       frame.size.width * 2,
+//                                       frame.size.height * 2);
+//        subView.frame = scaleFrame;
+//    }];
+//    
+//    view.frame = CGRectMake(-wrapView.frame.size.width*0.5, -wrapView.frame.size.height*0.5, wrapView.frame.size.width * 2, wrapView.frame.size.height * 2);
+//    view.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.5, 0.5);
     [wrapView addSubview:view];
     
     //bubble tap
@@ -378,7 +389,7 @@
         CGAffineTransform newScaleTransfrom = CGAffineTransformScale(insertView.transform, scaleX, scaleY);
         insertView.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0, 0);
         
-        [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
             insertView.transform = newScaleTransfrom;
         } completion:nil];
         
@@ -403,7 +414,7 @@
                 
                 CGAffineTransform scaleTransfrom = CGAffineTransformScale(CGAffineTransformIdentity, scaleX, scaleY);
                 
-                [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+                [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut|UIViewAnimationOptionAllowUserInteraction  animations:^{
                     v.transform = CGAffineTransformConcat(scaleTransfrom, v.transform);
                     v.frame = CGRectMake(v.frame.origin.x+transX,
                                          v.frame.origin.y+transY,
@@ -441,10 +452,10 @@
         [rowArray enumerateObjectsUsingBlock:^(UIView * v, NSUInteger idx, BOOL * _Nonnull stop) {
             CGRect oldFrame  = v.frame;
             CGRect newFrame = CGRectMake(oldFrame.origin.x+detlaX, oldFrame.origin.y, oldFrame.size.width, oldFrame.size.height);
-            [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
+            [UIView animateWithDuration:0.2 delay:0 options:UIViewAnimationOptionCurveEaseIn|UIViewAnimationOptionAllowUserInteraction animations:^{
                 v.frame = newFrame;
             } completion:^(BOOL finished) {
-                [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+                [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.5 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut| UIViewAnimationOptionAllowUserInteraction animations:^{
                     v.frame = oldFrame;
                 } completion:^(BOOL finished) {
                     if( ++finishCount >= weakSelf.childViewCount ){
@@ -487,7 +498,7 @@
             CGFloat transY = (CGRectGetMidY(newFrame) - CGRectGetMidY(viewFrame));
             
             CGAffineTransform scaleTransfrom = CGAffineTransformScale(CGAffineTransformIdentity, scaleX, scaleY);
-            [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut animations:^{
+            [UIView animateWithDuration:1.0 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseOut | UIViewAnimationOptionAllowUserInteraction animations:^{
                 v.transform = CGAffineTransformConcat(scaleTransfrom, v.transform);
                 v.frame = CGRectMake(v.frame.origin.x+transX, v.frame.origin.y+transY, v.frame.size.width, v.frame.size.height);
             } completion:^(BOOL finished) {
@@ -529,7 +540,7 @@
 
 - (void)moveAnimationWithView:(UIView*)v offset:(CGPoint)offsetPoint
 {
-    [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+    [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
         v.frame = CGRectMake(v.frame.origin.x+offsetPoint.x, v.frame.origin.y+offsetPoint.y, v.frame.size.width, v.frame.size.height);
     } completion:^(BOOL finished) {
         [UIView animateWithDuration:1 delay:0 usingSpringWithDamping:0.6 initialSpringVelocity:0.2 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
@@ -596,17 +607,19 @@
 #pragma mark - Override
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
-        subView.userInteractionEnabled = NO;
-    }];
+//    NSLog(@"touches move ....");
+//    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
+//        subView.userInteractionEnabled = NO;
+//    }];
 }
 
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
-        subView.userInteractionEnabled = YES;
-    }];
+//    NSLog(@"touches end ....");
+//    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
+//        subView.userInteractionEnabled = YES;
+//    }];
 }
 
 #pragma mark - Notification
