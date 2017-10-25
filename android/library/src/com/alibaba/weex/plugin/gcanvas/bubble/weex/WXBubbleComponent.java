@@ -4,8 +4,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.weex.plugin.annotation.WeexComponent;
@@ -61,7 +59,6 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
     @Override
     protected BubbleContainer initComponentHostView(@NonNull Context context) {
         mBubbleContainer = new BubbleContainer(context);
-        mBubbleContainer.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         return mBubbleContainer;
     }
 
@@ -197,7 +194,7 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                         result.put("direction", "right");
                         result.put("type", "bounce");
                     }
-                    startCallback.invoke(result);
+                    startCallback.invokeAndKeepAlive(result);
                 }
 
                 @Override
@@ -216,7 +213,7 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
                         result.put("direction", "right");
                         result.put("type", "bounce");
                     }
-                    endCallback.invoke(result);
+                    endCallback.invokeAndKeepAlive(result);
                 }
             };
             mBubbleContainer.addAnimationCallback(animationListener);

@@ -47,9 +47,9 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
 
     private SpringSet.ISpringSetListener mEdgeLeftBounceListener, mEdgeRightBounceListener;
 
-    private Animation mFloatingAnim;
-
     private SpringSet.ISpringSetListener mScaleListener;
+
+    private Animation mFloatingAnim;
 
     private SpringSet mLastMoveSpring;
 
@@ -88,20 +88,6 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             }
         };
 
-        mScaleListener = new SpringSet.ISpringSetListener() {
-
-            @Override
-            public void onSpringStart(SpringSet springSet) {
-                BubbleEventCenter.getEventCenter().fireAnimationStart(BubbleEventCenter.AnimationType.ReplaceScale, BubbleAnimateWrapper.this);
-            }
-
-            @Override
-            public void onSpringEnd(SpringSet springSet) {
-                springSet.removeSpringSetListener(this);
-                BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.ReplaceScale, BubbleAnimateWrapper.this);
-            }
-        };
-
         mEdgeLeftBounceListener = new SpringSet.ISpringSetListener() {
             @Override
             public void onSpringStart(SpringSet springSet) {
@@ -128,6 +114,21 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             }
         };
 
+
+        mScaleListener = new SpringSet.ISpringSetListener() {
+
+            @Override
+            public void onSpringStart(SpringSet springSet) {
+                BubbleEventCenter.getEventCenter().fireAnimationStart(BubbleEventCenter.AnimationType.ReplaceScale, BubbleAnimateWrapper.this);
+            }
+
+            @Override
+            public void onSpringEnd(SpringSet springSet) {
+                springSet.removeSpringSetListener(this);
+                BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.ReplaceScale, BubbleAnimateWrapper.this);
+            }
+        };
+
         mViewIndex = index;
 
         mFloatingAnim = new TranslateAnimation(0, 0, mView.getTranslationY(), sFloatDistanceCandidates[mRandom.nextInt(sFloatDistanceCandidates.length)] * mView.getContext().getResources().getDisplayMetrics().density);
@@ -149,7 +150,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
         return this.mView;
     }
 
-    public void move(int direction) {
+    public void move(int direction, boolean notifyEvent) {
         if (null == mView || mPosition == null) {
             return;
         }
@@ -165,7 +166,9 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
                 SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mLeft.x + (mPosition.mLeft.width - mView.getWidth()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
                 SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mLeft.y + (mPosition.mLeft.height - mView.getHeight()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
-                springSet.addSpringSetListener(mMoveLeftEndListener);
+                if (notifyEvent) {
+                    springSet.addSpringSetListener(mMoveLeftEndListener);
+                }
                 springSet.start();
                 if (null != mPosition && null != mPosition.mLeft) {
                     mPosition = mPosition.mLeft;
@@ -180,7 +183,9 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
                 SpringAnimation moveX = SpringUtils.createSpring(mView, DynamicAnimation.X, mPosition.mRight.x + (mPosition.mRight.width - mView.getWidth()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
                 SpringAnimation moveY = SpringUtils.createSpring(mView, DynamicAnimation.Y, mPosition.mRight.y + (mPosition.mRight.height - mView.getHeight()) / 2.0f, sMoveDamping, DAMPING_RATIO_MEDIUM_BOUNCY);
                 springSet.playTogether(scaleX, scaleY, moveX, moveY);
-                springSet.addSpringSetListener(mMoveRightEndListener);
+                if (notifyEvent) {
+                    springSet.addSpringSetListener(mMoveRightEndListener);
+                }
                 springSet.start();
                 if (null != mPosition && null != mPosition.mRight) {
                     mPosition = mPosition.mRight;
@@ -199,7 +204,7 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             return;
         }
 
-        final float k = WXViewUtils.getRealPxByWidth(16.0f, 750) ;
+        final float k = WXViewUtils.getRealPxByWidth(16.0f, 750);
         final float l = this.mPosition.width;
         final float x1 = this.mPosition.x;
         final float y1 = this.mPosition.y;

@@ -60,6 +60,6 @@ public class BubbleEventCenter {
     }
 
     public enum AnimationType {
-        MoveLeft, MoveRight, ReplaceScale, EdgeBounceLeft, EdgeBounceRight, Layout
+        MoveLeft, MoveRight, EdgeBounceLeft, EdgeBounceRight, Layout, ReplaceScale
     }
 }
