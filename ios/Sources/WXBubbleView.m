@@ -19,6 +19,10 @@
 
 @end
 
+@interface WXBubbleView ()<UIGestureRecognizerDelegate>
+
+@end
+
 @implementation WXBubbleView
 {
     BOOL            _isConfig;
