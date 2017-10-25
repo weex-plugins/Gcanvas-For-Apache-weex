@@ -124,14 +124,24 @@
     _colNum = ceil(1.0*positions.count/_rowNum);
     _cursorColumnId = 0;
     
-    //add gesture recognizer
-    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-    [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
-    [self addGestureRecognizer:recognizer];
     
-    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-    [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
-    [self addGestureRecognizer:recognizer];
+    UIPanGestureRecognizer *panRecoginzer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onPanHandler:)];
+    panRecoginzer.delegate = self;
+    [self addGestureRecognizer:panRecoginzer];
+    
+    //add gesture recognizer
+//    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
+////    recognizer.cancelsTouchesInView = NO;
+//    recognizer.delegate = self;
+//    [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
+//    [self addGestureRecognizer:recognizer];
+//    
+//    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
+////    recognizer.cancelsTouchesInView = NO;
+//    recognizer.delegate = self;
+//    [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
+//    [self addGestureRecognizer:recognizer];
+    
     
     _isConfig = YES;
 }
@@ -580,46 +590,81 @@
 }
 
 //#endif
-- (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
+
+//- (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
+//{
+//    if( recognizer.direction ==  UISwipeGestureRecognizerDirectionLeft )
+//    {
+//        NSUInteger maxColumCount = _childViewCount / _rowNum;
+//        if( _cursorColumnId >  maxColumCount - _colNum){
+////            NSLog(@"Right Bounce Animation!!!!!!");
+//            [self bounceAnimation:YES];
+//            return;
+//        }
+//        [self allMoveNextPositionAnimation:YES];
+//    }
+//    else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight )
+//    {
+//        if( _cursorColumnId <= 0 ){
+////            NSLog(@"Left Bounce Animation!!!!!!");
+//            [self bounceAnimation:NO];
+//            return;
+//        }
+//        [self allMoveNextPositionAnimation:NO];
+//    }
+//}
+
+- (void)onPanHandler:(UIPanGestureRecognizer*)gestureRecognizer
 {
-    if( recognizer.direction ==  UISwipeGestureRecognizerDirectionLeft )
+    if (gestureRecognizer.state == UIGestureRecognizerStateEnded)
     {
-        NSUInteger maxColumCount = _childViewCount / _rowNum;
-        if( _cursorColumnId >  maxColumCount - _colNum){
-//            NSLog(@"Right Bounce Animation!!!!!!");
-            [self bounceAnimation:YES];
-            return;
+        CGPoint velocity = [gestureRecognizer velocityInView:self];
+        
+        if( velocity.x < 0 ){
+            NSUInteger maxColumCount = _childViewCount / _rowNum;
+            if( _cursorColumnId >  maxColumCount - _colNum){
+                [self bounceAnimation:YES];
+                return;
+            }
+            [self allMoveNextPositionAnimation:YES];
+        }else if(velocity.x > 0){
+            if( _cursorColumnId <= 0 ){
+                [self bounceAnimation:NO];
+                return;
+            }
+            [self allMoveNextPositionAnimation:NO];
         }
-        [self allMoveNextPositionAnimation:YES];
-    }
-    else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight )
-    {
-        if( _cursorColumnId <= 0 ){
-//            NSLog(@"Left Bounce Animation!!!!!!");
-            [self bounceAnimation:NO];
-            return;
-        }
-        [self allMoveNextPositionAnimation:NO];
     }
 }
 
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if ([gestureRecognizer isKindOfClass: [UIGestureRecognizer class]] && gestureRecognizer.view == self )
+    {
+//        CGPoint translation = [(UIPanGestureRecognizer*)gestureRecognizer translationInView:self];
+//        NSLog(@"ShouldBegin transY:%f, transX:%f", fabs(translation.y), fabs(translation.x));
+        CGPoint velocity = [(UIPanGestureRecognizer*)gestureRecognizer velocityInView:self];
+//        NSLog(@"ShouldBegin velocity y:%f, x:%f", fabs(velocity.y), fabs(velocity.x));
+        
+        if( fabs(velocity.y) > fabs(velocity.x) * 3  ){
+//        if (fabs(translation.y) - fabs(translation.x) > 8 ||
+//            fabs(translation.y) / fabs(translation.x)+0.001 > 3 ) {
+            return NO;
+        }
+    }
+    return YES;
+}
 
 #pragma mark - Override
 - (void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-//    NSLog(@"touches move ....");
-//    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
-//        subView.userInteractionEnabled = NO;
-//    }];
+    [super touchesMoved:touches withEvent:event];
 }
 
 
 - (void)touchesEnded:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-//    NSLog(@"touches end ....");
-//    [self.subviews  enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
-//        subView.userInteractionEnabled = YES;
-//    }];
+    [super touchesEnded:touches withEvent:event];
 }
 
 #pragma mark - Notification
