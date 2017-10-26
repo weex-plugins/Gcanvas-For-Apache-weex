@@ -553,6 +553,9 @@
 
 - (void)moveAnimationWithView:(UIView*)v offset:(CGPoint)offsetPoint
 {
+    if( isnan(offsetPoint.x) || isnan(offsetPoint.y) ){
+        return;
+    }
     [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
         v.frame = CGRectMake(v.frame.origin.x+offsetPoint.x, v.frame.origin.y+offsetPoint.y, v.frame.size.width, v.frame.size.height);
     } completion:^(BOOL finished) {
