@@ -242,14 +242,15 @@ public class SpringSet implements DynamicAnimation.OnAnimationEndListener {
         }
     }
 
-    public void addSpringSetListener(ISpringSetListener listener) {
+    public boolean addSpringSetListener(ISpringSetListener listener) {
         if (!mSpringListeners.contains(listener)) {
-            mSpringListeners.add(listener);
+            return mSpringListeners.add(listener);
         }
+        return false;
     }
 
-    public void removeSpringSetListener(ISpringSetListener listener) {
-        mSpringListeners.remove(listener);
+    public boolean removeSpringSetListener(ISpringSetListener listener) {
+        return mSpringListeners.remove(listener);
     }
 
 

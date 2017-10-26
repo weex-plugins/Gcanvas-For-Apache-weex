@@ -155,6 +155,11 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
             return;
         }
         if (null != mLastMoveSpring && mLastMoveSpring.isRunning()) {
+            if (mLastMoveSpring.removeSpringSetListener(mMoveLeftEndListener)) {
+                BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.MoveLeft, BubbleAnimateWrapper.this);
+            } else if (mLastMoveSpring.removeSpringSetListener(mMoveRightEndListener)) {
+                BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.MoveRight, BubbleAnimateWrapper.this);
+            }
             mLastMoveSpring.fastMove();
         }
 
@@ -262,7 +267,11 @@ public class BubbleAnimateWrapper implements Comparable<BubbleAnimateWrapper> {
     void edgeBounce(int direction) {
         boolean fastBounce = false;
         if (null != mLastBounce && mLastBounce.isRunning()) {
-            mLastBounce.removeSpringSetListener(mEdgeLeftBounceListener);
+            if (mLastBounce.removeSpringSetListener(mEdgeLeftBounceListener)) {
+                BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.EdgeBounceLeft, BubbleAnimateWrapper.this);
+            } else if (mLastBounce.removeSpringSetListener(mEdgeRightBounceListener)) {
+                BubbleEventCenter.getEventCenter().fireAnimationEnd(BubbleEventCenter.AnimationType.EdgeBounceRight, BubbleAnimateWrapper.this);
+            }
             mLastBounce.fastMove();
             fastBounce = true;
         }

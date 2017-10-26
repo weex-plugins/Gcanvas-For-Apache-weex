@@ -27,16 +27,19 @@ public class BubbleEventCenter {
         return _instance;
     }
 
-    public void addBubbleAnimListener(IBubbleAnimationListener listener) {
+    public boolean addBubbleAnimListener(IBubbleAnimationListener listener) {
         if (null != listener && !mAnimListeners.contains(listener)) {
-            mAnimListeners.add(listener);
+            return mAnimListeners.add(listener);
         }
+
+        return false;
     }
 
-    public void removeBubbleAnimListener(IBubbleAnimationListener listener) {
+    public boolean removeBubbleAnimListener(IBubbleAnimationListener listener) {
         if (null != listener) {
-            mAnimListeners.remove(listener);
+            return mAnimListeners.remove(listener);
         }
+        return false;
     }
 
     public void fireAnimationStart(AnimationType type, BubbleAnimateWrapper bubbleAnimateWrapper) {
@@ -60,6 +63,6 @@ public class BubbleEventCenter {
     }
 
     public enum AnimationType {
-        MoveLeft, MoveRight, EdgeBounceLeft, EdgeBounceRight, Layout, ReplaceScale
+        MoveLeft, MoveRight, EdgeBounceLeft, EdgeBounceRight, ReplaceScale
     }
 }
