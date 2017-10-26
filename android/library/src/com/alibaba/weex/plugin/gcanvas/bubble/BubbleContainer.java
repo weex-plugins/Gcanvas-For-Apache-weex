@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -511,9 +510,6 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
                 }
             }
         }
-
-        Log.d(TAG, "swipe ====> in ---" + inViewBubbleList());
-        Log.d(TAG, "swipe ====> out ---" + outViewBubbleList());
     }
 
     @Override
