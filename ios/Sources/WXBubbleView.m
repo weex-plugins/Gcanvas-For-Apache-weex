@@ -9,6 +9,27 @@
 #import "WXBubbleView.h"
 #import <WeexSDK/WXUtility.h>
 
+@interface WXBubbleGestureDelegateObj : NSObject<UIGestureRecognizerDelegate>
+
+@end
+
+@implementation WXBubbleGestureDelegateObj
+
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
+{
+    if ([gestureRecognizer isKindOfClass: [UIPanGestureRecognizer class]] )
+    {
+        CGPoint velocity = [(UIPanGestureRecognizer*)gestureRecognizer velocityInView:gestureRecognizer.view];
+        if( fabs(velocity.y) > fabs(velocity.x) * 3  ){
+            return NO;
+        }
+    }
+    return YES;
+}
+
+@end
+
+
 @interface WXBubbleView ()
 
 @property (assign, nonatomic) BOOL isInSwitching; //在替换动画中
@@ -16,6 +37,8 @@
 @property (assign, nonatomic) BOOL isInBouncing; //在bounce动画中
 
 @property (assign, nonatomic) NSUInteger childViewCount; //视图数量
+
+@property (strong, nonatomic) WXBubbleGestureDelegateObj *delegateObj;
 
 @end
 
@@ -129,24 +152,11 @@
     _cursorColumnId = 0;
     
     
-    UIPanGestureRecognizer *panRecoginzer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onPanHandler:)];
-    panRecoginzer.delegate = self;
+    _delegateObj = [[WXBubbleGestureDelegateObj alloc] init];
+    
+    UIPanGestureRecognizer *panRecoginzer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
+    panRecoginzer.delegate = _delegateObj;
     [self addGestureRecognizer:panRecoginzer];
-    
-    //add gesture recognizer
-//    UISwipeGestureRecognizer *recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-////    recognizer.cancelsTouchesInView = NO;
-//    recognizer.delegate = self;
-//    [recognizer setDirection:(UISwipeGestureRecognizerDirectionRight)];
-//    [self addGestureRecognizer:recognizer];
-//    
-//    recognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-////    recognizer.cancelsTouchesInView = NO;
-//    recognizer.delegate = self;
-//    [recognizer setDirection:(UISwipeGestureRecognizerDirectionLeft)];
-//    [self addGestureRecognizer:recognizer];
-    
-    
     _isConfig = YES;
 }
 
@@ -582,32 +592,7 @@
     }
 }
 
-//#endif
-
-//- (void)onSwipeHandler:(UISwipeGestureRecognizer*)recognizer
-//{
-//    if( recognizer.direction ==  UISwipeGestureRecognizerDirectionLeft )
-//    {
-//        NSUInteger maxColumCount = _childViewCount / _rowNum;
-//        if( _cursorColumnId >  maxColumCount - _colNum){
-////            NSLog(@"Right Bounce Animation!!!!!!");
-//            [self bounceAnimation:YES];
-//            return;
-//        }
-//        [self allMoveNextPositionAnimation:YES];
-//    }
-//    else if( recognizer.direction == UISwipeGestureRecognizerDirectionRight )
-//    {
-//        if( _cursorColumnId <= 0 ){
-////            NSLog(@"Left Bounce Animation!!!!!!");
-//            [self bounceAnimation:NO];
-//            return;
-//        }
-//        [self allMoveNextPositionAnimation:NO];
-//    }
-//}
-
-- (void)onPanHandler:(UIPanGestureRecognizer*)gestureRecognizer
+- (void)onSwipeHandler:(UIPanGestureRecognizer*)gestureRecognizer
 {
     if (gestureRecognizer.state == UIGestureRecognizerStateEnded)
     {
@@ -628,24 +613,6 @@
             [self allMoveNextPositionAnimation:NO];
         }
     }
-}
-
-- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
-{
-    if ([gestureRecognizer isKindOfClass: [UIPanGestureRecognizer class]] && gestureRecognizer.view == self )
-    {
-//        CGPoint translation = [(UIPanGestureRecognizer*)gestureRecognizer translationInView:self];
-//        NSLog(@"ShouldBegin transY:%f, transX:%f", fabs(translation.y), fabs(translation.x));
-        CGPoint velocity = [(UIPanGestureRecognizer*)gestureRecognizer velocityInView:self];
-//        NSLog(@"ShouldBegin velocity y:%f, x:%f", fabs(velocity.y), fabs(velocity.x));
-        
-        if( fabs(velocity.y) > fabs(velocity.x) * 3  ){
-//        if (fabs(translation.y) - fabs(translation.x) > 8 ||
-//            fabs(translation.y) / fabs(translation.x)+0.001 > 3 ) {
-            return NO;
-        }
-    }
-    return YES;
 }
 
 #pragma mark - Override
