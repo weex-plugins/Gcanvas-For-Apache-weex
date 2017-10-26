@@ -163,17 +163,6 @@
     [self addSubview:wrapView];
     
     view.frame = wrapView.bounds;
-//    [view.subviews enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull subView, NSUInteger idx, BOOL * _Nonnull stop) {
-//        CGRect frame = subView.frame;
-//        CGRect scaleFrame = CGRectMake(-frame.size.width*0.5,
-//                                       -frame.size.height*0.5,
-//                                       frame.size.width * 2,
-//                                       frame.size.height * 2);
-//        subView.frame = scaleFrame;
-//    }];
-//    
-//    view.frame = CGRectMake(-wrapView.frame.size.width*0.5, -wrapView.frame.size.height*0.5, wrapView.frame.size.width * 2, wrapView.frame.size.height * 2);
-//    view.transform = CGAffineTransformScale(CGAffineTransformIdentity, 0.5, 0.5);
     [wrapView addSubview:view];
     
     //bubble tap
@@ -643,7 +632,7 @@
 
 - (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer
 {
-    if ([gestureRecognizer isKindOfClass: [UIGestureRecognizer class]] && gestureRecognizer.view == self )
+    if ([gestureRecognizer isKindOfClass: [UIPanGestureRecognizer class]] && gestureRecognizer.view == self )
     {
 //        CGPoint translation = [(UIPanGestureRecognizer*)gestureRecognizer translationInView:self];
 //        NSLog(@"ShouldBegin transY:%f, transX:%f", fabs(translation.y), fabs(translation.x));
