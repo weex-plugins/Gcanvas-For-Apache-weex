@@ -152,10 +152,10 @@
     _cursorColumnId = 0;
     
     
-    _delegateObj = [[WXBubbleGestureDelegateObj alloc] init];
+    self.delegateObj = [[WXBubbleGestureDelegateObj alloc] init];
     
     UIPanGestureRecognizer *panRecoginzer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeHandler:)];
-    panRecoginzer.delegate = _delegateObj;
+    panRecoginzer.delegate = self.delegateObj;
     [self addGestureRecognizer:panRecoginzer];
     _isConfig = YES;
 }
