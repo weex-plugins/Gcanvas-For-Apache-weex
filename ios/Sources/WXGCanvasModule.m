@@ -173,12 +173,22 @@ static NSMutableDictionary *_instanceDict;
     gcanvasInst.plugin = plugin;
     
     NSLog(@"dispatch_semaphore_wait :%@", componentId);
-    dispatch_semaphore_wait(gcanvasInst.semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)));
+//    dispatch_semaphore_wait(gcanvasInst.semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)));
     
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     if( component ){
-        component.glkview.delegate = self;
-        component.glkview.context = [WXGCanvasModule getEAGLContext:componentId];
+//        component.glkview.delegate = self;
+//        component.glkview.context = [WXGCanvasModule getEAGLContext:componentId];
+        
+        dispatch_sync([self targetExecuteQueue], ^{
+           
+            EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+            context.multiThreaded = YES;
+            component.glkview.context = context;
+            component.glkview.delegate = self;
+            
+        });
+        
         gcanvasInst.component = component;
     }
     return @"";
@@ -340,7 +350,7 @@ static NSMutableDictionary *_instanceDict;
     WXGCanvasObject *gcanvasInst = self.gcanvasDict[componentId];
     if( gcanvasInst ){
         //NSLog(@"dispatch_semaphore_signal :%@", componentId);
-        dispatch_semaphore_signal(gcanvasInst.semaphore);
+//        dispatch_semaphore_signal(gcanvasInst.semaphore);
     }
 }
 
@@ -474,7 +484,12 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
+    
     GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@, context:%p", component.ref, component.glkview.context);
+    
+    dispatch_sync([self targetExecuteQueue], ^{
+        
+    
     
     [EAGLContext setCurrentContext:component.glkview.context];
 
@@ -500,6 +515,7 @@ static NSMutableDictionary *_instanceDict;
     }
     
     [plugin execCommands];
+        });
 }
 
 #pragma mark - GCVImageLoaderProtocol
