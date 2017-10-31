@@ -412,7 +412,7 @@ static NSMutableDictionary *_instanceDict;
     
     [self.gcanvasDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, WXGCanvasObject* gcanvasInst, BOOL * _Nonnull stop) {
          
-         dispatch_semaphore_signal(gcanvasInst.semaphore);
+//         dispatch_semaphore_signal(gcanvasInst.semaphore);
          WXGCanvasComponent *comp = gcanvasInst.component;
          comp.glkview.delegate = nil;
          
@@ -436,10 +436,16 @@ static NSMutableDictionary *_instanceDict;
     __block WXGCanvasComponent *component = nil;
     __weak typeof(self) weakSelf = self;
     
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     while (!component || !component.glkview) {
-        WXPerformBlockSyncOnComponentThread(^{
-            component = (WXGCanvasComponent *)[weakSelf.weexInstance componentForRef:componentId];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), [self targetExecuteQueue], ^{
+            WXPerformBlockSyncOnComponentThread(^{
+                component = (WXGCanvasComponent *)[weakSelf.weexInstance componentForRef:componentId];
+            });
+            dispatch_semaphore_signal(semaphore);
         });
+        //0.5秒超时
+        dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)));
     }
     
     return component;
