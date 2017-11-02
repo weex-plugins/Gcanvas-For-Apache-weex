@@ -445,6 +445,10 @@
                 }];
             }
         }
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 4*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            weakSelf.isInSwitching = NO;
+        });
     }
 }
 
@@ -526,6 +530,10 @@
             [weakSelf pulseAnimationWithView:v];
         }];
     }];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 4*NSEC_PER_SEC), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        weakSelf.isInSwiping = NO;
+    });
 }
 
 - (void)squeeAnimationWithPosView:(UIView*)posView row:(NSUInteger)posRowId column:(NSInteger)posColumnId
