@@ -5,11 +5,11 @@ platform :ios, '7.0'
 inhibit_all_warnings!
 
 def common
-	pod 'WeexSDK'
+	pod 'WeexSDK', '0.15.1.21'
 	pod 'WeexPluginLoader'#, '0.0.1.18'
-    pod 'UserTrack'
-    pod 'GCanvas', :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
-    pod 'SDWebImage', '3.7.5'
+    pod 'UserTrack', '6.3.5.38-realtime'
+    pod 'GCanvas'#, :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
+    pod 'SDWebImage', '3.7.4.21' #'3.7.5'
 end
 
 target 'WeexGcanvas' do
