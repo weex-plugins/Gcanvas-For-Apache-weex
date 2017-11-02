@@ -11,6 +11,7 @@
 		9A9E77201F837DD700598AD9 /* WXBubbleComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A9E771C1F837DD700598AD9 /* WXBubbleComponent.m */; };
 		9A9E77211F837DD700598AD9 /* WXBubbleView.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A9E771D1F837DD700598AD9 /* WXBubbleView.h */; };
 		9A9E77221F837DD700598AD9 /* WXBubbleComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9A9E771E1F837DD700598AD9 /* WXBubbleComponent.h */; };
+		9C14AF27F10EDDBF2D78C47C /* libPods-WeexGcanvas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 466821971E0A575693AA400F /* libPods-WeexGcanvas.a */; };
 		C431395C1E954ACB008B80D0 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C43139561E954ACB008B80D0 /* Info.plist */; };
 		C431395D1E954ACB008B80D0 /* WXGCanvasComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = C43139581E954ACB008B80D0 /* WXGCanvasComponent.h */; };
 		C431395E1E954ACB008B80D0 /* WXGCanvasComponent.m in Sources */ = {isa = PBXBuildFile; fileRef = C43139591E954ACB008B80D0 /* WXGCanvasComponent.m */; };
@@ -41,6 +42,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C14AF27F10EDDBF2D78C47C /* libPods-WeexGcanvas.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
