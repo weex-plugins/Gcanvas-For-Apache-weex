@@ -392,7 +392,7 @@
         [insertView sendSubviewToBack:posView];
         
         //2、同时3个动画
-        //2.1 气泡缩放动画0->1, upate scale & center
+        //2.1 气泡缩放动画0->1, update scale & center
         insertView.center = posView.center;
         
         CGRect posFrame = posView.frame;

@@ -90,9 +90,8 @@
 
 - (void)dealloc
 {
-    if( [EAGLContext currentContext] ==  self.glkview.context ){
-        [EAGLContext setCurrentContext:nil];
-    }
+    [EAGLContext setCurrentContext:nil];
+    self.renderCallBack = nil;
 }
 
 -(void)viewDidLoad
@@ -102,12 +101,6 @@
         self.renderCallBack();
     }
 }
-
-//-(void)viewDidUnload
-//{
-//    [super viewDidUnload];
-//    [EAGLContext setCurrentContext:nil];
-//}
 
 - (UIView *)loadView
 {
