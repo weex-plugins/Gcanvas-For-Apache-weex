@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "WXGCanvasComponent.h"
 #import <GCanvas/GCanvasPlugin.h>
-#import <GLKit/GLKit.h>
 
 @interface WXGCanvasObject : NSObject
 
@@ -17,7 +16,7 @@
 
 @property (strong, nonatomic) GCanvasPlugin *plugin;
 @property (strong, nonatomic) WXGCanvasComponent *component;
-@property (assign, nonatomic) dispatch_semaphore_t semaphore;
+//@property (assign, nonatomic) dispatch_semaphore_t semaphore;
 //@property (strong, nonatomic) EAGLContext *compViewContext;
 
 - (instancetype)initWithComponentId:(NSString*)componentId;
