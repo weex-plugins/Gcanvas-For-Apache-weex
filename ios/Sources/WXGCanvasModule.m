@@ -175,7 +175,6 @@ static NSMutableDictionary *_instanceDict;
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     if( component ){
         dispatch_sync([self targetExecuteQueue], ^{
-//            EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
             EAGLContext *context = [WXGCanvasModule getEAGLContext:componentId];
             context.multiThreaded = YES;
             component.glkview.context = context;
@@ -479,38 +478,35 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
-    
     GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@, context:%p", component.ref, component.glkview.context);
     
     dispatch_sync([self targetExecuteQueue], ^{
         
-    
-    
-    [EAGLContext setCurrentContext:component.glkview.context];
+        [EAGLContext setCurrentContext:component.glkview.context];
 
-    //设置当前的上线文EAGLContext
-    if (!component.gcanvasInitalized)
-    {
-        //设置gcanvas像素比率
-        CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
-        [plugin setDevicePixelRatio:devicePixelRatio];
+        //设置当前的上线文EAGLContext
+        if (!component.gcanvasInitalized)
+        {
+            //设置gcanvas像素比率
+            CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
+            [plugin setDevicePixelRatio:devicePixelRatio];
+            
+            //设置gcanvas frame
+            CGRect compFrame = component.componetFrame;
+            CGRect gcanvasFrame = CGRectMake(compFrame.origin.x,
+                                             compFrame.origin.y,
+                                             compFrame.size.width*devicePixelRatio,
+                                             compFrame.size.height*devicePixelRatio);
+            [plugin setClearColor:component.glkview.backgroundColor];
+            [plugin setFrame:gcanvasFrame];
+            
+            [weexInstance fireGlobalEvent:@"GCanvasReady" params:@{@"ref":component.ref}];
+            
+            component.gcanvasInitalized = YES;
+        }
         
-        //设置gcanvas frame
-        CGRect compFrame = component.componetFrame;
-        CGRect gcanvasFrame = CGRectMake(compFrame.origin.x,
-                                         compFrame.origin.y,
-                                         compFrame.size.width*devicePixelRatio,
-                                         compFrame.size.height*devicePixelRatio);
-        [plugin setClearColor:component.glkview.backgroundColor];
-        [plugin setFrame:gcanvasFrame];
-        
-        [weexInstance fireGlobalEvent:@"GCanvasReady" params:@{@"ref":component.ref}];
-        
-        component.gcanvasInitalized = YES;
-    }
-    
-    [plugin execCommands];
-        });
+        [plugin execCommands];
+    });
 }
 
 #pragma mark - GCVImageLoaderProtocol
