@@ -172,23 +172,15 @@ static NSMutableDictionary *_instanceDict;
     GCanvasPlugin *plugin = [[GCanvasPlugin alloc] initWithComponentId:componentId];
     gcanvasInst.plugin = plugin;
     
-    NSLog(@"dispatch_semaphore_wait :%@", componentId);
-//    dispatch_semaphore_wait(gcanvasInst.semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)));
-    
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     if( component ){
-//        component.glkview.delegate = self;
-//        component.glkview.context = [WXGCanvasModule getEAGLContext:componentId];
-        
         dispatch_sync([self targetExecuteQueue], ^{
-           
-            EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+//            EAGLContext *context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+            EAGLContext *context = [WXGCanvasModule getEAGLContext:componentId];
             context.multiThreaded = YES;
             component.glkview.context = context;
             component.glkview.delegate = self;
-            
         });
-        
         gcanvasInst.component = component;
     }
     return @"";
@@ -346,12 +338,11 @@ static NSMutableDictionary *_instanceDict;
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
 {
-    NSString *componentId = notification.userInfo[@"componentId"];
-    WXGCanvasObject *gcanvasInst = self.gcanvasDict[componentId];
-    if( gcanvasInst ){
-        //NSLog(@"dispatch_semaphore_signal :%@", componentId);
-//        dispatch_semaphore_signal(gcanvasInst.semaphore);
-    }
+//    NSString *componentId = notification.userInfo[@"componentId"];
+//    WXGCanvasObject *gcanvasInst = self.gcanvasDict[componentId];
+//    if( gcanvasInst ){
+//        //NSLog(@"dispatch_semaphore_signal :%@", componentId);
+//    }
 }
 
 - (void)onGCanvasResetNotify:(NSNotification*)notification
@@ -411,13 +402,11 @@ static NSMutableDictionary *_instanceDict;
     }
     
     [self.gcanvasDict enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, WXGCanvasObject* gcanvasInst, BOOL * _Nonnull stop) {
+        WXGCanvasComponent *comp = gcanvasInst.component;
+        comp.glkview.delegate = nil;
          
-//         dispatch_semaphore_signal(gcanvasInst.semaphore);
-         WXGCanvasComponent *comp = gcanvasInst.component;
-         comp.glkview.delegate = nil;
-         
-         GCanvasPlugin *plugin = gcanvasInst.plugin;
-         //TODO plguin clean
+        GCanvasPlugin *plugin = gcanvasInst.plugin;
+        [plugin removeGCanvas];
      }];
     
     [self.gcanvasDict removeAllObjects];
