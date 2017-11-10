@@ -229,24 +229,26 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
-    NSString *src = data[0];
-    NSUInteger jsTextureId = [data[1] integerValue];
-    
-    [[GCVCommon sharedInstance] addPreLoadImage:src
-                                     completion:^(GCVImageCache *imageCache, BOOL fromCache) {
-        if (!imageCache)
-        {
-            if(callback){
-                callback(@{@"error":@"preload error!"});
-            }
-            return;
-        }
-        imageCache.jsTextreId = jsTextureId;
-                                                 
-        if(callback){
-            callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
-        }
-    }];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        NSString *src = data[0];
+        NSUInteger jsTextureId = [data[1] integerValue];
+        
+        [[GCVCommon sharedInstance] addPreLoadImage:src
+                                         completion:^(GCVImageCache *imageCache, BOOL fromCache) {
+                                             if (!imageCache)
+                                             {
+                                                 if(callback){
+                                                     callback(@{@"error":@"preload error!"});
+                                                 }
+                                                 return;
+                                             }
+                                             imageCache.jsTextreId = jsTextureId;
+                                             
+                                             if(callback){
+                                                 callback(@{@"width":@(imageCache.width), @"height":@(imageCache.height)});
+                                             }
+                                         }];
+    });
 }
 
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
