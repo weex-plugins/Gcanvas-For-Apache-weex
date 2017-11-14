@@ -16,7 +16,7 @@ def common
     pod 'SocketRocket', '0.4.2'
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
-    pod 'WeexPluginLoader'#, '0.0.1.18'
+    pod 'WeexPluginLoader', '0.0.1.18'
     pod 'UserTrack'
 #    pod 'GCanvas', '1.2.0.20'
 #    pod 'GCanvas'

@@ -60,7 +60,7 @@
 @implementation WXGCanvasModule
 
 //WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule, 1.0)
-//WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
+WX_PlUGIN_EXPORT_MODULE(gcanvas,WXGCanvasModule)
 
 
 @synthesize weexInstance;
