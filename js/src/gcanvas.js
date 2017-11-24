@@ -1,27 +1,3 @@
-/**
-
-gcanvas.js使用说明:
-1、引入gcanvas库
-2、调用gcanvas库的createElement(component)接口，创建一个canvas对象。
-3、调用canvas对象的getContext(param)，获取用于渲染的context。
-
-扩展用法：
-1、对于Android环境，部分机型可能无法运行。建议在页面入口处调用gcanvas库的start(successCallback, errorCallback)函数，进行黑白名单判断。
-2、默认每16ms，会自动下发一次渲染指令。某些特殊场景下，希望自行控制下发频率的，可直接调用context.render()接口。调用后会关闭自动下发的操作，切换成每次主动调用render时才下发。
-
-完整示例如下：
-var libGCanvas = require('../../core/gcanvas');
-libGCanvas.start(function(){
-    nativeLog('gcanvas.start success');
-    var canvasObj = libGCanvas.createElement(gcanvasComponent);
-    var context = canvasObj.getContext('2d');
-    //do any action here
-},function(){
-    nativeLog('gcanvas.start failed');
-});
-
-*/
-
 var GImage = require('./gcanvasimage.js');
 var GBridge = require("./gutil").GBridge;
 var GLog = require("./gutil").GLog;
@@ -108,23 +84,26 @@ function GCanvas(componentId)
 {
     this.componentId = componentId;
     this.id = ++(GCanvas.idCounter);
+    this.style = {};
 }
 
 GCanvas.idCounter = 0;
-GCanvas.canvasMap = new GHashMap();
+// GCanvas.canvasMap = new GHashMap();
 
 //-----------------------------
 // GCanvas.start
 //-----------------------------
+GLog.d('gcanvas#=====>>>version: 0.5.43');
+
 GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');
-
+    
     if (typeof WXEnvironment === 'object' && /ios/i.test(WXEnvironment.platform)) {
         GCanvasPlatform = 1;
     } else if (typeof navigator === 'object' && /ios/i.test(navigator.userAgent)) {
         GCanvasPlatform = 1;
     } else {
-        GCanvasPlatform = 2;
+        GCanvasPlatform = GBridge.isBrowser() ? 0 : 2;
     }
 
     GBridge.setup( {platform:GCanvasPlatform} );
@@ -134,7 +113,7 @@ GCanvas.start = function(el){
         currentEl = el
         return currentEl;
     }
-    else 
+    else
     {
         //bind canvas
         var config = [];
@@ -145,10 +124,12 @@ GCanvas.start = function(el){
         config.push(1);//compatible. 1 will call GCanvasJNI.getAllParameter("gcanvas");
         config.push(GSupport.clearColor);
         config.push(GSupport.sameLevel);
-        GBridge.callEnable(el.ref,config,function(e){});
 
+        GBridge.callEnable(el.ref, config);
         var canvas = new GCanvas(el.ref);
-        GCanvas.canvasMap.put(el.ref, canvas);
+        canvas.width = el.style.width;
+        canvas.height = el.style.height;
+        // GCanvas.canvasMap.put(el.ref, canvas);
         return canvas;
     }
 }
@@ -185,7 +166,14 @@ GCanvas.prototype.getContext = function(contextID){
         context_type = 0;
     }
 
+    // if(context_type == 1) {
+    // 	GBridge3d.setLogLevel("debug");
+    // 	GBridge3d.callEnable(this.componentId);
+    // 	GBridge3d.setContextType(this.componentId, context_type);
+    // }else {
+//     GBridge.setLogLevel("debug");
     GBridge.setContextType(this.componentId, context_type);
+	// }
 
     context.componentId = this.componentId;
     // if (!context.timer) {
@@ -193,7 +181,10 @@ GCanvas.prototype.getContext = function(contextID){
     // }
 
     this.context = context;
+
+    // if(context_type == 0) {
     GBridge.callRegisterReattachJSCallback(this.componentId, context._clearImageTextures);
+	// }
 
     this.startLoop();
 
@@ -231,7 +222,7 @@ GCanvas.prototype.startLoop = function(fps){
     if(!this.context){
         return;
     }
- 
+
     fps = parseInt(fps) || 16;
     if(!this.context.timer){
         this.context.timer = setInterval(this.render.bind(this),fps);
@@ -245,7 +236,7 @@ GCanvas.prototype.stopLoop = function(){
     if(!this.context){
         return;
     }
- 
+
     if(this.context.timer){
         clearInterval(this.context.timer);
         this.context.timer = null;
@@ -327,6 +318,19 @@ GCanvas.setLogLevel = function(level){
         GBridge.setLogLevel(level);
     }
 }
+
+GCanvas.prototype.toDataURL = function(type,options){
+    //	GLog.d('gcanvas#toDataURL=====>>> ' + type + ',' + options);
+
+    	var args;
+	    if(typeof(options) == 'undefined'){
+	        args = type + ';';
+	    } else {
+	         args = type + ',' + options + ';';
+	    }
+
+    	return GBridge.exeSyncCmd(this.componentId,'todataurl',args);
+    }
 
 //-----------------------------
 // GCanvas.htmlPlugin

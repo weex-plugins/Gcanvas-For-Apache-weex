@@ -22,7 +22,7 @@ function GCanvasImage() {
    *
    * @type {number}
    */
-  // this.id = (++GCanvasImage.idCounter);
+//   this.id = (++GCanvasImage.idCounter);
 
   // this._id = this.id; // public facing "id" but _id used to internally
   // track image

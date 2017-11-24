@@ -89,7 +89,7 @@ GLog.setLevel = function(level){
 	this._refresh();
 }
 
-//GLog.setLevel(GLOG_WARN);
-GLog.setLevel(GLOG_DEBUG);
+// GLog.setLevel(GLOG_WARN);
+ GLog.setLevel(GLOG_DEBUG);
 
 module.exports.GLog = GLog
