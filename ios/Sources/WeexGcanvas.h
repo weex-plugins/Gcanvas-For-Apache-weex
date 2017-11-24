@@ -20,6 +20,7 @@
 #import "WXGCanvasComponent.h"
 
 #define KGCanvasResetNotificationName @"kGCanvasReset"
+#define KGCanvasCompLoadedNotificationName @"kGCanvasCompLoaded"
 
 #ifndef WeexGcanvas_h
 #define WeexGcanvas_h

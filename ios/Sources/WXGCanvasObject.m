@@ -17,18 +17,17 @@
  * under the License.
  */
 
-#import <UIKit/UIKit.h>
-#import <WeexSDK/WXComponent.h>
-#import <GLKit/GLKit.h>
+#import "WXGCanvasObject.h"
 
-typedef void (^WXGCanvasComponentRenderCallback)();
+@implementation WXGCanvasObject
 
-@interface WXGCanvasComponent : WXComponent
-
-@property (nonatomic, strong) GLKView* glkview;
-@property (nonatomic, assign) CGRect componetFrame;
-@property (nonatomic,copy)WXGCanvasComponentRenderCallback renderCallBack;
-@property (nonatomic, assign) BOOL gcanvasInitalized;
-
+- (instancetype)initWithComponentId:(NSString*)componentId
+{
+    self = [super init];
+    if (self) {
+        _componentId = componentId;
+    }
+    return self;
+}
 
 @end
