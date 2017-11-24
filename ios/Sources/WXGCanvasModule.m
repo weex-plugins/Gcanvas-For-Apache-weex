@@ -29,13 +29,6 @@
 #import "WXGCanvasObject.h"
 
 
-#define AppModule           @"GCanvas"
-#define MONITOR_POINT_FPS   @"GCanvasFps"
-#define MEASURE_FPS         @"fps"
-#define DIMENSION_TYPE      @"type"
-#define DIMENSION_PLUGIN    @"plugin"
-
-
 #if 0
 #define WEBGL_FPS
 #endif
