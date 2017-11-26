@@ -54,14 +54,15 @@ weex-gcanvas是一个weex插件，可以通过weexpack快速集成，可以丰�
 - 通过weexpack初始化一个weextest工程
    ```
    weexpack create weextest
+   cd weextest
    ```
 - 添加ios平台
    ```
-   weexpack platform add ios
+  weexpack platform add ios
    ```
 - 添加android平台
    ```
-   weexpack platform add android
+  weexpack platform add android
    ```
 - 添加插件
   ```
@@ -77,8 +78,8 @@ weex-gcanvas是一个weex插件，可以通过weexpack快速集成，可以丰�
 - 手动集成
   在podfile 中添加
   ```
-  pod 'WeexGcanvas'
-  pod 'GCanvas' 0.0.7
+  pod 'WeexGcanvas',  '0.0.3.5'
+  pod 'GCanvas' 	'0.0.7'
   pod 'WeexPluginLoader'
   ```
 

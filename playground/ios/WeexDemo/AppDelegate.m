@@ -123,9 +123,9 @@
 //    [WXSDKEngine registerExtendCallNative:@"test" withClass:NSClassFromString(@"WXExtendCallNativeTest")];
     [WXSDKEngine registerModule:@"ext" withClass:[WXExtModule class]];
     
-    [WXSDKEngine registerModule:@"gcanvas" withClass:NSClassFromString(@"WXGCanvasModule")];
-    [WXSDKEngine registerComponent:@"gcanvas" withClass:NSClassFromString(@"WXGCanvasComponent")];
-    [WXSDKEngine registerComponent:@"bubble" withClass:NSClassFromString(@"WXBubbleComponent")];
+//    [WXSDKEngine registerModule:@"gcanvas" withClass:NSClassFromString(@"WXGCanvasModule")];
+//    [WXSDKEngine registerComponent:@"gcanvas" withClass:NSClassFromString(@"WXGCanvasComponent")];
+//    [WXSDKEngine registerComponent:@"bubble" withClass:NSClassFromString(@"WXBubbleComponent")];
 
 #if !(TARGET_IPHONE_SIMULATOR)
     [self checkUpdate];
