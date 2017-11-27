@@ -4,6 +4,9 @@ ios/Pods/
 ios/Podfile.lock
 node_modules/
 examples/build/
+android/library/build
+playground/android/app/build
+playground/android/build
 playground/browser/build/
 # Built application files
 *.apk

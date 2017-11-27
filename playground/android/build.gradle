@@ -2,22 +2,27 @@
 
 buildscript {
     repositories {
+
+        mavenCentral()
         jcenter()
+        maven { url 'https://dl.bintray.com/daidai123/maven' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
 
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.novoda:bintray-release:0.3.4'
+
     }
 }
 
+
 allprojects {
     repositories {
+        mavenCentral()
         jcenter()
-        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/repository' }
-//        maven { url 'http://mvnrepo.alibaba-inc.com/mvn/snapshots'}
+        maven { url 'https://dl.bintray.com/daidai123/maven' }
     }
+
 }
 
 task clean(type: Delete) {

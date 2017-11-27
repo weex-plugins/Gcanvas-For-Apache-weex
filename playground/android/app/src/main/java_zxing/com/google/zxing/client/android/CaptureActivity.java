@@ -590,7 +590,7 @@ public final class CaptureActivity extends Activity implements
       } else  if (code.contains("_wx_debug")) {
         uri = Uri.parse(code);
         String debug_url = uri.getQueryParameter("_wx_debug");
-        WXSDKEngine.switchDebugModel(true, debug_url);
+//        WXSDKEngine.switchDebugModel(true, debug_url);
         finish();
       } else {
         Toast.makeText(this, rawResult.getText(), Toast.LENGTH_SHORT).show();

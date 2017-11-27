@@ -211,7 +211,7 @@ import android.os.Bundle;
 import com.alibaba.weex.commons.adapter.DefaultWebSocketAdapterFactory;
 import com.alibaba.weex.commons.adapter.ImageAdapter;
 import com.alibaba.weex.commons.adapter.JSExceptionAdapter;
-import com.alibaba.weex.extend.PlayDebugAdapter;
+//import com.alibaba.weex.extend.PlayDebugAdapter;
 import com.alibaba.weex.extend.component.RichText;
 import com.alibaba.weex.extend.component.WXComponentSyncTest;
 import com.alibaba.weex.extend.module.GeolocationModule;
@@ -219,6 +219,8 @@ import com.alibaba.weex.extend.module.MyModule;
 import com.alibaba.weex.extend.module.RenderModule;
 import com.alibaba.weex.extend.module.SyncTestModule;
 import com.alibaba.weex.extend.module.WXEventModule;
+import com.alibaba.weex.plugin.gcanvas.GCanvasLightningModule;
+import com.alibaba.weex.plugin.gcanvas.WXGCanvasLigntningComponent;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.taobao.weex.InitConfig;
 import com.taobao.weex.WXEnvironment;
@@ -251,7 +253,7 @@ public class WXApplication extends Application {
                            new InitConfig.Builder()
                                //.setImgAdapter(new FrescoImageAdapter())// use fresco adapter
                                .setImgAdapter(new ImageAdapter())
-                               .setDebugAdapter(new PlayDebugAdapter())
+//                               .setDebugAdapter(new PlayDebugAdapter())
                                .setWebSocketAdapterFactory(new DefaultWebSocketAdapterFactory())
                                .setJSExceptionAdapter(new JSExceptionAdapter())
                                .build()
@@ -269,7 +271,8 @@ public class WXApplication extends Application {
       WXSDKEngine.registerModule("myModule", MyModule.class);
       WXSDKEngine.registerModule("geolocation", GeolocationModule.class);
 
-
+      WXSDKEngine.registerComponent("gcanvas", WXGCanvasLigntningComponent.class);
+      WXSDKEngine.registerModule("gcanvas", GCanvasLightningModule.class);
 
 //      WXSDKEngine.registerComponent("gcanvas", WXGcanvasComponent.class);
 //      WXSDKEngine.registerModule("gcanvas", GcanvasModule.class);
