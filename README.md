@@ -5,10 +5,10 @@ weex-gcanvas是一个weex插件，可以通过weexpack快速集成，可以丰�
 支持的WeexSDK版本： >= 0.10.0
 
 
-#环境准备
+# 环境准备
 如果需要编写Demo，要准备好Weex环境，安装[weex-toolkit](https://www.npmjs.com/package/weex-toolkit)客户端工具。
 
-#WeexGcanvas Demo
+# WeexGcanvas Demo
 
 * GCanvasDemo.vue测试Demo， 详见examples目录下
 
@@ -124,13 +124,13 @@ Demo工程包括iOS、Android。在目录playground下是一个Weex Playground�
 - 手动集成
     在相应工程的build.gradle文件中添加（由于jcenter审核还未通过，暂时指定maven url）
   ```
- repositories {
+   repositories {
         maven { url 'https://dl.bintray.com/daidai123/maven' }
         jcenter()
         mavenCentral()
- }
- dependecies中添加
- compile "com.alibaba.android.weex:gcanvas_library_weex:1.3.1"
+   }
+   dependecies中添加
+   compile "com.alibaba.android.weex:gcanvas_library_weex:1.3.1"
   ```
     注意：您需要自行指定插件的groupId和version并将构建产物发布到相应的依赖管理仓库内去（例如maven）, 您也可以对插件的name进行自定义，默认将使用插件工程的名称作为name
 
