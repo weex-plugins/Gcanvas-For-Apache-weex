@@ -93,7 +93,7 @@ GCanvas.idCounter = 0;
 //-----------------------------
 // GCanvas.start
 //-----------------------------
-GLog.d('gcanvas#=====>>>version: 0.5.43');
+GLog.d('gcanvas#=====>>>version: 0.5.45');
 
 GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');

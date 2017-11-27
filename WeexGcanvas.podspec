@@ -17,18 +17,19 @@ Pod::Spec.new do |s|
     LICENSE
   }
   s.authors      = {
-                     "yourname" =>"youreamail"
+                     "jwxbond" =>"jwxbond@gmail.com"
                    }
   s.platform     = :ios
-  s.ios.deployment_target = "7.0"
+  s.ios.deployment_target = "8.0"
 
   s.source       = { :git => 'https://github.com/weex-plugins/weex-plugin-gcanvas.git', :tag => s.version }
   #s.source =  { :path => '.' }
   s.source_files  = "ios/Sources/*.{h,m,mm}"
+  s.user_target_xcconfig  = { 'FRAMEWORK_SEARCH_PATHS' => "'$(PODS_ROOT)/WeexSDK', '$(PODS_ROOT)/WeexPluginLoader', '$(PODS_ROOT)/GCanvas'" }
   
   s.requires_arc = true
   s.dependency "WeexPluginLoader"
-  s.dependency "WeexSDK"
+  s.dependency "WeexSDK", "~> 0.17.0"
   s.dependency "GCanvas"
   s.dependency "SDWebImage", "< 4.0.0"
   s.libraries = "stdc++"
