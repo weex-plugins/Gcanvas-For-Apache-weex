@@ -5,7 +5,10 @@
 </template>
 <script>
 	var GCanvas=require('weex-gcanvas'); 	//GCanvas
+	//var GCanvs=require('../js/src/gcanvas');
 	var Image=require('weex-gcanvas/gcanvasimage'); //GCanvasImage
+    //var Image=require('../js/src/gcanvasimage');
+
 	module.exports = {
 		mounted: function () {
 			var ref = this.$refs.canvas_holder;
