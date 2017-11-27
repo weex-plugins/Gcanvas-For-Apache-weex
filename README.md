@@ -68,7 +68,14 @@ weex GCanvasDemo.vue
 * Demo效果
 
   iOS上的扫码运行结果如下
+
   ![](https://img.alicdn.com/tfs/TB1NmBtc5qAXuNjy1XdXXaYcVXa-400-705.png)
+
+  Android上扫码运行效果如下
+
+  ![](https://gw.alicdn.com/tfs/TB1vjwrfhrI8KJjy0FpXXb5hVXa-400-706.png)
+
+  ​
 
 # 集成
 
@@ -115,9 +122,15 @@ Demo工程包括iOS、Android。在目录playground下是一个Weex Playground�
   ```
 
 - 手动集成
-    在相应工程的build.gradle文件的dependencies中添加
+    在相应工程的build.gradle文件中添加（由于jcenter审核还未通过，暂时指定maven url）
   ```
-  compile "com.alibaba.android.weex:gcanvas_library_weex:1.3.1"
+ repositories {
+        maven { url 'https://dl.bintray.com/daidai123/maven' }
+        jcenter()
+        mavenCentral()
+ }
+ dependecies中添加
+ compile "com.alibaba.android.weex:gcanvas_library_weex:1.3.1"
   ```
     注意：您需要自行指定插件的groupId和version并将构建产物发布到相应的依赖管理仓库内去（例如maven）, 您也可以对插件的name进行自定义，默认将使用插件工程的名称作为name
 
@@ -141,7 +154,7 @@ Demo工程包括iOS、Android。在目录playground下是一个Weex Playground�
   npm install  weex-gcanvas@0.5.43
   ```
 - 手动集成
-    在相应工程的package.json文件的dependencies中添加
+    在相应工程的package.json文件的dependencies中添加
   ```
   "devDependencies": {
       "weex-gcanvas": "^0.5.43"
