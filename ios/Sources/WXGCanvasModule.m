@@ -53,6 +53,8 @@
 //@property (nonatomic, assign) CGFloat renderFPS;
 //@property (nonatomic, assign) CFTimeInterval renderLastTime;
 //#endif
+@property (strong, nonatomic) dispatch_semaphore_t renderSemaphore;
+
 
 @end
 
@@ -164,6 +166,8 @@ static NSMutableDictionary *_instanceDict;
                                                  selector:@selector(onWeexInstanceWillDestroy:)
                                                      name:WX_INSTANCE_WILL_DESTROY_NOTIFICATION
                                                    object:nil];
+        
+        self.renderSemaphore = dispatch_semaphore_create(0);
     }
     
     WXGCanvasObject *gcanvasInst = [[WXGCanvasObject alloc] initWithComponentId:componentId];
@@ -482,8 +486,8 @@ static NSMutableDictionary *_instanceDict;
     
     GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@, context:%p", component.ref, component.glkview.context);
     
-    dispatch_sync([self targetExecuteQueue], ^{
-        
+    GCVWeakSelf
+    dispatch_async([self targetExecuteQueue], ^{
         [EAGLContext setCurrentContext:component.glkview.context];
 
         //设置当前的上线文EAGLContext
@@ -508,7 +512,10 @@ static NSMutableDictionary *_instanceDict;
         }
         
         [plugin execCommands];
+        
+        dispatch_semaphore_signal(weakSelf.renderSemaphore);
     });
+    dispatch_semaphore_wait(weakSelf.renderSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)));
 }
 
 #pragma mark - GCVImageLoaderProtocol
