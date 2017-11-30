@@ -117,11 +117,28 @@ GCanvas.idCounter = 0;
 //-----------------------------
 // GCanvas.start
 //-----------------------------
-GLog.d('gcanvas#=====>>>version: 0.5.32');
+GLog.d('gcanvas#=====>>>version: 0.5.44');
 
 GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');
 
+    if( weex.supports('@weex-module/userTrack') )
+    {
+        try {
+            var userTrack;
+            if(weex && weex.requireModule) {
+                userTrack = weex.requireModule('userTrack');
+            }else if(__weex_require__) {
+                userTrack = __weex_require__('@weex-module/userTrack');
+            }
+            if(userTrack){
+                userTrack.commitut("expose", 2201, "", '', '/gcanvas.gcanvasweex.start', '', '', '');
+            }
+        } catch(e) {
+            console.error(e)
+        }
+    }
+    
     if (typeof WXEnvironment === 'object' && /ios/i.test(WXEnvironment.platform)) {
         GCanvasPlatform = 1;
     } else if (typeof navigator === 'object' && /ios/i.test(navigator.userAgent)) {

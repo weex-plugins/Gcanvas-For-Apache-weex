@@ -1,6 +1,6 @@
 {
     "name": "weex-gcanvas",
-    "version": "0.5.8",
+    "version": "0.5.44",
     "main":"gcanvas.js",
     "platform": [
         "ios",
@@ -11,5 +11,7 @@
         "weex",
         "plugin"
     ],
-    "license": "Apache 2.0"
+    "license": "Apache 2.0",
+    "dependencies": {
+    }
 }

@@ -1124,7 +1124,8 @@ GContextWebGL.prototype.getProgramInfoLog = function(program){
 GContextWebGL.prototype.getProgramParameter = function(program, pname){
     var programId = program instanceof GProgram ? program.programId : program;
     var cmd = (this.getProgramParameterId + programId + "," + pname + ";");
-    return WebGLCallNative(this.componentId, cmd);
+    var resultString = WebGLCallNative(this.componentId, cmd);
+    return GetRetrunResultByString(resultString);
 };
 
 //new

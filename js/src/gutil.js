@@ -9,7 +9,7 @@ var debug = true;
 var platform;
 var canvasModule;
 
-canvasModule = (typeof weex!=='undefined'&&weex.requireModule) ? ( weex.requireModule('gcanvas') ) : (__weex_require__('@weex-module/gcanvas') );
+canvasModule = typeof weex!=='undefined' && weex.requireModule ? weex.requireModule('gcanvas')  : typeof  __weex_require__  !== 'undefined' ?  __weex_require__('@weex-module/gcanvas') : null;
 
 var GBridge = {
 

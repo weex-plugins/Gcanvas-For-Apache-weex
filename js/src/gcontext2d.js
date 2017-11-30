@@ -38,7 +38,7 @@ function GContext2D() {
     this._firstBindFlag = true;
 
     this._checkVersionFlag = false;
-    this._useOldAPIFlag = false;
+    this._useNewAPIFlag = true;
 
 }
 
@@ -699,21 +699,21 @@ function versionLessThen(ver1, ver2)
     return arr1.length < arr2.length;
 }
 
-function useOldAPI()
+function useNewAPI()
 {
-    var appName = weex.config.env.appName;
-    var appVersion = weex.config.env.appVersion;
+    var appName = WXEnvironment.appName.toUpperCase();
+    var appVersion = WXEnvironment.appVersion;
     if( (appName == "TB") && versionLessThen(appVersion, "6.11.2.3") ) //低于6.11.2.3的使用老接口
     {
-        return true;
+        return false;
     }
     else if(appName == "TM" && versionLessThen(appVersion, "6.4.1.2") ) //低于6.4.1.2的使用老接口
     {
-        return true;
+        return false;
     }
 
     //其他的都使用新接口
-    return false;
+    return true;
 }
 
 GContext2D.prototype.drawImage = function(image, // image
@@ -739,14 +739,14 @@ GContext2D.prototype.drawImage = function(image, // image
    {
         if( !that._checkVersionFlag )
         {
-            that._useOldAPIFlag = useOldAPI();
+            that._useNewAPIFlag = useNewAPI();
             that._checkVersionFlag = true;
         }
 
-        if( that._useOldAPIFlag ){
-            GBridge.bindImageTexture(that.componentId, image.src, function(){});
-        }else{
+        if( that._useNewAPIFlag ){
             GBridge.bindImageTexture(that.componentId, [image.src, image.id], function(){});
+        }else{
+            GBridge.bindImageTexture(that.componentId, image.src, function(){});
         }
         that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
         // that._saveImageTexture(image.src, image);
