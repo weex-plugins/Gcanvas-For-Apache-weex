@@ -53,7 +53,8 @@
 //@property (nonatomic, assign) CGFloat renderFPS;
 //@property (nonatomic, assign) CFTimeInterval renderLastTime;
 //#endif
-@property (strong, nonatomic) dispatch_semaphore_t renderSemaphore;
+//@property (strong, nonatomic) dispatch_semaphore_t renderSemaphore;
+@property (strong, nonatomic) dispatch_queue_t preloadQueue;
 
 
 @end
@@ -166,8 +167,7 @@ static NSMutableDictionary *_instanceDict;
                                                  selector:@selector(onWeexInstanceWillDestroy:)
                                                      name:WX_INSTANCE_WILL_DESTROY_NOTIFICATION
                                                    object:nil];
-        
-        self.renderSemaphore = dispatch_semaphore_create(0);
+//        self.renderSemaphore = dispatch_semaphore_create(0);
     }
     
     WXGCanvasObject *gcanvasInst = [[WXGCanvasObject alloc] initWithComponentId:componentId];
@@ -217,7 +217,7 @@ static NSMutableDictionary *_instanceDict;
 //预加载image，便于后续渲染时可以同步执行
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback
 {
-    if( ![data isKindOfClass:NSArray.class] )
+    if( !data || ![data isKindOfClass:NSArray.class] || data.count != 2)
     {
         return;
     }
@@ -228,15 +228,13 @@ static NSMutableDictionary *_instanceDict;
         [GCVCommon sharedInstance].imageLoader = self;
     }
     
-    if (!data || data.count != 2)
-    {
-        return;
+    if( !self.preloadQueue ){
+        self.preloadQueue = dispatch_queue_create("com.taobao.gcanvas.preload", DISPATCH_QUEUE_CONCURRENT);
     }
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) , ^{
         NSString *src = data[0];
         NSUInteger jsTextureId = [data[1] integerValue];
-        
         [[GCVCommon sharedInstance] addPreLoadImage:src
                                          completion:^(GCVImageCache *imageCache, BOOL fromCache) {
                                              if (!imageCache)
@@ -257,8 +255,12 @@ static NSMutableDictionary *_instanceDict;
 
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback
 {
+    if( !data || ![data isKindOfClass:NSArray.class] || data.count != 2)
+    {
+        return;
+    }
+
     WXGCanvasObject *gcanvasInst = self.gcanvasDict[componentId];
-    
     GCanvasPlugin *plugin = gcanvasInst.plugin;
     WXGCanvasComponent *component = gcanvasInst.component;
     
@@ -266,60 +268,55 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
-    NSString *src = nil;
-    if([data isKindOfClass:NSArray.class] && data.count == 2){
-        src = data[0];
-        NSUInteger jsTextureId = [data[1] integerValue];
-        
-        __block GLuint textureId = [plugin getTextureId:jsTextureId];
+    NSString *src = data[0];
+    NSUInteger jsTextureId = [data[1] integerValue];
 
-        if( textureId == 0 )
+    __block GLuint textureId = [plugin getTextureId:jsTextureId];
+    if( textureId == 0 )
+    {
+        GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
+        void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
         {
-            GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
-            void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
-            {
-                dispatch_main_async_safe(^{
-                    [EAGLContext setCurrentContext:component.glkview.context];
+            dispatch_main_async_safe(^{
+                [EAGLContext setCurrentContext:component.glkview.context];
 
-                    textureId = [GCVCommon bindTexture:cache.image];
-                    if( textureId > 0 )
-                    {
-                        //clean image after bind success
-                        [plugin addTextureId:textureId
-                                   withAppId:jsTextureId
-                                       width:cache.width
-                                      height:cache.height];
-                        
-                        [[GCVCommon sharedInstance] removeLoadImage:src];
-                    }
-                
-                    GCVLOG_METHOD(@"2==>bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
-
-                });
-            };
+                textureId = [GCVCommon bindTexture:cache.image];
+                if( textureId > 0 )
+                {
+                    //clean image after bind success
+                    [plugin addTextureId:textureId
+                               withAppId:jsTextureId
+                                   width:cache.width
+                                  height:cache.height];
+                    
+                    [[GCVCommon sharedInstance] removeLoadImage:src];
+                }
             
-            if( !imageCache )
-            {
-                [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache, BOOL fromCache) {
-                    bindTextureBlock(imageCache);
-                    if( callback )
-                    {
-                        (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
-                    }
-                }];
-                return;
-            }
-            else
-            {
+                GCVLOG_METHOD(@"2==>bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+
+            });
+        };
+        
+        if( !imageCache )
+        {
+            [[GCVCommon sharedInstance] addPreLoadImage:src completion:^(GCVImageCache *imageCache, BOOL fromCache) {
                 bindTextureBlock(imageCache);
-            }
-            
+                if( callback )
+                {
+                    (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
+                }
+            }];
+            return;
         }
-        
-        if( callback )
+        else
         {
-            (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
+            bindTextureBlock(imageCache);
         }
+    }
+
+    if( callback )
+    {
+        (textureId > 0) ? callback(@{}) : callback(@{@"error":@"bind error"});
     }
 }
 
@@ -486,8 +483,8 @@ static NSMutableDictionary *_instanceDict;
     
     GCVLOG_METHOD(@"glkView:drawInRect:, componentId:%@, context:%p", component.ref, component.glkview.context);
     
-    GCVWeakSelf
-    dispatch_async([self targetExecuteQueue], ^{
+//    GCVWeakSelf
+//    dispatch_async([self targetExecuteQueue], ^{
         [EAGLContext setCurrentContext:component.glkview.context];
 
         //设置当前的上线文EAGLContext
@@ -512,10 +509,9 @@ static NSMutableDictionary *_instanceDict;
         }
         
         [plugin execCommands];
-        
-        dispatch_semaphore_signal(weakSelf.renderSemaphore);
-    });
-    dispatch_semaphore_wait(weakSelf.renderSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)));
+//        dispatch_semaphore_signal(weakSelf.renderSemaphore);
+//    });
+//    dispatch_semaphore_wait(weakSelf.renderSemaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)));
 }
 
 #pragma mark - GCVImageLoaderProtocol
