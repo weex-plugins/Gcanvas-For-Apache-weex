@@ -545,15 +545,18 @@ static NSMutableDictionary *_instanceDict;
         component.glkview.delegate = nil;
     }
     
-    __block NSDictionary *retDict;
-    __weak typeof(self) weakSelf = self;
-//    dispatch_semaphore_t _semaphore = dispatch_semaphore_create(0);
-//    dispatch_main_sync_safe(^{
-        retDict = [weakSelf callGCanvasNative:dict];
-//        dispatch_semaphore_signal(_semaphore);
+    NSDictionary *retDict = [self callGCanvasNative:dict];
+//    __block NSDictionary *retDict;
+//    __weak typeof(self) weakSelf = self;
+//    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+//
+//    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) , ^{
+//        dispatch_sync([weakSelf targetExecuteQueue], ^{
+//            retDict = [weakSelf callGCanvasNative:dict];
+//            dispatch_semaphore_signal(semaphore);
+//        });
 //    });
-//    
-//    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+//    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     return retDict;
 
 }

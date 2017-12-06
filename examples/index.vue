@@ -10,6 +10,10 @@
       return {
         items: [ 
 
+          //jellyfish
+          {name: root + '/jellyfish/jelly.vue', title:'Jellyfish'},
+
+
           //bubble
           {name: root + '/bubble', title:'Bubble'},
           {name: root + '/bubble-index', title:'Bubble 2'},
