@@ -43,6 +43,8 @@
 
           //font
           {name: root + '/context2d_font_01', title: 'Context2d-Font-01'},
+          {name: root + '/context2d_font_02', title: 'Context2d-Font-02'},
+
           // common
           {name: root + '/singlecanvas', title: 'SingleGCanvas'},
           {name: root + '/multicanvas', title: 'MultiGCanvas'},
