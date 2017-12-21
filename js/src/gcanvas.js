@@ -132,7 +132,7 @@ GCanvas.start = function(el){
                 userTrack = __weex_require__('@weex-module/userTrack');
             }
             if(userTrack){
-                userTrack.commitut("expose", 2201, "", '', '/gcanvas.gcanvasweex.start', '', '', '');
+                userTrack.commitut("expose", 2201, "", '', '/gcanvas.gcanvasweex.start', '', '', {});
             }
         } catch(e) {
             console.error(e)
