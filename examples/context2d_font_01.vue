@@ -24,35 +24,26 @@
 
 				ctx.save();
 				ctx.font="20px Verdana";
-				ctx.fillText("Hello World", offsetX, 50);	
+				ctx.fillText("GCanvas很牛逼", offsetX, 50);	
+				ctx.fillStyle = 'red'
 				ctx.restore();
 
 				ctx.save();
-				ctx.font="20px Verdana";
-				ctx.fillText("发发发222",offsetX+200, 50);
+				ctx.font="24px Verdana";
+				ctx.fillStyle = 'red'
+				ctx.fillText("图形渲染引擎",offsetX+200, 50);
 				ctx.restore();
 
 				ctx.save();
 				ctx.font="30px Georgia";
-				ctx.fillText("Hello World",offsetX, 100);
+				ctx.fillText("Hello World GCanvas",offsetX, 100);
 				ctx.restore();
 
-				// ctx.save();
-				// ctx.font="30px Georgia";
-				// ctx.fillText("发发发",offsetX, 150);
-				// ctx.restore();
-
-				// ctx.save();
-				// ctx.font="30px Georgia";
-				// ctx.fillText("啊啊啊啊啊",offsetX, 200);
-				// ctx.restore();
-
-				// ctx.save();
-				// ctx.font="40px italic bold arial";
-				// ctx.fillText("Hello World",offsetX, 150);
-				// ctx.restore();
-
-				/*
+				ctx.save();
+				ctx.font="40px italic bold arial";
+				ctx.fillText("Hello World",offsetX, 150);
+				ctx.restore();
+				
 				ctx.save();
 				ctx.font="bold 50px Verdana";
 				ctx.fillText("Hello World",offsetX, 200);
@@ -60,21 +51,19 @@
 
 				//gradient
 				ctx.save();
-				ctx.font="30px Verdana";
-				var gradient=ctx.createLinearGradient(offsetX,0,offsetX+400, 0);
+				ctx.font="bold 60px Verdana";
+				var gradient=ctx.createLinearGradient(offsetX,0,offsetX+750, 0);
 				gradient.addColorStop("0", "magenta");
 				gradient.addColorStop("0.5", "blue");
 				gradient.addColorStop("1.0", "red");
 				ctx.fillStyle = gradient;
-				ctx.fillText("GCanvas is fast engine",offsetX, 250);
+				ctx.fillText("GCanvas Fast Engine",offsetX, 250);
 				ctx.restore();
 
 				ctx.save();
-				ctx.font="40px 微软雅黑";
-				ctx.fillText("GCanvas is fast engine", offsetX, 300);
+				ctx.font="italic 70px 微软雅黑";
+				ctx.fillText("GCanvas 飞快 666", offsetX, 320);
 				ctx.restore();
-				*/
-
 
 				offsetX = (offsetX + 1 ) % 750;
 			}, 16);	
