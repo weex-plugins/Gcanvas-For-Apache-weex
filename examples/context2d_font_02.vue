@@ -65,7 +65,7 @@
 
 				ctx.save();
 				ctx.font="italic 70px 微软雅黑";
-				ctx.fillText("GCanvas 飞快 666", offsetX, 320);
+				ctx.fillText("GCanvas Fast Engine", offsetX, 320);
 				ctx.restore();
 				
 				if( image.complete )
