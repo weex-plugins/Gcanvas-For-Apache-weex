@@ -270,10 +270,28 @@ static NSMutableDictionary *_instanceDict;
     
     NSString *src = data[0];
     NSUInteger jsTextureId = [data[1] integerValue];
-
+    
+    BOOL isOffScreen = [src hasPrefix:@"offscreen_"];
+    
     __block GLuint textureId = [plugin getTextureId:jsTextureId];
     if( textureId == 0 )
     {
+        if( isOffScreen )
+        {
+            NSString *orgComponentId = [src substringFromIndex:10];
+            WXGCanvasObject *gcanvasInst = [[WXGCanvasObject alloc] initWithComponentId:orgComponentId];
+            GCanvasPlugin *orgPlugin = gcanvasInst.plugin;
+            WXGCanvasComponent *orgComponent = gcanvasInst.component;
+            if( orgPlugin  && orgComponent ){
+                [plugin addTextureId:[orgPlugin textureId]
+                           withAppId:jsTextureId
+                               width:orgComponent.componetFrame.size.width
+                              height:orgComponent.componetFrame.size.height];
+            }
+            
+            return;
+        }
+        
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
         {

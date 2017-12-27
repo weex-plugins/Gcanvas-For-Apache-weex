@@ -725,15 +725,32 @@ GContext2D.prototype.drawImage = function(image, // image
      var that = this;
      var numArgs = arguments.length;
 
-     var cacheKey = this.componentId + "_" + image.id;
+     //Offscreen image is GCanvas instance
+     if (typeof(image.componentId) != 'undefined') {
+        var destComponentId = image.componentId;
+        var gcanvasImage = new GCanvasImage();
+        gcanvasImage.width = image.width;
+        gcanvasImage.height = image.height;
 
-     // var imageCache = this._getImageTexture(image.src);
-     var imageCache = this._getImageTexture(cacheKey);
+        if( GBridge.isIOS() ){
+            gcanvasImage.src = "offscreen_" + destComponentId;
+        } else {
+            gcanvasImage.id = 0;
+            var destContext = image.context;
+            destContext._drawCommands = destContext._drawCommands.concat("X"+this.componentId+";");
+            GBridge.callRender(this.componentId, "Y"+destComponentId+";");
+        }
+        this._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
+        return;
+     } else {
+        var cacheKey = this.componentId + "_" + image.id;
+        var imageCache = this._getImageTexture(cacheKey);
 
-     if (imageCache) {
-       this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-       return;
-   }
+        if (imageCache) {
+            this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+            return;
+        }
+     }
 
    if( GBridge.isIOS() )
    {
