@@ -734,13 +734,20 @@ GContext2D.prototype.drawImage = function(image, // image
 
         if( GBridge.isIOS() ){
             gcanvasImage.src = "offscreen_" + destComponentId;
+            //延迟调用
+            setTimeout(function(){
+                GBridge.bindImageTexture(that.componentId, [gcanvasImage.src, gcanvasImage.id], function(){});
+                that._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
+            }, 200 );
+            // GBridge.bindImageTexture(that.componentId, [gcanvasImage.src, gcanvasImage.id], function(){});
+            // that._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
         } else {
             gcanvasImage.id = 0;
             var destContext = image.context;
             destContext._drawCommands = destContext._drawCommands.concat("X"+this.componentId+";");
             GBridge.callRender(this.componentId, "Y"+destComponentId+";");
+            this._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
         }
-        this._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
         return;
      } else {
         var cacheKey = this.componentId + "_" + image.id;
