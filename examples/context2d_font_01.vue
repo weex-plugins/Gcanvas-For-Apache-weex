@@ -85,17 +85,6 @@
 				ctx.fillText("Verdana 30号字", offsetX, 580);
 				ctx.restore();
 
-				ctx.save();
-				ctx.font="60px 微软雅黑";
-				ctx.strokeText('Hello world', offsetX, 400);
-				ctx.restore();
-
-				ctx.save();
-				ctx.font="italic 40px 微软雅黑";
-				ctx.fillText("GCanvas FPS 60帧", offsetX, 470);
-				ctx.restore();
-
-
 				// ctx.save();
 				// var offsetY = 500
 				// ctx.strokeStyle="red";
