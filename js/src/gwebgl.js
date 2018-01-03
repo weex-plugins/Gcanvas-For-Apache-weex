@@ -1326,7 +1326,7 @@ GContextWebGL.prototype.scissor = function(x, y, width, height) {
 
 GContextWebGL.prototype.shaderSource = function(shader, source){
     // var cmd = (this.shaderSourceId + shader + "," + btoa(source) + ";");
-    var cmd = (this.shaderSourceId + shader + "," + source + ";");
+    var cmd = (this.shaderSourceId + shader + "," + source);
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1477,7 +1477,7 @@ GContextWebGL.prototype.uniformXXv_ = function(id, value, type, cmdId){
         return;
 
     value = trans2ArrayType(type, value);
-    var cmd = (cmdId + id + "," + GarrToBase64(value) + ";");
+    var cmd = (cmdId + id + "," + 0 + "," + GarrToBase64(value) + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
@@ -1556,7 +1556,7 @@ GContextWebGL.prototype.uniform4iv = function(location, value){
 GContextWebGL.prototype.uniformMatrixXfv_ = function(location, transpose, value, apiId){
     if (value.length == 0)
         return;
-    var cmd = (apiId + location + "," + (transpose?1:0)) + "," + GarrToBase64(value) + (";");
+    var cmd = (apiId + location + "," + (transpose?1:0)) + ","+0+"," + GarrToBase64(value) + (";");
     WebGLCallNative(this.componentId, cmd);
 };
 
