@@ -1325,7 +1325,8 @@ GContextWebGL.prototype.scissor = function(x, y, width, height) {
 };
 
 GContextWebGL.prototype.shaderSource = function(shader, source){
-    var cmd = (this.shaderSourceId + shader + "," + btoa(source) + ";");
+    // var cmd = (this.shaderSourceId + shader + "," + btoa(source) + ";");
+    var cmd = (this.shaderSourceId + shader + "," + source + ";");
     WebGLCallNative(this.componentId, cmd);
 };
 
