@@ -31,7 +31,7 @@
 				ctx.save();
 				ctx.font="24px Verdana";
 				ctx.fillStyle = 'red'
-				ctx.fillText("图形渲染引擎",offsetX+200, 50);
+				ctx.fillText("GCanvas 666",offsetX+200, 50);
 				ctx.restore();
 
 				ctx.save();
@@ -62,7 +62,27 @@
 
 				ctx.save();
 				ctx.font="italic 70px 微软雅黑";
-				ctx.fillText("GCanvas 飞快的 666", offsetX, 320);
+				ctx.fillText("italic 70 号", offsetX, 320);
+				ctx.restore();
+
+				ctx.save();
+				ctx.font="60px 微软雅黑";
+				ctx.fillText("Helvetica 60号", offsetX, 400);
+				ctx.restore();
+
+				ctx.save();
+				ctx.font="50px 微软雅黑";
+				ctx.fillText("Helvetica 50号", offsetX, 470);
+				ctx.restore();
+
+				ctx.save();
+				ctx.font="italic bold 40px Verdana";
+				ctx.fillText("Verdana 40号字", offsetX, 530);
+				ctx.restore();
+
+				ctx.save();
+				ctx.font="bold 30px Verdana";
+				ctx.fillText("Verdana 30号字", offsetX, 580);
 				ctx.restore();
 
 				ctx.save();

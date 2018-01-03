@@ -26,7 +26,8 @@
 @interface WXGCanvasComponent()
 
 @property(nonatomic, assign) CGRect frame;
-@property(nonatomic, assign) BOOL isUnLoad;
+@property (nonatomic, assign) BOOL isOffscreen;
+
 @end
 
 @implementation WXGCanvasComponent
@@ -78,6 +79,11 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         if (styles[@"height"])
         {
             size.height = [styles[@"height"] floatValue];
+        }
+        
+        if( styles[@"offscreen"] )
+        {
+            self.isOffscreen = [styles[@"offscreen"] integerValue] == 1;
         }
         
         self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);

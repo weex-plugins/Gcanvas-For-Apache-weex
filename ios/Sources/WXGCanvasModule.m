@@ -97,12 +97,12 @@ static NSMutableDictionary *_instanceDict;
     
     if( !_firstContext )
     {
-       _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+       _firstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
         return _firstContext;
     }
     else
     {
-        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:_firstContext.sharegroup];
+        EAGLContext *newContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:_firstContext.sharegroup];
         return newContext;
     }
 }
@@ -202,6 +202,10 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
+    if(component.isOffscreen){
+        component.glkview.hidden = YES;
+    }
+    
     [plugin addCommands:commands];
     [self execCommandById:componentId];
 }
@@ -222,7 +226,6 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
-    GCVLOG_METHOD(@" PreLoadImage start...");
     if( ![GCVCommon sharedInstance].imageLoader )
     {
         [GCVCommon sharedInstance].imageLoader = self;
@@ -230,6 +233,12 @@ static NSMutableDictionary *_instanceDict;
     
     if( !self.preloadQueue ){
         self.preloadQueue = dispatch_queue_create("com.taobao.gcanvas.preload", DISPATCH_QUEUE_CONCURRENT);
+    }
+    
+    NSString *src = data[0];
+    GCVLOG_METHOD(@" PreLoadImage start... src=%@", src);
+    if( [src hasPrefix:@"offscreen_"] ){
+        return;
     }
     
     dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) , ^{
@@ -259,6 +268,8 @@ static NSMutableDictionary *_instanceDict;
     {
         return;
     }
+    
+    GCVLOG_METHOD(@" bindImageTexture... componentId:%@", componentId);
 
     WXGCanvasObject *gcanvasInst = self.gcanvasDict[componentId];
     GCanvasPlugin *plugin = gcanvasInst.plugin;
@@ -270,10 +281,31 @@ static NSMutableDictionary *_instanceDict;
     
     NSString *src = data[0];
     NSUInteger jsTextureId = [data[1] integerValue];
-
+    
+    BOOL isOffScreen = [src hasPrefix:@"offscreen_"];
+    
     __block GLuint textureId = [plugin getTextureId:jsTextureId];
     if( textureId == 0 )
     {
+        if( isOffScreen )
+        {
+            NSString *orgComponentId = [src substringFromIndex:10];
+            WXGCanvasObject *gcanvasInst = self.gcanvasDict[orgComponentId];
+            GCanvasPlugin *orgPlugin = gcanvasInst.plugin;
+            WXGCanvasComponent *orgComponent = gcanvasInst.component;
+            if( orgPlugin  && orgComponent ){
+                
+                orgComponent.glkview.hidden = YES;
+                [plugin addTextureId:[orgPlugin textureId]
+                           withAppId:jsTextureId
+                               width:orgComponent.componetFrame.size.width
+                              height:orgComponent.componetFrame.size.height
+                           offscreen:YES];
+            }
+            
+            return;
+        }
+        
         GCVImageCache *imageCache = [[GCVCommon sharedInstance] fetchLoadImage:src];
         void (^bindTextureBlock)(GCVImageCache*) = ^(GCVImageCache* cache)
         {
@@ -287,7 +319,8 @@ static NSMutableDictionary *_instanceDict;
                     [plugin addTextureId:textureId
                                withAppId:jsTextureId
                                    width:cache.width
-                                  height:cache.height];
+                                  height:cache.height
+                               offscreen:NO];
                     
                     [[GCVCommon sharedInstance] removeLoadImage:src];
                 }

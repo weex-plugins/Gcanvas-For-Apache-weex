@@ -10,8 +10,11 @@
       return {
         items: [ 
 
+          //offscreen
+          {name: root + '/offscreen_test', title:'OffScreen'},
+
           //jellyfish
-          {name: root + '/jellyfish/jelly.vue', title:'Jellyfish'},
+          {name: root + '/jellyfish/jelly', title:'Jellyfish'},
 
 
           //bubble

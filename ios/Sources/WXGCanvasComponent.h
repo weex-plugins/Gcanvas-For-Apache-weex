@@ -29,6 +29,7 @@ typedef void (^WXGCanvasComponentRenderCallback)();
 @property (nonatomic, assign) CGRect componetFrame;
 @property (nonatomic,copy)WXGCanvasComponentRenderCallback renderCallBack;
 @property (nonatomic, assign) BOOL gcanvasInitalized;
+@property (nonatomic, assign, readonly) BOOL isOffscreen;
 
 
 @end
