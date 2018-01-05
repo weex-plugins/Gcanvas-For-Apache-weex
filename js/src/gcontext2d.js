@@ -17,17 +17,17 @@ function GContext2D() {
     this._textAlign = "start";
     this._textBaseline = "alphabetic";
     this._font = "10px sans-serif";
-    this._images = {};
-    this._canvases1 = {};
-    this._canvases2 = {};
-    this._getImageData = new Array();
+    // this._images = {};
+    // this._canvases1 = {};
+    // this._canvases2 = {};
+    // this._getImageData = new Array();
 
-//    GCanvas._forbiddenAutoReplaceCanvas =true;
-//    this._apiCanvas  = document.createElement('canvas');
-//    GCanvas._forbiddenAutoReplaceCanvas =false;
-//    console.error("apicanvas="+this._apiCanvas);
-//    this._apiContext = this._apiCanvas.getContext("2d");
-//    this._apiContext.font = this._font;
+    // GCanvas._forbiddenAutoReplaceCanvas =true;
+    // this._apiCanvas  = document.createElement('canvas');
+    // GCanvas._forbiddenAutoReplaceCanvas =false;
+    // console.error("apicanvas="+this._apiCanvas);
+    // this._apiContext = this._apiCanvas.getContext("2d");
+    // this._apiContext.font = this._font;
 
     this._savedGlobalAlpha =[];
     this.timer = null;
@@ -35,18 +35,20 @@ function GContext2D() {
 
     this._imageMap = new GHashMap();
     this._textureMap = new GHashMap();
-    this._firstBindFlag = true;
-
-    this._checkVersionFlag = false;
-    this._useNewAPIFlag = true;
-
 }
 
+/////////////////////////////////////////////////////////////////
+// FillStylePattern
+/////////////////////////////////////////////////////////////////
 function FillStylePattern(img, pattern) {
     this._style = pattern;
     this._img = img;
 }
 
+
+/////////////////////////////////////////////////////////////////
+// FillStyleLinearGradient
+/////////////////////////////////////////////////////////////////
 function FillStyleLinearGradient(x0, y0, x1, y1) {
     this._start_pos = { _x : x0, _y : y0 };
     this._end_pos = { _x : x1, _y : y1 };
@@ -61,6 +63,10 @@ FillStyleLinearGradient.prototype.addColorStop = function(pos, color) {
     }
 }
 
+
+/////////////////////////////////////////////////////////////////
+// FillStyleRadialGradient
+/////////////////////////////////////////////////////////////////
 function FillStyleRadialGradient(x0, y0, r0, x1, y1, r1) {
     this._start_pos = { _x : x0, _y : y0, _r : r0 };
     this._end_pos = { _x : x1, _y : y1, _r : r1 };
@@ -114,41 +120,30 @@ Object.defineProperty(GContext2D.prototype, "fillStyle", {
             this._drawCommands = this._drawCommands.concat("F" + value + ";");
         }
         else if (value instanceof FillStylePattern) {
-            if (value._img instanceof Image) {
-                if (!(value._img.src in this._images)) {
-                    var new_image = GCanvas.createImage();
-                    new_image.width = value._img.width;
-                    new_image.height = value._img.height;
-                    new_image.src = value._img.src;
-                    new_image.complete = value._img.complete;
-                    this._images[value._img.src] = new_image;
-                } else {
-                    this._drawCommands = this._drawCommands.concat("G" + this._images[value._img.src]._id + "," + value._style + ";");
-                 }
-            }
-            else if (value._img instanceof GCanvasImage){
+            if (value._img instanceof GCanvasImage){
+                GBridge.bindImageTexture(this.componentId, [value._img.src, value._img.id], function(){});
                 this._drawCommands = this._drawCommands.concat("G" + value._img._id + "," + value._style + ";");
             }
         }
         else if (value instanceof FillStyleLinearGradient) {
-            var command = "D" + value._start_pos._x + "," + value._start_pos._y + ","
-                + value._end_pos._x + "," + value._end_pos._y + "," + value._stop_count;
+            var command = "D" + value._start_pos._x.toFixed(2) + "," + value._start_pos._y.toFixed(2) + ","
+                              + value._end_pos._x.toFixed(2) + "," + value._end_pos._y.toFixed(2) + "," 
+                              + value._stop_count;
 
             for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
-            //console.log('createLinearGradient command -> ' + command);
         }
         else if (value instanceof FillStyleRadialGradient) {
-            var command = "H" + value._start_pos._x.toFixed(2) + "," + value._start_pos._y.toFixed(2) + "," + value._start_pos._r + ","
-                + value._end_pos._x.toFixed(2) + "," + value._end_pos._y.toFixed(2) + "," + value._end_pos._r + "," + value._stop_count;
+            var command = "H" + value._start_pos._x.toFixed(2) + "," + value._start_pos._y.toFixed(2) + ","  + value._start_pos._r.toFixed(2) + "," 
+                              + value._end_pos._x.toFixed(2) + "," + value._end_pos._y.toFixed(2) + "," + value._end_pos._r.toFixed(2) + "," 
+                              + value._stop_count;
 
             for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
-            //console.log('FillStyleRadialGradient command -> ' + command);
         }
     }
 });
@@ -172,41 +167,30 @@ Object.defineProperty(GContext2D.prototype, "strokeStyle", {
             this._drawCommands = this._drawCommands.concat("S" + value + ";");
         }
         else if (value instanceof FillStylePattern) {
-            if (value._img instanceof Image) {
-                if (!(value._img.src in this._images)) {
-                    var new_image = GCanvas.createImage();
-                    new_image.width = value._img.width;
-                    new_image.height = value._img.height;
-                    new_image.src = value._img.src;
-                    new_image.complete = value._img.complete;
-                    this._images[value._img.src] = new_image;
-                } else {
-                    this._drawCommands = this._drawCommands.concat("G" + this._images[value._img.src]._id + "," + value._style + ";");
-                 }
-            }
-            else if (value._img instanceof GCanvasImage){
+            if (value._img instanceof GCanvasImage){
+                GBridge.bindImageTexture(this.componentId, [value._img.src, value._img.id], function(){});
                 this._drawCommands = this._drawCommands.concat("G" + value._img._id + "," + value._style + ";");
             }
         }
         else if (value instanceof FillStyleLinearGradient) {
-            var command = "D" + value._start_pos._x + "," + value._start_pos._y + ","
-                + value._end_pos._x + "," + value._end_pos._y + "," + value._stop_count;
+            var command = "D" + value._start_pos._x.toFixed(2)  + "," + value._start_pos._y.toFixed(2) + ","
+                              + value._end_pos._x.toFixed(2) + "," + value._end_pos._y.toFixed(2) + ","
+                              + value._stop_count;
 
             for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
-            //console.log('createLinearGradient command -> ' + command);
         }
         else if (value instanceof FillStyleRadialGradient) {
-            var command = "H" + value._start_pos._x + "," + value._start_pos._y + "," + value._start_pos._r + ","
-                + value._end_pos._x + "," + value._end_pos._y + "," + value._end_pos._r + "," + value._stop_count;
+            var command = "H" + value._start_pos._x.toFixed(2) + "," + value._start_pos._y.toFixed(2)  + "," + value._start_pos._r.toFixed(2) + "," 
+                              + value._end_pos._x.toFixed(2)  + "," + value._end_pos._y + ",".toFixed(2)  + value._end_pos._r.toFixed(2)  + "," 
+                              + value._stop_count;
 
             for (var i = 0; i < value._stop_count; ++i) {
                 command += ("," + value._stops[i]._pos + "," + value._stops[i]._color);
             }
             this._drawCommands = this._drawCommands.concat(command + ";");
-            //console.log('FillStyleRadialGradient command -> ' + command);
         }
     }
 });
@@ -224,8 +208,7 @@ Object.defineProperty(GContext2D.prototype, "lineWidth", {
     },
     set : function(value) {
         this._lineWidth = value;
-        this._drawCommands = this._drawCommands.concat("W" + value
-                + ";");
+        this._drawCommands = this._drawCommands.concat("W" + value + ";");
     }
 });
 /**
@@ -379,7 +362,6 @@ Object.defineProperty(GContext2D.prototype, "textAlign", {
         this._drawCommands = this._drawCommands.concat("A" + Align + ";");
         // }
     }
-
 });
 
 /**
@@ -422,7 +404,6 @@ Object.defineProperty(GContext2D.prototype, "textBaseline", {
 
         this._drawCommands = this._drawCommands.concat("E" + baseline + ";");
     }
-
 });
 
 /**
@@ -438,11 +419,9 @@ Object.defineProperty(GContext2D.prototype, "font", {
     set : function(value) {
         // if (this._font != value) {
         this._font = value;
-        //this._apiContext.font = this._font;
         this._drawCommands = this._drawCommands.concat("j" + value + ";");
         // }
     }
-
 });
 
 /**
@@ -466,8 +445,7 @@ Object.defineProperty(GContext2D.prototype, "font", {
  */
 GContext2D.prototype.loadTexture = function(image, successCallback, errorCallback) {
     var data = this._imageMap.get(image.src);
-    if( data )
-    {
+    if( data ) {
         successCallback && successCallback(data);
         return;
     }
@@ -478,7 +456,6 @@ GContext2D.prototype.loadTexture = function(image, successCallback, errorCallbac
             that._imageMap.put(image.src, e);
             successCallback && successCallback(e);
         }else{
-            // GLog.d("GContext2D loadTexture errorCallback!");
             errorCallback && errorCallback(e);
         }
     });
@@ -674,48 +651,6 @@ GContext2D.prototype._concatDrawCmd = function(numArgs, imageInfo,
     }
 };
 
-
-//-------------------------------------------------
-// iOS bindImageTexture 增加版本检测
-// 手淘小于6.11.2.3, 天猫小于6.4.2 使用老接口
-// 之后这段逻辑可以去掉
-//-------------------------------------------------
-//ver1 < ver2, return true
-function versionLessThen(ver1, ver2)
-{
-    var arr1 = ver1.split('.');
-    var arr2 = ver2.split('.');
-
-    var len = Math.min(arr1.length, arr2.length);
-
-    for (var i = 0; i < len; i++)
-    {
-        var v1 = parseInt(arr1[i]);
-        var v2 = parseInt(arr2[i]);
-        if( v1 < v2 ) return true;
-        else if( v1 > v2 ) return false;
-    }
-
-    return arr1.length < arr2.length;
-}
-
-function useNewAPI()
-{
-    var appName = WXEnvironment.appName.toUpperCase();
-    var appVersion = WXEnvironment.appVersion;
-    if( (appName == "TB") && versionLessThen(appVersion, "6.11.2.3") ) //低于6.11.2.3的使用老接口
-    {
-        return false;
-    }
-    else if(appName == "TM" && versionLessThen(appVersion, "6.4.1.2") ) //低于6.4.1.2的使用老接口
-    {
-        return false;
-    }
-
-    //其他的都使用新接口
-    return true;
-}
-
 GContext2D.prototype.drawImage = function(image, // image
      sx, sy, sw, sh, // source (or destination if fewer args)
      dx, dy, dw, dh) { // destination
@@ -725,8 +660,8 @@ GContext2D.prototype.drawImage = function(image, // image
      var that = this;
      var numArgs = arguments.length;
 
-     //Offscreen image is GCanvas instance
-     if (typeof(image.componentId) != 'undefined') {
+    //Offscreen image is GCanvas instance
+    if (typeof(image.componentId) != 'undefined') {
         var destComponentId = image.componentId;
         var gcanvasImage = new GCanvasImage();
         gcanvasImage.width = image.width;
@@ -739,8 +674,6 @@ GContext2D.prototype.drawImage = function(image, // image
                 GBridge.bindImageTexture(that.componentId, [gcanvasImage.src, gcanvasImage.id], function(){});
                 that._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
             }, 200 );
-            // GBridge.bindImageTexture(that.componentId, [gcanvasImage.src, gcanvasImage.id], function(){});
-            // that._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
         } else {
             gcanvasImage.id = 0;
             var destContext = image.context;
@@ -749,73 +682,58 @@ GContext2D.prototype.drawImage = function(image, // image
             this._concatDrawCmd(numArgs, gcanvasImage, sx, sy, sw, sh, dx, dy, dw, dh);
         }
         return;
-     } else {
-        var cacheKey = this.componentId + "_" + image.id;
-        var imageCache = this._getImageTexture(cacheKey);
+    } 
 
-        if (imageCache) {
-            this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-            return;
-        }
-     }
 
-   if( GBridge.isIOS() )
-   {
-        if( !that._checkVersionFlag )
-        {
-            that._useNewAPIFlag = useNewAPI();
-            that._checkVersionFlag = true;
-        }
+    var cacheKey = this.componentId + "_" + image.id;
+    var imageCache = this._getImageTexture(cacheKey);
 
-        if( that._useNewAPIFlag ){
-            GBridge.bindImageTexture(that.componentId, [image.src, image.id], function(){});
-        }else{
-            GBridge.bindImageTexture(that.componentId, image.src, function(){});
-        }
-        that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-        // that._saveImageTexture(image.src, image);
-        that._saveImageTexture(cacheKey, image);
+    if (imageCache) {
+        this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        return;
+    }
+
+    if( GBridge.isIOS() )
+    {
+        GBridge.bindImageTexture(this.componentId, [image.src, image.id], function(){});
+        this._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+        this._saveImageTexture(cacheKey, image);
     }
     else
     {
-       if(typeof callGCanvasLinkNative !== 'undefined') {
-           // GLog.d('gcontext2d#drawImage() with callGCanvasLinkNative');
+        if(typeof callGCanvasLinkNative !== 'undefined') {
            GBridge.bindImageTexture(that.componentId, [image.src, image.id], function(e){
               if( !e.error )
               {
                   if(image.width === 0 && e.width > 0){
                     image.width = e.width;
-                }
+                    }
 
-                if(image.height === 0 && e.height > 0){
-                    image.height = e.height;
-                }
-                that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-                    // that._saveImageTexture(image.src, image);
+                    if(image.height === 0 && e.height > 0){
+                        image.height = e.height;
+                    }
+                    that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
                     that._saveImageTexture(cacheKey, image);
-
                 }
            });
-       } else {
+        } else {
            // GLog.d('gcontext2d#drawImage()');
            GBridge.bindImageTexture(that.componentId, image.src, function(e){
                if( !e.error )
                {
-                   if(image.width === 0 && e.width > 0){
-                     image.width = e.width;
-                 }
+                    if(image.width === 0 && e.width > 0){
+                        image.width = e.width;
+                    }
 
-                 if(image.height === 0 && e.height > 0){
-                     image.height = e.height;
-                 }
-                 that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
-                     // that._saveImageTexture(image.src, image);
-                     that._saveImageTexture(cacheKey, image);
-
-                 }
-             });
-         }
-   }
+                    if(image.height === 0 && e.height > 0){
+                        image.height = e.height;
+                    }
+                    that._concatDrawCmd(numArgs, image, sx, sy, sw, sh, dx, dy, dw, dh);
+                    that._saveImageTexture(cacheKey, image);
+                }
+            });
+        }
+    }
 };
 
 
@@ -1094,19 +1012,17 @@ GContext2D.prototype.measureText = function(text) {
     //return this._apiContext.measureText(text);
 };
 
+//TODO:不支持
 GContext2D.prototype.isPointInPath = function(x,y) {
-    return true;
+    return false;
 };
 
 
-/////////////////////////////////////////////////////////////////
-//base64
-/////////////////////////////////////////////////////////////////
 
 
 
 /////////////////////////////////////////////////////////////////
-//GCanvasImage
+//GImageData
 /////////////////////////////////////////////////////////////////
 function GImageData(w, h) {
     GLog.d("GImageData wh=" + w + "," + h);
