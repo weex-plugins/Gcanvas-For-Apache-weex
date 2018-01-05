@@ -117,12 +117,14 @@ GCanvas.idCounter = 0;
 //-----------------------------
 // GCanvas.start
 //-----------------------------
-GLog.d('gcanvas#=====>>>version: 0.5.44');
+GLog.d('gcanvas#=====>>>version: 0.5.47');
 
 GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');
 
-    if( weex.supports('@weex-module/userTrack') )
+
+    if( (typeof weex!=='undefined' && weex.supports && weex.supports('@weex-module/userTrack'))  ||
+        (__weex_module_supports__ && __weex_module_supports__('@weex-module/userTrack')) )
     {
         try {
             var userTrack;

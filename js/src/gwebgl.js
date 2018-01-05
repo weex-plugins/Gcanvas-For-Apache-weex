@@ -1406,8 +1406,20 @@ GContextWebGL.prototype.texImage2D = function(target, level, internalformat){
         var array = arguments[8]
 
         var cmd = (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," +
-                   width + "," + height + "," + border + "," + format + "," + type + "," +
-                   GetArrayType(array) + "," + GarrToBase64(array) + ";");
+                   width + "," + height + "," + border + "," + format + "," + type + ",");
+
+        if( array == null )
+        {
+            cmd = cmd + 0 + ";";
+        }
+        else
+        {
+            cmd = cmd + GetArrayType(array) + "," + GarrToBase64(array) + ";";
+        }
+
+        // var cmd = (this.texImage2DId + argc + "," + target + "," + level + "," + internalformat + "," +
+        //            width + "," + height + "," + border + "," + format + "," + type + "," +
+        //            GetArrayType(array) + "," + GarrToBase64(array) + ";");
         WebGLCallNative(this.componentId, cmd);
     }
 };
