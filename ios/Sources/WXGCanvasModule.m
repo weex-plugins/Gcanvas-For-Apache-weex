@@ -579,19 +579,7 @@ static NSMutableDictionary *_instanceDict;
     }
     
     NSDictionary *retDict = [self callGCanvasNative:dict];
-//    __block NSDictionary *retDict;
-//    __weak typeof(self) weakSelf = self;
-//    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-//
-//    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) , ^{
-//        dispatch_sync([weakSelf targetExecuteQueue], ^{
-//            retDict = [weakSelf callGCanvasNative:dict];
-//            dispatch_semaphore_signal(semaphore);
-//        });
-//    });
-//    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     return retDict;
-
 }
 
 - (NSDictionary*)callGCanvasNative:(NSDictionary*)dict
@@ -624,6 +612,9 @@ static NSMutableDictionary *_instanceDict;
         [plugin setClearColor:component.glkview.backgroundColor];
         [plugin setFrame:gcanvasFrame];
         component.gcanvasInitalized = YES;
+        dispatch_main_sync_safe(^{
+            [component.glkview setNeedsDisplay];
+        });
     }
     
     if( (type >> 30 & 0x01) == 1 )   //webgl

@@ -122,11 +122,6 @@ var GBridge = {
         };
 
         return canvasModule.enable && canvasModule.enable(params);
-
-        // canvasModule.enable(params, function (e) {
-        //     GLog.d('bridge#callEnable() return val:' + JSON.stringify(e));
-        //     callback && callback(e);
-        // });
     },
 
     callSetDevPixelRatio: function(componentId){
@@ -178,8 +173,7 @@ var GBridge = {
     /**
      *
      * 设置日志级别
-     *
-     * @param context_type 0代表2d,1代表3d
+     * 
      * */
     setLogLevel: function (level){
         GLog.d('bridge#setLogLevel(): native logLevel ' + level);
@@ -190,7 +184,6 @@ var GBridge = {
      *
      * 设置opengl渲染质量
      *
-     * @param context_type 0代表2d,1代表3d
      * */
     setHiQuality: function (quality){
         GLog.d('bridge#setHiQuality(): quality: ' + quality);
