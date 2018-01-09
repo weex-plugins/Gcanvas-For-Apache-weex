@@ -27,8 +27,6 @@
 
 @property (strong, nonatomic) GCanvasPlugin *plugin;
 @property (strong, nonatomic) WXGCanvasComponent *component;
-//@property (assign, nonatomic) dispatch_semaphore_t semaphore;
-//@property (strong, nonatomic) EAGLContext *compViewContext;
 
 - (instancetype)initWithComponentId:(NSString*)componentId;
 

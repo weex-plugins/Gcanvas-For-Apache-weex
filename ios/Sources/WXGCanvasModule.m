@@ -241,7 +241,7 @@ static NSMutableDictionary *_instanceDict;
         return;
     }
     
-    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0) , ^{
+    dispatch_async(self.preloadQueue , ^{
         NSString *src = data[0];
         NSUInteger jsTextureId = [data[1] integerValue];
         [[GCVCommon sharedInstance] addPreLoadImage:src
@@ -266,6 +266,7 @@ static NSMutableDictionary *_instanceDict;
 {
     if( !data || ![data isKindOfClass:NSArray.class] || data.count != 2)
     {
+        callback(@{});
         return;
     }
     
@@ -276,6 +277,7 @@ static NSMutableDictionary *_instanceDict;
     WXGCanvasComponent *component = gcanvasInst.component;
     
     if( !component || !plugin ){
+        callback(@{});
         return;
     }
     
@@ -302,7 +304,7 @@ static NSMutableDictionary *_instanceDict;
                               height:orgComponent.componetFrame.size.height
                            offscreen:YES];
             }
-            
+            callback(@{});
             return;
         }
         
@@ -325,7 +327,7 @@ static NSMutableDictionary *_instanceDict;
                     [[GCVCommon sharedInstance] removeLoadImage:src];
                 }
             
-                GCVLOG_METHOD(@"2==>bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
+                GCVLOG_METHOD(@"==>bindImageTexture src: %@, texutreId:%d, componentId:%@", src, textureId, componentId);
 
             });
         };
@@ -373,11 +375,7 @@ static NSMutableDictionary *_instanceDict;
 #pragma mark - Notification
 - (void)onGCanvasCompLoadedNotify:(NSNotification*)notification
 {
-//    NSString *componentId = notification.userInfo[@"componentId"];
-//    WXGCanvasObject *gcanvasInst = self.gcanvasDict[componentId];
-//    if( gcanvasInst ){
-//        //NSLog(@"dispatch_semaphore_signal :%@", componentId);
-//    }
+    
 }
 
 - (void)onGCanvasResetNotify:(NSNotification*)notification
@@ -612,6 +610,8 @@ static NSMutableDictionary *_instanceDict;
         [plugin setClearColor:component.glkview.backgroundColor];
         [plugin setFrame:gcanvasFrame];
         component.gcanvasInitalized = YES;
+        
+        //先做刷新，解决webgl单次渲染不出来问题
         dispatch_main_sync_safe(^{
             [component.glkview setNeedsDisplay];
         });

@@ -26,7 +26,6 @@
     self = [super init];
     if (self) {
         _componentId = componentId;
-//        _semaphore = dispatch_semaphore_create(0);
     }
     return self;
 }
