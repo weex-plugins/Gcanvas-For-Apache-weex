@@ -25,14 +25,14 @@
 
 @interface WXGCanvasComponent()
 
-@property(nonatomic, assign) CGRect frame;
-@property (nonatomic, assign) BOOL isOffscreen;
+@property (nonatomic, strong) GLKView   *glkview;
+@property (nonatomic, assign) CGRect    componetFrame;
+@property (nonatomic, assign) BOOL      isOffscreen;
 
 @end
 
 @implementation WXGCanvasComponent
 
-//WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent, 1.0)
 WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
 
 
@@ -56,74 +56,55 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
                weexInstance:(WXSDKInstance *)weexInstance{
     GCVLOG_METHOD(@"ref=%@, type=%@, styles=%@, attributes=%@, events=%@, weexInstance=%@", ref, type, styles, attributes, events, weexInstance)
     self = [super initWithRef:ref type:type styles:styles attributes:attributes events:events weexInstance:weexInstance];
-    if (self )
-    {
+    if (self ){
         CGPoint origin = [[UIScreen mainScreen] bounds].origin;
         CGSize size = [[UIScreen mainScreen] bounds].size;
         
-        if (styles[@"left"])
-        {
+        if( styles[@"left"] ){
             origin.x = [styles[@"left"] floatValue];
         }
         
-        if (styles[@"top"])
-        {
+        if( styles[@"top"] ){
             origin.y = [styles[@"top"] floatValue];
         }
         
-        if (styles[@"width"])
-        {
+        if( styles[@"width"] ){
             size.width = [styles[@"width"] floatValue];
         }
         
-        if (styles[@"height"])
-        {
+        if( styles[@"height"] ){
             size.height = [styles[@"height"] floatValue];
         }
         
-        if( styles[@"offscreen"] )
-        {
+        //indicate offscreen gcanvas, while set offscreen=1 in styles
+        if( styles[@"offscreen"] ){
             self.isOffscreen = [styles[@"offscreen"] integerValue] == 1;
         }
         
-        self.frame = CGRectMake(origin.x, origin.y, size.width, size.height);
-        self.componetFrame = self.frame;
+        self.componetFrame = CGRectMake(origin.x, origin.y, size.width, size.height);
+        self.needChangeEAGLContenxt = YES;
     }
     
     return self;
 }
 
 
-- (void)dealloc
-{
+- (void)dealloc{
     [EAGLContext setCurrentContext:nil];
-    self.renderCallBack = nil;
 }
 
--(void)viewDidLoad
-{
-    [super viewDidLoad];
-    if(self.renderCallBack){
-        self.renderCallBack();
-    }
-}
-
-- (UIView *)loadView
-{
-    if(!self.glkview){
-        GLKView *glkview = [[GLKView alloc] initWithFrame:self.frame];
+- (UIView *)loadView{
+    if( !self.glkview ){
+        GLKView *glkview = [[GLKView alloc] initWithFrame:self.componetFrame];
         glkview.enableSetNeedsDisplay = YES;
         glkview.userInteractionEnabled = YES;
         glkview.drawableDepthFormat = GLKViewDrawableDepthFormat24;
         glkview.backgroundColor = [UIColor clearColor];
         
-        self.glkview  = glkview;
+        self.glkview = glkview;
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:KGCanvasCompLoadedNotificationName
-                                                            object:nil
-                                                          userInfo:@{@"componentId":self.ref}];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kGCanvasCompLoadedNotification object:nil userInfo:@{@"componentId":self.ref}];
     }
-    
     return self.glkview;
 }
 

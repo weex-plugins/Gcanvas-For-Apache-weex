@@ -21,15 +21,12 @@
 #import <WeexSDK/WXComponent.h>
 #import <GLKit/GLKit.h>
 
-typedef void (^WXGCanvasComponentRenderCallback)();
-
 @interface WXGCanvasComponent : WXComponent
 
-@property (nonatomic, strong) GLKView* glkview;
-@property (nonatomic, assign) CGRect componetFrame;
-@property (nonatomic,copy)WXGCanvasComponentRenderCallback renderCallBack;
-@property (nonatomic, assign) BOOL gcanvasInitalized;
+@property (nonatomic, strong, readonly) GLKView* glkview;
+@property (nonatomic, assign, readonly) CGRect componetFrame;
 @property (nonatomic, assign, readonly) BOOL isOffscreen;
 
+@property (nonatomic, assign) BOOL needChangeEAGLContenxt;
 
 @end
