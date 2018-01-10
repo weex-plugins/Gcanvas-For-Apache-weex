@@ -471,20 +471,8 @@ static NSMutableDictionary  *_staticEAGLContextDict;
     //设置当前的上线文EAGLContext
     if (component.needChangeEAGLContenxt)
     {
-        //设置gcanvas像素比率
-        CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].scale / component.componetFrame.size.width ;
-        [plugin setDevicePixelRatio:devicePixelRatio];
-        
-        //设置gcanvas frame
-        CGRect compFrame = component.componetFrame;
-        CGRect gcanvasFrame = CGRectMake(compFrame.origin.x, compFrame.origin.y,
-                                         compFrame.size.width*devicePixelRatio,
-                                         compFrame.size.height*devicePixelRatio);
-        [plugin setClearColor:component.glkview.backgroundColor];
-        [plugin setFrame:gcanvasFrame];
-        
+        [self refreshPlugin:plugin withComponent:component];
         [weexInstance fireGlobalEvent:@"GCanvasReady" params:@{@"ref":component.ref}];
-        
         component.needChangeEAGLContenxt = NO;
     }
     
@@ -500,6 +488,22 @@ static NSMutableDictionary  *_staticEAGLContextDict;
                                                   completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
                                                       completion(image, error, finished, url);
     }];
+}
+
+
+- (void)refreshPlugin:(GCanvasPlugin*)plugin withComponent:(WXGCanvasComponent*)component
+{
+    //设置gcanvas像素比率
+    CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].scale / component.componetFrame.size.width ;
+    [plugin setDevicePixelRatio:devicePixelRatio];
+    
+    //设置gcanvas frame
+    CGRect compFrame = component.componetFrame;
+    CGRect gcanvasFrame = CGRectMake(compFrame.origin.x, compFrame.origin.y,
+                                     compFrame.size.width*devicePixelRatio,
+                                     compFrame.size.height*devicePixelRatio);
+    [plugin setClearColor:component.glkview.backgroundColor];
+    [plugin setFrame:gcanvasFrame];
 }
 
 
@@ -543,18 +547,7 @@ static NSMutableDictionary  *_staticEAGLContextDict;
     {
         [EAGLContext setCurrentContext:component.glkview.context];
         
-        //设置gcanvas像素比率
-        CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
-        [plugin setDevicePixelRatio:devicePixelRatio];
-        
-        //设置gcanvas frame
-        CGRect compFrame = component.componetFrame;
-        CGRect gcanvasFrame = CGRectMake(compFrame.origin.x,
-                                         compFrame.origin.y,
-                                         compFrame.size.width*devicePixelRatio,
-                                         compFrame.size.height*devicePixelRatio);
-        [plugin setClearColor:component.glkview.backgroundColor];
-        [plugin setFrame:gcanvasFrame];
+        [self refreshPlugin:plugin withComponent:component];
         component.needChangeEAGLContenxt = NO;
         
         //先做刷新，解决webgl单次渲染不出来问题
