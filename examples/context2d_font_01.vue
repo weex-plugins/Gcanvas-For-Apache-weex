@@ -77,7 +77,7 @@
 
 				ctx.save();
 				ctx.font="italic bold 40px Verdana";
-				ctx.fillText("Verdana 40号字", offsetX, 530);
+				ctx.strokeText("stroke Verdana 40号字", offsetX, 530);
 				ctx.restore();
 
 				ctx.save();
