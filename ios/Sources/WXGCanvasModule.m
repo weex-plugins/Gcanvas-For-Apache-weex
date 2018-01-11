@@ -494,7 +494,7 @@ static NSMutableDictionary  *_staticEAGLContextDict;
 - (void)refreshPlugin:(GCanvasPlugin*)plugin withComponent:(WXGCanvasComponent*)component
 {
     //设置gcanvas像素比率
-    CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].scale / component.componetFrame.size.width ;
+    CGFloat devicePixelRatio = component.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / component.componetFrame.size.width ;
     [plugin setDevicePixelRatio:devicePixelRatio];
     
     //设置gcanvas frame
