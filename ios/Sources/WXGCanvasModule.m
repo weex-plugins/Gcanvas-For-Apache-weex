@@ -571,6 +571,21 @@ static NSMutableDictionary  *_staticEAGLContextDict;
                 });
                 return @{};
             }
+        #ifdef DEBUG
+            else
+            {
+                NSRange range = [args rangeOfString:@","];
+                if (range.location != NSNotFound) {
+                    NSString *indexStr = [args substringToIndex:range.location];
+                    NSUInteger index = [indexStr integerValue];
+                    if (index == 136) {
+                        dispatch_main_sync_safe(^{
+                            [component.glkview setNeedsDisplay];
+                        });
+                    }
+                }
+            }
+        #endif
             
             [plugin addCommands:args];
             [plugin execCommands];
