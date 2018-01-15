@@ -25,8 +25,15 @@
 
 @property (nonatomic, strong, readonly) GLKView* glkview;
 @property (nonatomic, assign, readonly) CGRect componetFrame;
+
+/**
+ * offscreen WXGCanvasComponent
+ */
 @property (nonatomic, assign, readonly) BOOL isOffscreen;
 
+/**
+ * GCnavas plugin initilaise or refresh
+ */
 @property (nonatomic, assign) BOOL needChangeEAGLContenxt;
 
 @end
