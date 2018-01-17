@@ -26,7 +26,9 @@
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
+#if 0
 #import <UT/AppMonitor.h>
+#endif
 #import "WXGCanvasObject.h"
 
 
@@ -412,6 +414,7 @@ static NSMutableDictionary  *_staticEAGLContextDict;
 }
 
 - (void)onWeexInstanceWillDestroy:(NSNotification*)notification{
+#if 0
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         AppMonitorMeasureSet *measures = [[AppMonitorMeasureSet alloc] init];
@@ -436,6 +439,7 @@ static NSMutableDictionary  *_staticEAGLContextDict;
             [AppMonitorStat commitWithModule:AppModule monitorPoint:MONITOR_POINT_FPS dimensionValueSet:dimensionValSet measureValueSet:measureValSet];
         }
     }];
+#endif
     
     NSString *instanceId = notification.userInfo[@"instanceId"];
     if (![instanceId isEqualToString:weexInstance.instanceId]) {
