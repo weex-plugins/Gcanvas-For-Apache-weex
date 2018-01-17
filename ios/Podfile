@@ -4,14 +4,18 @@ ali_source 'alibaba-specs-mirror'
 platform :ios, '7.0'
 inhibit_all_warnings!
 
-
-target 'WeexGcanvas' do
-    pod 'WeexSDK', '0.15.1.21'
-    pod 'WeexPluginLoader'#, '0.0.1.18'
+def common
+	pod 'WeexSDK', '0.15.1.21'
+	pod 'WeexPluginLoader'#, '0.0.1.18'
     #pod 'UserTrack', '6.3.2.19'#'6.3.5.38-realtime'
     
-    #pod 'GCanvas', :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
-    pod 'GCanvas', :path=>'/Users/jiangweixing/Documents/gitlab/gcanvas/gcanvas'
+    pod 'GCanvas', :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'
+    #pod 'GCanvas', :path=>'/Users/jiangweixing/Documents/gitlab/gcanvas/gcanvas'
     pod 'SDWebImage', '3.7.5'
 end
+
+target 'WeexGcanvas' do
+    common
+end
+
 
