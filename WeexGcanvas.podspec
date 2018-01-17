@@ -31,7 +31,6 @@ Pod::Spec.new do |s|
   s.dependency "WeexPluginLoader"
   s.dependency "WeexSDK"
   s.dependency "GCanvas"
-  s.dependency "UserTrack"
   s.dependency "SDWebImage", "< 4.0.0"
   s.libraries = "stdc++"
 end
