@@ -21,8 +21,7 @@
 
 @implementation WXGCanvasObject
 
-- (instancetype)initWithComponentId:(NSString*)componentId
-{
+- (instancetype)initWithComponentId:(NSString*)componentId{
     self = [super init];
     if (self) {
         _componentId = componentId;

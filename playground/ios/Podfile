@@ -7,8 +7,6 @@ inhibit_all_warnings!
 def common
 #    pod 'WeexSDK'
     pod 'WeexSDK', '0.15.1.18'
-#    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex'
-#    pod 'WeexSDK',  :path=>'/Users/weixingjwx/Documents/github/incubator-weex_kfeagle'
 #    pod 'WeexSDK', :git=>'https://github.com/apache/incubator-weex.git', :branch=>'0.16-dev'
 #    pod 'WeexSDK',  :git=>'git@gitlab.alibaba-inc.com:weex/weex.git', :branch=>'0.16-dev'
     pod  'WXDevtool',     '0.15.37', :configurations => ['Debug']
@@ -17,7 +15,7 @@ def common
     pod 'ATSDK-Weex', '0.0.1'
     pod 'WeexGcanvas', :path=>'../../'
     pod 'WeexPluginLoader', '0.0.4.2'#'0.0.1.18'
-    pod 'UserTrack'
+    pod 'UserTrack', '6.3.5.24'
 #    pod 'GCanvas', '1.2.0.20'
 #    pod 'GCanvas'
     pod 'GCanvas',  :git=>'git@gitlab.alibaba-inc.com:gcanvas/gcanvas.git', :branch=>'alibaba'

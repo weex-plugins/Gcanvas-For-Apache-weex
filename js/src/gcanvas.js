@@ -123,8 +123,8 @@ GCanvas.start = function(el){
     GLog.d('gcanvas#start=====>>>');
 
 
-    if( (typeof weex!=='undefined' && weex.supports && weex.supports('@weex-module/userTrack'))  ||
-        (__weex_module_supports__ && __weex_module_supports__('@weex-module/userTrack')) )
+    if( (typeof(weex)!=='undefined' && weex.supports && weex.supports('@weex-module/userTrack'))  ||
+        (typeof(__weex_module_supports__) == "function" && __weex_module_supports__('@weex-module/userTrack')) )
     {
         try {
             var userTrack;
