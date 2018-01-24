@@ -110,8 +110,8 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * Create EAGLContext by the same EAGLSharegroup
  */
 static EAGLContext          *_staticFirstContext;
-static NSMutableDictionary  *_staticEAGLContextDict;
-+ (EAGLContext*)createEAGLContextWithComponentId:(NSString*)componentId{
+static NSMutableDictionary  *_staticModuleExistDict;
++ (EAGLContext*)createEAGLContextWithModuleInstance:(NSString*)instance{
     EAGLContext *context = nil;
     if( !_staticFirstContext ){
         _staticFirstContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
@@ -121,12 +121,12 @@ static NSMutableDictionary  *_staticEAGLContextDict;
         context = newContext;
     }
     
-    if( !_staticEAGLContextDict ){
-        _staticEAGLContextDict = NSMutableDictionary.dictionary;
+    if( !_staticModuleExistDict ){
+        _staticModuleExistDict = NSMutableDictionary.dictionary;
     }
     
-    if( !_staticEAGLContextDict[componentId] ){
-        _staticEAGLContextDict[componentId] = context;
+    if( !_staticModuleExistDict[instance] ){
+        _staticModuleExistDict[instance] = @(1);
     }
     
     return context;
@@ -195,7 +195,7 @@ static NSMutableDictionary  *_staticEAGLContextDict;
     WXGCanvasComponent *component = [self gcanvasComponentById:componentId];
     if( component ){
         dispatch_sync([self targetExecuteQueue], ^{
-            EAGLContext *context = [WXGCanvasModule createEAGLContextWithComponentId:componentId];
+            EAGLContext *context = [WXGCanvasModule createEAGLContextWithModuleInstance:weakSelf.weexInstance.instanceId];
             context.multiThreaded = YES;
             component.glkview.context = context;
             component.glkview.delegate = weakSelf;
@@ -459,8 +459,8 @@ static NSMutableDictionary  *_staticEAGLContextDict;
     
     [[GCVCommon sharedInstance] clearLoadImageDict];
     
-    [_staticEAGLContextDict removeObjectForKey:instanceId];
-    if( _staticEAGLContextDict.count == 0 ){
+    [_staticModuleExistDict removeObjectForKey:instanceId];
+    if( _staticModuleExistDict.count == 0 ){
         _staticFirstContext = nil;
     }
 }
