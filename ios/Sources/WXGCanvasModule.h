@@ -19,8 +19,7 @@
 
 #import <Foundation/Foundation.h>
 #import <WeexSDK/WXModuleProtocol.h>
-#import <GCanvas/GCanvasModule.h>
 
-@interface WXGCanvasModule : GCanvasModule <WXModuleProtocol>
+@interface WXGCanvasModule : NSObject <WXModuleProtocol>
 
 @end

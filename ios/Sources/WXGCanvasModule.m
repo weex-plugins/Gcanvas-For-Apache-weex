@@ -18,8 +18,9 @@
  */
 
 #import "WXGCanvasModule.h"
-#import <WeexSDK/WXDefine.h>
 #import "WXGCanvasComponent.h"
+#import <GCanvas/GCanvasModule.h>
+#import <WeexSDK/WXDefine.h>
 #import <WeexSDK/WXComponentManager.h>
 #import <SDWebImage/SDWebImageManager.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
@@ -34,7 +35,9 @@
 #define DIMENSION_TYPE      @"type"
 #define DIMENSION_PLUGIN    @"plugin"
 
-@interface WXGCanvasModule()<GLKViewDelegate, GCVImageLoaderProtocol>
+@interface WXGCanvasModule()<GCanvasModuleProtocol, GCVImageLoaderProtocol>
+
+@property (nonatomic, strong) GCanvasModule  *gcanvasModule;
 
 @end
 
@@ -96,7 +99,15 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * return the execute queue for the module
  */
 - (dispatch_queue_t)targetExecuteQueue{
-    return [self gcanvasExecuteQueue];
+    return [self.gcanvasModule gcanvasExecuteQueue];
+}
+
+- (instancetype)init{
+    if( self = [super init] ){
+        self.gcanvasModule = [[GCanvasModule alloc] initWithDelegate:self];
+        self.gcanvasModule.imageLoader = self;
+    }
+    return self;
 }
 
 #pragma mark - Weex Export Method
@@ -105,7 +116,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
                                              selector:@selector(onWeexInstanceWillDestroy:)
                                                  name:WX_INSTANCE_WILL_DESTROY_NOTIFICATION
                                                object:nil];
-    return [self GCVenable:args];
+    return [self.gcanvasModule enable:args];
 }
 
 
@@ -117,7 +128,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @param   componentId GCanvas component identifier
  */
 - (void)render:(NSString *)commands componentId:(NSString*)componentId{
-    [self GCVrender:commands componentId:componentId];
+    [self.gcanvasModule render:commands componentId:componentId];
 }
 
 /**
@@ -126,7 +137,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @param   componentId GCanvas component identifier
  */
 - (void)resetComponent:(NSString*)componentId{
-    [self GCVresetComponent:componentId];
+    [self.gcanvasModule resetComponent:componentId];
 }
 
 /**
@@ -139,7 +150,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @param   callback
  */
 - (void)preLoadImage:(NSArray *)data callback:(WXModuleCallback)callback{
-    [self GCVpreLoadImage:data callback:callback];
+    [self.gcanvasModule preLoadImage:data callback:callback];
 }
 
 /**
@@ -150,7 +161,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @param   callback
  */
 - (void)bindImageTexture:(NSArray *)data componentId:(NSString*)componentId callback:(WXModuleCallback)callback{
-    [self GCVbindImageTexture:data componentId:componentId callback:callback];
+    [self.gcanvasModule bindImageTexture:data componentId:componentId callback:callback];
 }
 
 /**
@@ -158,7 +169,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @param   type    see GCVContextType
  */
 - (void)setContextType:(NSUInteger)type componentId:(NSString*)componentId{
-    [self GCVsetContextType:type componentId:componentId];
+    [self.gcanvasModule setContextType:type componentId:componentId];
 }
 
 /**
@@ -166,7 +177,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @param   level
  */
 - (void)setLogLevel:(NSUInteger)level{
-    [self GCVsetLogLevel:level];
+    [self.gcanvasModule setLogLevel:level];
 }
 
 
@@ -182,7 +193,7 @@ WX_EXPORT_METHOD_SYNC(@selector(extendCallNative:));
  * @return          return execute result
  */
 - (NSDictionary*)extendCallNative:(NSDictionary*)dict{
-    return [self GCVextendCallNative:dict];
+    return [self.gcanvasModule extendCallNative:dict];
 }
 
 #pragma mark - GCanvasModuleProtocol
