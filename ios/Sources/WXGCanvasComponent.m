@@ -19,9 +19,10 @@
 
 #import "WXGCanvasComponent.h"
 #import <GLKit/GLKit.h>
-#import <GCanvas/GCVCommon.h>
 #import <WeexPluginLoader/WeexPluginLoader.h>
-#import "WeexGcanvas.h"
+
+#import <GCanvas/GCVCommon.h>
+#import <GCanvas/GCanvasModule.h>
 
 @interface WXGCanvasComponent()
 
@@ -106,6 +107,14 @@ WX_PlUGIN_EXPORT_COMPONENT(gcanvas,WXGCanvasComponent)
         [[NSNotificationCenter defaultCenter] postNotificationName:kGCanvasCompLoadedNotification object:nil userInfo:@{@"componentId":self.ref}];
     }
     return self.glkview;
+}
+
+- (NSString*)componentId{
+    return self.ref;
+}
+
+- (CGFloat)devicePixelRatio{
+   return self.calculatedFrame.size.width * [UIScreen mainScreen].nativeScale / self.componetFrame.size.width ;
 }
 
 @end

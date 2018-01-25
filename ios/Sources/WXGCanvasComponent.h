@@ -20,8 +20,9 @@
 #import <UIKit/UIKit.h>
 #import <WeexSDK/WXComponent.h>
 #import <GLKit/GLKit.h>
+#import <GCanvas/GCanvasViewProtocol.h>
 
-@interface WXGCanvasComponent : WXComponent
+@interface WXGCanvasComponent : WXComponent<GCanvasViewProtocol>
 
 @property (nonatomic, strong, readonly) GLKView* glkview;
 @property (nonatomic, assign, readonly) CGRect componetFrame;
@@ -35,5 +36,8 @@
  * GCnavas plugin initilaise or refresh
  */
 @property (nonatomic, assign) BOOL needChangeEAGLContenxt;
+
+- (CGFloat)devicePixelRatio;
+- (NSString*)componentId;
 
 @end
