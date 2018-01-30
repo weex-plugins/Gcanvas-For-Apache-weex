@@ -12,8 +12,9 @@ import com.alibaba.weex.plugin.gcanvas.bubble.BubbleEventCenter;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.JSMethod;
 import com.taobao.weex.bridge.JSCallback;
-import com.taobao.weex.dom.WXDomObject;
+//import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.ComponentCreator;
+import com.taobao.weex.ui.action.BasicComponentData;
 import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXComponentProp;
 import com.taobao.weex.ui.component.WXVContainer;
@@ -34,25 +35,25 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
 
     private BubbleContainer mBubbleContainer;
 
-    public WXBubbleComponent(WXSDKInstance instance, WXDomObject dom, WXVContainer parent, String instanceId, boolean isLazy) {
-        super(instance, dom, parent, instanceId, isLazy);
+    public WXBubbleComponent(WXSDKInstance instance, WXVContainer parent, String instanceId, boolean isLazy,BasicComponentData basicComponentData) {
+        super(instance, parent, instanceId, isLazy,basicComponentData);
     }
 
-    public WXBubbleComponent(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) {
-        super(instance, node, parent, lazy);
+    public WXBubbleComponent(WXSDKInstance instance, WXVContainer parent, boolean lazy,BasicComponentData basicComponentData) {
+        super(instance, parent, lazy,basicComponentData);
     }
 
-    public WXBubbleComponent(WXSDKInstance instance, WXDomObject node, WXVContainer parent) {
-        super(instance, node, parent);
+    public WXBubbleComponent(WXSDKInstance instance, WXVContainer parent,BasicComponentData basicComponentData) {
+        super(instance, parent,basicComponentData);
     }
 
     public static class Creator implements ComponentCreator {
-        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXBubbleComponent(instance, node, parent, lazy);
+        public WXComponent createInstance(WXSDKInstance instance, WXVContainer parent, boolean lazy,BasicComponentData basicComponentData) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            return new WXBubbleComponent(instance, parent, lazy,basicComponentData);
         }
 
-        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXBubbleComponent(instance, node, parent);
+        public WXComponent createInstance(WXSDKInstance instance, WXVContainer parent,BasicComponentData basicComponentData) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            return new WXBubbleComponent(instance, parent,basicComponentData);
         }
     }
 
@@ -84,7 +85,7 @@ public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
     }
 
     @Override
-    protected void addSubView(View child, int index) {
+    public void addSubView(View child, int index) {
         if (child != null && this.getRealView() != null && this.getRealView() == mBubbleContainer) {
             int count = this.getRealView().getChildCount();
             index = index >= count ? -1 : index;

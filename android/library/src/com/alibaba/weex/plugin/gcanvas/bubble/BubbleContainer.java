@@ -116,6 +116,7 @@ public class BubbleContainer extends ViewGroup implements GestureDetector.OnGest
     }
 
     private void init() {
+        setLayerType(View.LAYER_TYPE_HARDWARE, null);
         final AtomicInteger layoutAnim = new AtomicInteger();
         Animation animation = new ScaleAnimation(0, 1, 0, 1, ScaleAnimation.RELATIVE_TO_SELF, 0.5f, ScaleAnimation.RELATIVE_TO_SELF, 0.5f);
         final LayoutAnimationController controller = new LayoutAnimationController(animation);

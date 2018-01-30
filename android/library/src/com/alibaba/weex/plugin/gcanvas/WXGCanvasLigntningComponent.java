@@ -14,8 +14,9 @@ import com.taobao.gcanvas.surface.GSurfaceView;
 import com.taobao.gcanvas.util.GLog;
 import com.taobao.weex.WXSDKInstance;
 import com.taobao.weex.annotation.Component;
-import com.taobao.weex.dom.WXDomObject;
+//import com.taobao.weex.dom.WXDomObject;
 import com.taobao.weex.ui.ComponentCreator;
+import com.taobao.weex.ui.action.BasicComponentData;
 import com.taobao.weex.ui.component.WXComponent;
 import com.taobao.weex.ui.component.WXVContainer;
 
@@ -50,7 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //    }
 
     private void addGCanvasView() {
-        String backgroundColor = getDomObject().getStyles().getBackgroundColor();
+        String backgroundColor = this.getStyles().getBackgroundColor();
         mSurfaceView = new GWXSurfaceView(getContext(),this);
         if (Build.VERSION.SDK_INT >= 24) {
                 String libraryPath = getContext().getApplicationInfo().nativeLibraryDir + "/libweexjsc.so";
@@ -69,26 +70,28 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     public static class Creator implements ComponentCreator {
-        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent, boolean lazy) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXGCanvasLigntningComponent(instance, node, parent, lazy);
+        public WXComponent createInstance(WXSDKInstance instance, WXVContainer parent, int type, BasicComponentData basicComponentDat) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            return new WXGCanvasLigntningComponent(instance, parent, type,basicComponentDat);
         }
 
-        public WXComponent createInstance(WXSDKInstance instance, WXDomObject node, WXVContainer parent) throws IllegalAccessException, InvocationTargetException, InstantiationException {
-            return new WXGCanvasLigntningComponent(instance, node, parent);
+        public WXComponent createInstance(WXSDKInstance instance, WXVContainer parent, BasicComponentData basicComponentData) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+            return new WXGCanvasLigntningComponent(instance, parent,basicComponentData);
         }
     }
 
     @Deprecated
-    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject dom, WXVContainer parent, String instanceId, boolean isLazy) {
-        this(instance, dom, parent, isLazy);
+    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXVContainer parent, int type, BasicComponentData basicComponentDat) {
+        super(instance, parent, type,basicComponentDat);
     }
 
-    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
-                                       WXVContainer parent, boolean lazy) {
-        super(instance, node, parent, lazy);
+    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXVContainer parent, BasicComponentData basicComponentData) {
+        super(instance, parent, basicComponentData);
 //        registerViewCreateListener(instance.getContext());
     }
 
+    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXVContainer parent, String instanceId, boolean isLazy, BasicComponentData basicComponentData){
+        super(instance, parent, instanceId, isLazy, basicComponentData);
+    }
 
 //    private void registerViewCreateListener(Context context) {
 ////        if (context instanceof FragmentActivity) {
@@ -101,11 +104,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 ////        }
 //    }
 
-    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
-                                       WXVContainer parent) {
-        super(instance, node, parent);
-//        registerViewCreateListener(instance.getContext());
-    }
+//    public WXGCanvasLigntningComponent(WXSDKInstance instance, WXDomObject node,
+//                                       WXVContainer parent) {
+//        super(instance, node, parent);
+////        registerViewCreateListener(instance.getContext());
+//    }
 
     @Override
     public void onActivityResume() {
