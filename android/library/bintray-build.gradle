@@ -75,7 +75,15 @@ dependencies {
     provided "com.taobao.android:phenix_compat:2.5.1"
     provided 'com.taobao.android.gcanvas:gcanvas_library:1.4.2.41@aar'
     provided 'com.taobao.android:weexplugin-annotation:1+'
-    provided "com.taobao.android:weex_sdk:0.11.2.17"
+    //provided "com.taobao.android:weex_sdk:0.11.2.17"
+    
+    provided "com.alibaba.android:aliweex:WeexCore-0.1.0-SNAPSHOT@aar"
+    provided "com.alibaba.android:aliweex-hc:WeexCore-0.1.0-SNAPSHOT@aar"
+//    provided "com.taobao.android:weex_sdk:WeexCore-0.1.0-SNAPSHOT@aar"
+    provided "com.taobao.android:weex_sdk:0.18.2.3-WeexCore-SNAPSHOT@aar"
+//    provided "com.taobao.android:taobao_weex_bundle:WeexCore-0.1.0-SNAPSHOT@aar"
+    provided "com.taobao.android:taobao_weex_adapter:WeexCore-0.1.0-SNAPSHOT@aar"
+}
 }
 
 
