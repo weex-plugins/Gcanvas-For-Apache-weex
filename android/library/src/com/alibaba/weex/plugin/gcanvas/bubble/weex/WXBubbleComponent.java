@@ -6,7 +6,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.weex.plugin.annotation.WeexComponent;
+//import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.alibaba.weex.plugin.gcanvas.bubble.BubbleContainer;
 import com.alibaba.weex.plugin.gcanvas.bubble.BubbleEventCenter;
 import com.taobao.weex.WXSDKInstance;
@@ -28,7 +28,7 @@ import java.util.HashMap;
  * @author ertong
  *         create at 2017/9/21
  */
-@WeexComponent(names = {"bubble"})
+//@WeexComponent(names = {"bubble"})
 public class WXBubbleComponent extends WXVContainer<BubbleContainer> {
 
     private static final String TAG = WXBubbleComponent.class.getSimpleName();

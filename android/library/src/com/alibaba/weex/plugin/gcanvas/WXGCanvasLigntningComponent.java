@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.view.Display;
 import android.view.TextureView;
 
-import com.alibaba.weex.plugin.annotation.WeexComponent;
+//import com.alibaba.weex.plugin.annotation.WeexComponent;
 import com.taobao.gcanvas.GCanvasJNI;
 import com.taobao.gcanvas.surface.GSurfaceView;
 import com.taobao.gcanvas.util.GLog;
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *         create at 2017/8/17
  */
 
-@WeexComponent(names = {"gcanvas"})
+//@WeexComponent(names = {"gcanvas"})
 @Component(lazyload = false)
     public class WXGCanvasLigntningComponent extends WXComponent<GWXSurfaceView> implements TextureView.SurfaceTextureListener{
     private GWXSurfaceView mSurfaceView;
