@@ -16,7 +16,7 @@ buildscript {
             exclude module: 'guava'
         }
         classpath 'com.google.guava:guava:17.0'
-        classpath("com.taobao.android:weexplugin-gradle-plugin:1+")
+        classpath("com.taobao.android:weexplugin-gradle-plugin:1.0.6")
     }
 }
 allprojects {
@@ -60,7 +60,6 @@ android {
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
             jniLibs.srcDir(['libs'])
         }
     }
@@ -76,12 +75,12 @@ dependencies {
     provided 'com.android.support:support-annotations:25.3.1'
     compile 'com.android.support:support-dynamic-animation:25.3.1@aar'
     
-    provided "com.alibaba.android:aliweex:WeexCore-0.1.0-SNAPSHOT@aar"
-    provided "com.alibaba.android:aliweex-hc:WeexCore-0.1.0-SNAPSHOT@aar"
-    provided "com.taobao.android:weex_sdk:WeexCore-0.1.0-SNAPSHOT@aar"
+    provided "com.alibaba.android:aliweex:0.0.9.93-WeexCore@aar"
+    provided "com.alibaba.android:aliweex-hc:0.0.9.84-WeexCore@aar"
+    provided "com.taobao.android:weex_sdk:0.18.0.8-WeexCore@aar"
 //    provided "com.taobao.android:weex_sdk:0.18.2.3-WeexCore-SNAPSHOT@aar"
 //    provided "com.taobao.android:taobao_weex_bundle:WeexCore-0.1.0-SNAPSHOT@aar"
-    provided "com.taobao.android:taobao_weex_adapter:WeexCore-0.1.0-SNAPSHOT@aar"
+    provided "com.taobao.android:taobao_weex_adapter:1.16.4.5-WeexCore@aar"
 }
 publishing {
     publications {
