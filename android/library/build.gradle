@@ -16,7 +16,7 @@ buildscript {
             exclude module: 'guava'
         }
         classpath 'com.google.guava:guava:17.0'
-        classpath("com.taobao.android:weexplugin-gradle-plugin:1+")
+        classpath("com.taobao.android:weexplugin-gradle-plugin:1.0.6")
     }
 }
 allprojects {
