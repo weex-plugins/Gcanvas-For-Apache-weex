@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         }
 
         if (backgroundColor.isEmpty()) {
-            backgroundColor = "rgba(0,0,0,0)";
+            backgroundColor = "transparent";
         }
         mSurfaceView.setBackgroundColor(backgroundColor);
 
