@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         String backgroundColor = this.getStyles().getBackgroundColor();
         mSurfaceView = new GWXSurfaceView(getContext(),this);
         if (Build.VERSION.SDK_INT >= 24) {
-                String libraryPath = getContext().getApplicationInfo().nativeLibraryDir + "/libweexjsc.so";
+                String libraryPath = getContext().getApplicationInfo().nativeLibraryDir + "/libweexcore.so";
                 GLog.w("start to load gcanvas library,path=" + libraryPath);
                 GCanvasJNI.registerCallback(libraryPath);
         } else {
